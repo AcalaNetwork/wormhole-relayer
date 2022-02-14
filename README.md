@@ -4,3 +4,5 @@ The relayer to pay gas fee and redeem token on Karura/Acala after user send toke
 ## Run
 - install deps: `yarn`
 - start dev server: `yarn start`
+- start server in background: `yarn build && yarn start:bg`
+- stop background server: `yarn stop:bg`
