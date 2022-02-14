@@ -1,9 +1,9 @@
 import {
   ChainId,
   // CHAIN_ID_Karura,    // TODO: import it when new sdk published
-} from "@certusone/wormhole-sdk";
-import { RelayerEnvironment, validateEnvironment } from "../configureEnv";
-import { relayEVM } from "./evm";
+} from '@certusone/wormhole-sdk';
+import { RelayerEnvironment, validateEnvironment } from '../configureEnv';
+import { relayEVM } from './evm';
 
 const CHAIN_ID_Karura = 9;    // TODO: remove it
 
@@ -19,12 +19,12 @@ function validateRequest(request: any, response: any) {
   const unwrapNative = request.body?.unwrapNative || false;
 
   if (!chainConfigInfo) {
-    response.status(400).json({ error: "Unsupported chainId" });
+    response.status(400).json({ error: 'Unsupported chainId' });
     return;
   }
   const signedVAA = request.body?.signedVAA;
   if (!signedVAA) {
-    response.status(400).json({ error: "signedVAA is required" });
+    response.status(400).json({ error: 'signedVAA is required' });
   }
 
   //TODO parse & validate VAA.
@@ -34,7 +34,7 @@ function validateRequest(request: any, response: any) {
 }
 
 export async function relay(request: any, response: any) {
-  console.log("Incoming request for relay: ", request.body);
+  console.log('Incoming request for relay: ', request.body);
   const { chainConfigInfo, chainId, signedVAA, unwrapNative } = validateRequest(
     request,
     response
@@ -55,8 +55,8 @@ export async function relay(request: any, response: any) {
       response.status(400).json({ error: `Improper chain ID: ${chainId}, expected ${CHAIN_ID_Karura} for Karura` });
     }
   } catch (e) {
-    console.log("Error while relaying");
+    console.log('Error while relaying');
     console.error(e);
-    response.status(500).json({ error: "Unable to relay this request." });
+    response.status(500).json({ error: 'Unable to relay this request.' });
   }
 }

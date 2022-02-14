@@ -5,9 +5,9 @@ import {
   parseTransferPayload,
   importCoreWasm,
   ChainId,
-} from "@certusone/wormhole-sdk";
-import { ethers } from "ethers";
-import { ChainConfigInfo } from "../configureEnv";
+} from '@certusone/wormhole-sdk';
+import { ethers } from 'ethers';
+import { ChainConfigInfo } from '../configureEnv';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
 
 interface VaaInfo {
@@ -70,6 +70,6 @@ export async function relayEVM(
     hexToUint8Array(signedVAA)
   );
 
-  console.log("successfully redeemed on evm", receipt);
+  console.log('successfully redeemed on evm', receipt);
   response.status(200).json(receipt);
 }

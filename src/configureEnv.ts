@@ -1,5 +1,6 @@
-import { ChainId } from "@certusone/wormhole-sdk";
-import { setDefaultWasm } from "@certusone/wormhole-sdk/lib/cjs/solana/wasm";
+import { ChainId } from '@certusone/wormhole-sdk';
+import { setDefaultWasm } from '@certusone/wormhole-sdk/lib/cjs/solana/wasm';
+import dotenv from 'dotenv';
 
 export type RelayerEnvironment = {
   supportedChains: ChainConfigInfo[];
@@ -15,8 +16,8 @@ export type ChainConfigInfo = {
 
 //Polygon is not supported on local Tilt network atm.
 export function validateEnvironment(): RelayerEnvironment {
-  setDefaultWasm("node");
-  require("dotenv").config({ path: ".env" });
+  setDefaultWasm('node');
+  dotenv.config({ path: '.env' });
   const supportedChains: ChainConfigInfo[] = [];
   supportedChains.push(configKarura());
 
@@ -25,15 +26,15 @@ export function validateEnvironment(): RelayerEnvironment {
 
 function configKarura(): ChainConfigInfo {
   if (!process.env.KARURA_NODE_URL) {
-    console.error("Missing environment variable KARURA_NODE_URL");
+    console.error('Missing environment variable KARURA_NODE_URL');
     process.exit(1);
   }
   if (!process.env.KARURA_PRIVATE_KEY) {
-    console.error("Missing environment variable KARURA_PRIVATE_KEY");
+    console.error('Missing environment variable KARURA_PRIVATE_KEY');
     process.exit(1);
   }
   if (!process.env.KARURA_TOKEN_BRIDGE_ADDRESS) {
-    console.error("Missing environment variable KARURA_TOKEN_BRIDGE_ADDRESS");
+    console.error('Missing environment variable KARURA_TOKEN_BRIDGE_ADDRESS');
     process.exit(1);
   }
 

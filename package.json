@@ -11,7 +11,7 @@
   "repository": "https://github.com/certusone/wormhole/tree/dev.v2/examples",
   "scripts": {
     "build": "tsc",
-    "start": "yarn build && node lib/index.js",
+    "start": "yarn build && node dist/index.js",
     "test": "jest --config jestconfig.json --verbose"
   },
   "devDependencies": {
