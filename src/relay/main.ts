@@ -5,7 +5,7 @@ import {
 import { RelayerEnvironment, validateEnvironment } from '../configureEnv';
 import { relayEVM } from './evm';
 
-const CHAIN_ID_Karura = 9;    // TODO: remove it
+const CHAIN_ID_Karura = 11;    // TODO: remove it
 
 const env: RelayerEnvironment = validateEnvironment();
 

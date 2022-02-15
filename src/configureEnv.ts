@@ -39,7 +39,7 @@ function configKarura(): ChainConfigInfo {
   }
 
   return {
-    chainId: 9 as any,    // TODO: remove any after importing new wormhole sdk
+    chainId: 11 as any,    // TODO: remove any after importing new wormhole sdk
     nodeUrl: process.env.KARURA_NODE_URL,
     walletPrivateKey: process.env.KARURA_PRIVATE_KEY,
     tokenBridgeAddress: process.env.KARURA_TOKEN_BRIDGE_ADDRESS,
