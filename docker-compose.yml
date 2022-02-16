@@ -1,0 +1,9 @@
+services:
+  relayer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: relayer
+    ports:
+      - 3111:3111
+    restart: always
