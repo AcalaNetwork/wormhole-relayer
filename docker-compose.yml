@@ -8,4 +8,4 @@ services:
       - 3111:3111
     restart: always
     environment:
-      - KARURA_ENDPOINT_URL: ws://157.245.62.53:9944
+      KARURA_ENDPOINT_URL: ws://157.245.62.53:9944
