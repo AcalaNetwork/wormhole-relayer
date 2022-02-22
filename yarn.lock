@@ -644,16 +644,13 @@
   resolved "https://registry.npmmirror.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@certusone/wormhole-sdk@^0.1.6":
-  version "0.1.6"
-  resolved "https://registry.npmmirror.com/@certusone/wormhole-sdk/-/wormhole-sdk-0.1.6.tgz"
-  integrity sha512-Q7EL7E8L7vjeoKK+g4mEqeC93/VGtdzPaW2p3ZEgZJJL4SymszIu8U+/TMUtUYPPbh7T/fE//5OgKw53USjX3w==
+"@certusone/wormhole-sdk@file:../wormhole/sdk/js":
+  version "0.2.1"
   dependencies:
     "@improbable-eng/grpc-web" "^0.14.0"
     "@solana/spl-token" "^0.1.8"
     "@solana/web3.js" "^1.24.0"
-    "@terra-money/terra.js" "^2.0.14"
-    "@terra-money/wallet-provider" "^2.2.0"
+    "@terra-money/terra.js" "^3.0.7"
     axios "^0.24.0"
     bech32 "^2.0.0"
     js-base64 "^3.6.1"
@@ -2284,6 +2281,25 @@
     tmp "^0.2.1"
     utf-8-validate "^5.0.5"
     ws "^7.4.2"
+
+"@terra-money/terra.js@^3.0.7":
+  version "3.0.7"
+  resolved "https://registry.npmmirror.com/@terra-money/terra.js/-/terra.js-3.0.7.tgz#9c413f16da3f54195ee8d7d3e113a8fc5107200b"
+  integrity sha512-moeVBWqIPZaV0HmCY127Y9H/MsuFtH1VgW0xEvDQWqu1jpKhK5CtPHMLKNje3mKSjU8A7vXZ8hlW3KobqP2poQ==
+  dependencies:
+    "@terra-money/terra.proto" "^0.1.7"
+    axios "^0.24.0"
+    bech32 "^2.0.0"
+    bip32 "^2.0.6"
+    bip39 "^3.0.3"
+    bufferutil "^4.0.3"
+    decimal.js "^10.2.1"
+    jscrypto "^1.0.1"
+    readable-stream "^3.6.0"
+    secp256k1 "^4.0.2"
+    tmp "^0.2.1"
+    utf-8-validate "^5.0.5"
+    ws "^7.5.5"
 
 "@terra-money/terra.proto@^0.1.7":
   version "0.1.7"
