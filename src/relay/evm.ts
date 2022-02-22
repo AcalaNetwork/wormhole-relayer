@@ -38,6 +38,7 @@ const shouldRelay = (vaaInfo: VaaInfo) => {
   return !!minTransfer && vaaInfo.amount > minTransfer;
 };
 
+const KARURA_ENDPOINT_URL = process.env.ENDPOINT_URL || 'ws://157.245.62.53:9944';
 export async function relayEVM(
   chainConfigInfo: ChainConfigInfo,
   signedVAA: string,
@@ -45,7 +46,6 @@ export async function relayEVM(
   request: any,
   response: any
 ) {
-  const KARURA_ENDPOINT_URL ='ws://188.166.208.240:9944';
   const provider = EvmRpcProvider.from(KARURA_ENDPOINT_URL);
   await provider.isReady();
 
