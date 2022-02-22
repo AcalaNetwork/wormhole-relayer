@@ -34,7 +34,6 @@ function validateRequest(request: any, response: any) {
 }
 
 export async function relay(request: any, response: any) {
-  console.log('Incoming request for relay: ', request.body);
   const { chainConfigInfo, chainId, signedVAA, unwrapNative } = validateRequest(
     request,
     response
