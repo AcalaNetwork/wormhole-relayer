@@ -12,7 +12,7 @@ const getChainConfigInfo = (chainId: ChainId) => {
 };
 
 const validateRequest = async (request: any, response: any) => {
-  const chainId = request.body?.chainId;
+  const chainId = request.body?.targetChain;
   const chainConfigInfo = getChainConfigInfo(chainId);
 
   if (!chainConfigInfo) {

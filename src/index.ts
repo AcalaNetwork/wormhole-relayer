@@ -1,8 +1,11 @@
 import cors from 'cors';
 import express from 'express';
 import bodyParser from 'body-parser';
-
+import dotenv from 'dotenv';
 import { relay, checkShouldRelay } from './relay/main';
+
+dotenv.config({ path: '.env' });
+const PORT = process.env.PORT || 3111;
 
 const startServer = () => {
   const app = express();
@@ -14,8 +17,8 @@ const startServer = () => {
   app.post('/relay', relay);
   app.get('/shouldRelay', checkShouldRelay);
 
-  app.listen(3111, () => {
-    console.log('Server running on port 3111');
+  app.listen(PORT, () => {
+    console.log(`relayer running on port ${PORT}`);
   });
 };
 

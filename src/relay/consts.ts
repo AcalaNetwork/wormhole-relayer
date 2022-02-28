@@ -9,7 +9,7 @@ export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = {
     '0x2d8be6bf0baa74e0a907016679cae9190e80dd0a': '100000000000000000',   // 0.1 ERC20
   },
   [CHAIN_ID_ACALA]: {
-    '0x12345': 10000,
+    '0x12345': '10000',
   },
 };
 

@@ -1,4 +1,4 @@
-import { ChainId } from '@certusone/wormhole-sdk';
+import { ChainId, CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
 import { setDefaultWasm } from '@certusone/wormhole-sdk/lib/cjs/solana/wasm';
 import dotenv from 'dotenv';
 
@@ -44,7 +44,7 @@ function configKarura(): ChainConfigInfo {
   }
 
   return {
-    chainId: 11 as any,    // TODO: remove any after importing new wormhole sdk
+    chainId: CHAIN_ID_KARURA,
     nodeUrl: process.env.KARURA_NODE_URL,
     substrateNodeUrl: process.env.KARURA_SUBSTRATE_NODE_URL,
     walletPrivateKey: process.env.KARURA_PRIVATE_KEY,

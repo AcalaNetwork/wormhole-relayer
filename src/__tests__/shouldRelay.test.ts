@@ -26,14 +26,14 @@ describe('/shouldRelay', () => {
     it('when missing params', async () => {
       let res = await checkShouldRelay({
         originTokenAddress: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
-        amount: 10000,
+        amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('missing targetChain');
   
       res = await checkShouldRelay({
         targetChain: 11,
-        amount: 10000,
+        amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('missing originTokenAddress');
@@ -50,7 +50,7 @@ describe('/shouldRelay', () => {
       let res = await checkShouldRelay({
         targetChain: 12345,
         originTokenAddress: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
-        amount: 10000,
+        amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('target chain not supported');
@@ -58,7 +58,7 @@ describe('/shouldRelay', () => {
       res = await checkShouldRelay({
         targetChain: 11,
         originTokenAddress: '0x111111111191d46ee29420539fc25f0000000000',
-        amount: 10000,
+        amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('token not supported');
@@ -68,7 +68,7 @@ describe('/shouldRelay', () => {
       res = await checkShouldRelay({
         targetChain,
         originTokenAddress,
-        amount: 10000,
+        amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal(`transfer amount too small, expect at least ${RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain][originTokenAddress]}`);

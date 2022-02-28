@@ -100,7 +100,7 @@ describe('/relay', () => {
       console.log({ signedVAA });
 
       const result = await axios.post(RELAYER_URL, {
-        chainId: CHAIN_ID_KARURA,
+        targetChain: CHAIN_ID_KARURA,
         signedVAA,
       });
 
@@ -118,7 +118,7 @@ describe('/relay', () => {
       let failed = false;
       try {
         await axios.post(RELAYER_URL, {
-          chainId: CHAIN_ID_KARURA,
+          targetChain: CHAIN_ID_KARURA,
           signedVAA,
         });
       } catch (e: AxiosError) {
@@ -137,7 +137,7 @@ describe('/relay', () => {
       let failed = false;
       try {
         await axios.post(RELAYER_URL, {
-          chainId: CHAIN_ID_KARURA,
+          targetChain: CHAIN_ID_KARURA,
           signedVAA,
         });
       } catch (e: AxiosError) {
