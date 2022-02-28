@@ -2,7 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import bodyParser from 'body-parser';
 
-import { relay } from './relay/main';
+import { relay, checkShouldRelay } from './relay/main';
 
 const startServer = () => {
   const app = express();
@@ -12,6 +12,7 @@ const startServer = () => {
   app.use(bodyParser.json());
 
   app.post('/relay', relay);
+  app.get('/shouldRelay', checkShouldRelay);
 
   app.listen(3111, () => {
     console.log('Server running on port 3111');

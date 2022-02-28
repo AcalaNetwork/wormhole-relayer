@@ -12,6 +12,7 @@
   "scripts": {
     "build": "tsc",
     "start": "yarn build && node dist/index.js",
+    "dev": "nodemon --watch \"*\" --ext \"js,ts,json\" --ignore \"src/**/*.{spec,test}.ts\" --exec \"ts-node src/index.ts\"",
     "test": "jest --config jestconfig.json --verbose"
   },
   "devDependencies": {
@@ -28,6 +29,7 @@
     "eslint": "^8.9.0",
     "ethers": "^5.4.4",
     "jest": "^27.3.1",
+    "nodemon": "^2.0.15",
     "prettier": "^2.3.2",
     "ts-jest": "^27.0.7",
     "tslint": "^6.1.3",

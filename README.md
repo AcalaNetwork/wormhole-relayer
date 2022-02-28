@@ -3,7 +3,7 @@ The relayer to pay gas fee and redeem token on Karura/Acala after user send toke
 
 ## Run Locally
 - install deps: `yarn`
-- start dev server: `yarn start`
+- start dev server: `yarn dev`
 
 ## Run with Docker
 docker-compose version: `docker-compose version 1.29.2, build 5becea4c`

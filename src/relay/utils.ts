@@ -22,6 +22,11 @@ interface VaaInfo {
   targetChain: ChainId;
 }
 
+interface ShouldRelayResult {
+  shouldRelay: boolean;
+  msg: string;
+} 
+
 const parseVaa = async (bytes: Uint8Array): Promise<VaaInfo> => {
   const { parse_vaa } = await importCoreWasm();
   const parsedVaa = parse_vaa(bytes);
@@ -54,24 +59,40 @@ const truncate = (str: string, maxDecimalDigits: number) => {
   return str;
 };
 
-const shouldRelay = (vaaInfo: VaaInfo) => {
+const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
   const {
-    targetChain: chainId,
     amount: vaaAmount,
+    targetChain,
     originAddress,
   } = vaaInfo;
   const address = `0x${originAddress.substring(originAddress.length - 40).toLowerCase()}`;
   const amount = normalizeVaaAmount(vaaAmount, TOKEN_DECIMALS[address]);
 
-  const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[chainId] as any;
-  if (!supported || !address || !amount) return false;
+  return shouldRelay({ targetChain, address, amount });
+};
+
+export const shouldRelay = ({
+  targetChain,
+  address,
+  amount,
+}: {
+  targetChain: number;
+  address: string;
+  amount: bigint;
+}): ShouldRelayResult => {
+  const _noRelay = (msg: string): ShouldRelayResult => ({ shouldRelay: false, msg });
+
+  if (!address) return _noRelay('missing origin token address');
+  if (!amount) return _noRelay('missing transfer amount');
+
+  const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain] as any;
+  if (!supported) return _noRelay('target chain not supported');
 
   const minTransfer = supported[address];
-  const res = !!minTransfer && amount >= BigInt(minTransfer);
+  if (!minTransfer) return _noRelay('token not supported');
+  if (amount < BigInt(minTransfer)) return _noRelay(`transfer amount too small, expect at least ${minTransfer}`);
 
-  console.log('check should relay: ', { chainId, address, amount, res });
-
-  return res;
+  return { shouldRelay: true, msg: '' };
 };
 
 const KARURA_ENDPOINT_URL = process.env.ENDPOINT_URL || 'ws://157.245.62.53:9944';
@@ -90,9 +111,10 @@ export async function relayEVM(
   const vaaInfo = await parseVaa(hexToUint8Array(signedVAA));
   console.log('parsed VAA info: ', vaaInfo);
 
-  if (!shouldRelay(vaaInfo)) {
+  const { shouldRelay: _shouldRelay, msg } = shouldRelayVaa(vaaInfo);
+  if (!_shouldRelay) {
     response.status(400).json({
-      error: 'asset not supported or transfer amount too small',
+      error: msg,
       vaaInfo: {
         ...vaaInfo,
         amount: vaaInfo.amount.toString(),

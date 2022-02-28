@@ -3,7 +3,7 @@ import {
   // CHAIN_ID_Karura,    // TODO: import it when new sdk published
 } from '@certusone/wormhole-sdk';
 import { RelayerEnvironment, validateEnvironment } from '../configureEnv';
-import { relayEVM } from './evm';
+import { relayEVM, shouldRelay } from './utils';
 
 const CHAIN_ID_Karura = 11;    // TODO: remove it
 
@@ -58,4 +58,11 @@ export async function relay(request: any, response: any) {
     console.error(e);
     response.status(500).json({ error: 'Unable to relay this request.' });
   }
+}
+
+export function checkShouldRelay(request: any, response: any) {
+  console.log(request.query);
+
+  const res = shouldRelay(request.query);
+  response.status(200).json(res);
 }
