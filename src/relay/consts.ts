@@ -1,12 +1,12 @@
-// TODO: import from wormhole sdk after it published
-const CHAIN_ID_KARURA = 11;
-const CHAIN_ID_ACALA = 12;
+import {
+  CHAIN_ID_KARURA,
+  CHAIN_ID_ACALA,
+} from '@certusone/wormhole-sdk';
 
-// TODO: repace with real value after we know the addresses
-// or async fetch it, like tokenMarkets
 export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = {
   [CHAIN_ID_KARURA]: {
-    '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e': '10000000000000000000',   // 10 WETH
+    '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e': '100000000000000000',   // 0.1 WETH
+    '0x2d8be6bf0baa74e0a907016679cae9190e80dd0a': '100000000000000000',   // 0.1 ERC20
   },
   [CHAIN_ID_ACALA]: {
     '0x12345': 10000,
@@ -15,4 +15,5 @@ export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = {
 
 export const TOKEN_DECIMALS = {
   '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e': 18,
+  '0x2d8be6bf0baa74e0a907016679cae9190e80dd0a': 18,
 };

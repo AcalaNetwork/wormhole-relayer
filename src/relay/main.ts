@@ -1,68 +1,74 @@
 import {
   ChainId,
-  // CHAIN_ID_Karura,    // TODO: import it when new sdk published
+  hexToUint8Array,
 } from '@certusone/wormhole-sdk';
 import { RelayerEnvironment, validateEnvironment } from '../configureEnv';
-import { relayEVM, shouldRelay } from './utils';
-
-const CHAIN_ID_Karura = 11;    // TODO: remove it
+import { relayEVM, shouldRelay, parseVaa, shouldRelayVaa } from './utils';
 
 const env: RelayerEnvironment = validateEnvironment();
 
-function getChainConfigInfo(chainId: ChainId) {
+const getChainConfigInfo = (chainId: ChainId) => {
   return env.supportedChains.find((x) => x.chainId === chainId);
-}
+};
 
-function validateRequest(request: any, response: any) {
+const validateRequest = async (request: any, response: any) => {
   const chainId = request.body?.chainId;
   const chainConfigInfo = getChainConfigInfo(chainId);
-  const unwrapNative = request.body?.unwrapNative || false;
 
   if (!chainConfigInfo) {
-    response.status(400).json({ error: 'Unsupported chainId' });
-    return;
+    return response.status(400).json({ error: 'Unsupported chainId' });
   }
   const signedVAA = request.body?.signedVAA;
   if (!signedVAA) {
-    response.status(400).json({ error: 'signedVAA is required' });
+    return response.status(400).json({ error: 'signedVAA is required' });
   }
 
   //TODO parse & validate VAA.
-  //TODO accept redeem native parameter
+  const vaaInfo = await parseVaa(hexToUint8Array(signedVAA));
+  console.log('parsed VAA info: ', vaaInfo);
 
-  return { chainConfigInfo, chainId, signedVAA, unwrapNative };
-}
+  const { shouldRelay: _shouldRelay, msg } = shouldRelayVaa(vaaInfo);
+  if (!_shouldRelay) {
+    return response.status(400).json({
+      error: msg,
+      vaaInfo: {
+        ...vaaInfo,
+        amount: vaaInfo.amount.toString(),
+      },
+    });
+  }
+
+  return { chainConfigInfo, chainId, signedVAA };
+};
 
 export async function relay(request: any, response: any) {
-  const { chainConfigInfo, chainId, signedVAA, unwrapNative } = validateRequest(
-    request,
-    response
-  );
+  const {
+    chainConfigInfo,
+    chainId,
+    signedVAA,
+  } = await validateRequest(request, response);
 
-  console.log('relaying: ', { chainConfigInfo, chainId, signedVAA, unwrapNative });
+  if (!chainConfigInfo) return;
+
+  console.log('relaying: ', { chainConfigInfo, chainId, signedVAA });
 
   try {
-    if (chainId === CHAIN_ID_Karura) {
-      await relayEVM(
-        chainConfigInfo,
-        signedVAA,
-        unwrapNative,
-        request,
-        response
-      );
-    } else {
-      response.status(400).json({ error: `Improper chain ID: ${chainId}, expected ${CHAIN_ID_Karura} for Karura` });
-    }
+    await relayEVM(
+      chainConfigInfo,
+      signedVAA,
+      request,
+      response
+    );
   } catch (e) {
     console.log('Error while relaying');
     console.error(e);
-    response.status(500).json({ error: 'Unable to relay this request.' });
+    return response.status(500).json({ error: e, msg: 'Unable to relay this request.' });
   }
 }
 
 export function checkShouldRelay(request: any, response: any) {
-  console.log(request.query);
-
   const res = shouldRelay(request.query);
+
+  console.log('checkShouldRelay:', request.query, res.shouldRelay);
   response.status(200).json(res);
 }

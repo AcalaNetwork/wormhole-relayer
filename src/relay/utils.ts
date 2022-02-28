@@ -21,19 +21,10 @@ interface VaaInfo {
   targetAddress: string;
   targetChain: ChainId;
 }
-
 interface ShouldRelayResult {
   shouldRelay: boolean;
   msg: string;
 } 
-
-const parseVaa = async (bytes: Uint8Array): Promise<VaaInfo> => {
-  const { parse_vaa } = await importCoreWasm();
-  const parsedVaa = parse_vaa(bytes);
-  const buffered = Buffer.from(new Uint8Array(parsedVaa.payload));
-
-  return parseTransferPayload(buffered);
-};
 
 // https://github.com/certusone/wormhole/blob/77ecc035a3e2dd7d6c86fb0ecedda5e1dbc66cda/sdk/js/src/utils/parseVaa.ts#L61
 const normalizeVaaAmount = (
@@ -58,69 +49,66 @@ const truncate = (str: string, maxDecimalDigits: number) => {
   }
   return str;
 };
+// ----------------------------------------------------------------------------------------------------------------------
 
-const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
+export const parseVaa = async (bytes: Uint8Array): Promise<VaaInfo> => {
+  const { parse_vaa } = await importCoreWasm();
+  const parsedVaa = parse_vaa(bytes);
+  const buffered = Buffer.from(new Uint8Array(parsedVaa.payload));
+
+  return parseTransferPayload(buffered);
+};
+
+export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
   const {
     amount: vaaAmount,
     targetChain,
     originAddress,
   } = vaaInfo;
-  const address = `0x${originAddress.substring(originAddress.length - 40).toLowerCase()}`;
-  const amount = normalizeVaaAmount(vaaAmount, TOKEN_DECIMALS[address]);
+  const originTokenAddress = `0x${originAddress.substring(originAddress.length - 40).toLowerCase()}`;
+  const amount = normalizeVaaAmount(vaaAmount, TOKEN_DECIMALS[originTokenAddress]);
 
-  return shouldRelay({ targetChain, address, amount });
+  const res = shouldRelay({ targetChain, originTokenAddress, amount });
+
+  console.log('should relay: ', { targetChain, originTokenAddress, amount, res });
+  return res;
 };
 
 export const shouldRelay = ({
   targetChain,
-  address,
+  originTokenAddress,
   amount,
 }: {
   targetChain: number;
-  address: string;
+  originTokenAddress: string;
   amount: bigint;
 }): ShouldRelayResult => {
   const _noRelay = (msg: string): ShouldRelayResult => ({ shouldRelay: false, msg });
 
-  if (!address) return _noRelay('missing origin token address');
+  if (!targetChain) return _noRelay('missing targetChain');
+  if (!originTokenAddress) return _noRelay('missing originTokenAddress');
   if (!amount) return _noRelay('missing transfer amount');
 
   const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain] as any;
   if (!supported) return _noRelay('target chain not supported');
 
-  const minTransfer = supported[address];
+  const minTransfer = supported[originTokenAddress];
   if (!minTransfer) return _noRelay('token not supported');
   if (amount < BigInt(minTransfer)) return _noRelay(`transfer amount too small, expect at least ${minTransfer}`);
 
   return { shouldRelay: true, msg: '' };
 };
 
-const KARURA_ENDPOINT_URL = process.env.ENDPOINT_URL || 'ws://157.245.62.53:9944';
-export async function relayEVM(
+export const relayEVM = async (
   chainConfigInfo: ChainConfigInfo,
   signedVAA: string,
-  unwrapNative: boolean,
   request: any,
   response: any
-) {
-  const provider = EvmRpcProvider.from(KARURA_ENDPOINT_URL);
+) => {
+  const provider = EvmRpcProvider.from(chainConfigInfo.substrateNodeUrl);
   await provider.isReady();
 
   const signer = new ethers.Wallet(chainConfigInfo.walletPrivateKey, provider);
-
-  const vaaInfo = await parseVaa(hexToUint8Array(signedVAA));
-  console.log('parsed VAA info: ', vaaInfo);
-
-  const { shouldRelay: _shouldRelay, msg } = shouldRelayVaa(vaaInfo);
-  if (!_shouldRelay) {
-    response.status(400).json({
-      error: msg,
-      vaaInfo: {
-        ...vaaInfo,
-        amount: vaaInfo.amount.toString(),
-      },
-    });
-  }
 
   const receipt = await redeemOnEth(
     chainConfigInfo.tokenBridgeAddress,
@@ -130,4 +118,4 @@ export async function relayEVM(
 
   console.log('successfully redeemed on evm', receipt);
   response.status(200).json(receipt);
-}
+};

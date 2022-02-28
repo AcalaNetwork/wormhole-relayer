@@ -9,6 +9,7 @@ export type RelayerEnvironment = {
 export type ChainConfigInfo = {
   chainId: ChainId;
   nodeUrl: string;
+  substrateNodeUrl: string,
   tokenBridgeAddress: string;
   bridgeAddress?: string;
   walletPrivateKey: string;
@@ -29,6 +30,10 @@ function configKarura(): ChainConfigInfo {
     console.error('Missing environment variable KARURA_NODE_URL');
     process.exit(1);
   }
+  if (!process.env.KARURA_SUBSTRATE_NODE_URL) {
+    console.error('Missing environment variable KARURA_NODE_URL');
+    process.exit(1);
+  }
   if (!process.env.KARURA_PRIVATE_KEY) {
     console.error('Missing environment variable KARURA_PRIVATE_KEY');
     process.exit(1);
@@ -41,6 +46,7 @@ function configKarura(): ChainConfigInfo {
   return {
     chainId: 11 as any,    // TODO: remove any after importing new wormhole sdk
     nodeUrl: process.env.KARURA_NODE_URL,
+    substrateNodeUrl: process.env.KARURA_SUBSTRATE_NODE_URL,
     walletPrivateKey: process.env.KARURA_PRIVATE_KEY,
     tokenBridgeAddress: process.env.KARURA_TOKEN_BRIDGE_ADDRESS,
   };
