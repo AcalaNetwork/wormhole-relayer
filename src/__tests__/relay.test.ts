@@ -28,6 +28,7 @@ const BSC_TOKEN_BRIDGE_ADDRESS =
 
 const WBSC_ADDRESS = '0xDDb64fE46a91D46ee29420539FC25FD07c5FEa3E';
 const ERC20_ADDRESS = '0x2D8BE6BF0baA74e0A907016679CaE9190e80dD0A';
+const NOT_SUPPORTED_ADDRESS = '';
 
 const WORMHOLE_RPC_HOSTS = ['http://157.245.62.53:7071'];
 const RELAYER_URL = 'http://localhost:3111/relay';
@@ -92,40 +93,60 @@ const transferFromBSCToKarura = async (amount: string, originTokenAddress: strin
   return signedVAA;
 };
 
+describe('/relay', () => {
+  describe('Send ERC20 from BSC to Karura', () => {
+    it('relay correctly when should relay', async () => {
+      const signedVAA = await transferFromBSCToKarura('1.5', ERC20_ADDRESS);
+      console.log({ signedVAA });
 
-describe('Send ERC20 from BSC to Karura', () => {
-  it('relay correctly when should relay', async () => {
-    const signedVAA = await transferFromBSCToKarura('1.5', ERC20_ADDRESS);
-    console.log({ signedVAA });
-
-    const result = await axios.post(RELAYER_URL, {
-      chainId: CHAIN_ID_KARURA,
-      signedVAA,
-    });
-
-    expect(result.data).to.includes({
-      from: EVM_WHALE_ADDRESS,
-      to: BSC_TOKEN_BRIDGE_ADDRESS,
-      status: 1,
-    });
-  });
-
-  it('throw correct error when should not transfer', async () => {
-    const signedVAA = await transferFromBSCToKarura('0.01', ERC20_ADDRESS);
-    console.log({ signedVAA });
-
-    let failed = false;
-    try {
-      await axios.post(RELAYER_URL, {
+      const result = await axios.post(RELAYER_URL, {
         chainId: CHAIN_ID_KARURA,
         signedVAA,
-      });      
-    } catch (e: AxiosError) {
-      failed = true;
-      expect(e.response.status).to.equal(400);
-      expect(e.response.data.error).to.includes('transfer amount too small');
-    }
+      });
 
-    expect(failed).to.equal(true);
+      expect(result.data).to.includes({
+        from: EVM_WHALE_ADDRESS,
+        to: BSC_TOKEN_BRIDGE_ADDRESS,
+        status: 1,
+      });
+    });
+
+    it('throw correct error when transfer amount too small', async () => {
+      const signedVAA = await transferFromBSCToKarura('0.01', ERC20_ADDRESS);
+      console.log({ signedVAA });
+
+      let failed = false;
+      try {
+        await axios.post(RELAYER_URL, {
+          chainId: CHAIN_ID_KARURA,
+          signedVAA,
+        });
+      } catch (e: AxiosError) {
+        failed = true;
+        expect(e.response.status).to.equal(400);
+        expect(e.response.data.error).to.includes('transfer amount too small');
+      }
+
+      expect(failed).to.equal(true);
+    });
+
+    it.skip('throw correct error when token not supported', async () => {
+      const signedVAA = await transferFromBSCToKarura('10', NOT_SUPPORTED_ADDRESS);
+      console.log({ signedVAA });
+
+      let failed = false;
+      try {
+        await axios.post(RELAYER_URL, {
+          chainId: CHAIN_ID_KARURA,
+          signedVAA,
+        });
+      } catch (e: AxiosError) {
+        failed = true;
+        expect(e.response.status).to.equal(400);
+        expect(e.response.data.error).to.includes('token not supported');
+      }
+
+      expect(failed).to.equal(true);
+    });
   });
 });

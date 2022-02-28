@@ -75,11 +75,3 @@ describe('/shouldRelay', () => {
     });
   });
 });
-
-describe('/relay', () => {
-  const checkShouldRelay = (data: any) => axios.post('http://localhost:3111/relay', { data });
-
-  it.skip('when should relay', async () => {
-  });
-
-});
