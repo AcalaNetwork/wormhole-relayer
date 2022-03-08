@@ -562,8 +562,10 @@
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
 
-"@certusone/wormhole-sdk@file:../wormhole/sdk/js":
+"@certusone/wormhole-sdk@~0.2.1":
   version "0.2.1"
+  resolved "https://registry.npmmirror.com/@certusone/wormhole-sdk/-/wormhole-sdk-0.2.1.tgz#123138834d626a7bbb8349f89247e906b1ed1217"
+  integrity sha512-L85tiUHwnH4nbUEDgQtS2hNm3Q0IsUP29Z/DGbN2zggdvR0KTC6nLQ+LufCM6IcdUQYpYuwXjOYKD1Et8qc0mw==
   dependencies:
     "@improbable-eng/grpc-web" "^0.14.0"
     "@solana/spl-token" "^0.1.8"
