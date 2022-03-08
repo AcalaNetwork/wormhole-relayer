@@ -14,7 +14,7 @@ import { setDefaultWasm } from '@certusone/wormhole-sdk/lib/cjs/solana/wasm';
 import { parseUnits } from '@ethersproject/units';
 import { ethers } from 'ethers';
 import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { expect } from 'chai';
 
 const BSC_NODE_URL = 'ws://157.245.62.53:8546';
@@ -26,11 +26,11 @@ const BSC_CORE_BRIDGE_ADDRESS =
 const BSC_TOKEN_BRIDGE_ADDRESS =
   '0x0290FB167208Af455bB137780163b7B7a9a10C16';
 
-const WBSC_ADDRESS = '0xDDb64fE46a91D46ee29420539FC25FD07c5FEa3E';
+// const WBSC_ADDRESS = '0xDDb64fE46a91D46ee29420539FC25FD07c5FEa3E';
 const ERC20_ADDRESS = '0x2D8BE6BF0baA74e0A907016679CaE9190e80dD0A';
 const NOT_SUPPORTED_ADDRESS = '';
 
-const WORMHOLE_RPC_HOSTS = ['http://157.245.62.53:7071'];
+const WORMHOLE_GUARDIAN_RPC = ['http://157.245.62.53:7071'];
 const RELAYER_URL = 'http://localhost:3111/relay';
 
 setDefaultWasm('node');
@@ -80,7 +80,7 @@ const transferFromBSCToKarura = async (amount: string, originTokenAddress: strin
   // poll until the guardian(s) witness and sign the vaa
   const emitterAddress = await getEmitterAddressEth(BSC_TOKEN_BRIDGE_ADDRESS);
   const { vaaBytes } = await getSignedVAAWithRetry(
-    WORMHOLE_RPC_HOSTS,
+    WORMHOLE_GUARDIAN_RPC,
     CHAIN_ID_BSC,
     emitterAddress,
     sequence,

@@ -21,6 +21,7 @@ export function validateEnvironment(): RelayerEnvironment {
   dotenv.config({ path: '.env' });
   const supportedChains: ChainConfigInfo[] = [];
   supportedChains.push(configKarura());
+  supportedChains.push(configAcala());
 
   return { supportedChains };
 }
@@ -49,5 +50,32 @@ function configKarura(): ChainConfigInfo {
     substrateNodeUrl: process.env.KARURA_SUBSTRATE_NODE_URL,
     walletPrivateKey: process.env.KARURA_PRIVATE_KEY,
     tokenBridgeAddress: process.env.KARURA_TOKEN_BRIDGE_ADDRESS,
+  };
+}
+
+function configAcala(): ChainConfigInfo {
+  if (!process.env.ACALA_NODE_URL) {
+    console.error('Missing environment variable ACALA_NODE_URL');
+    process.exit(1);
+  }
+  if (!process.env.ACALA_SUBSTRATE_NODE_URL) {
+    console.error('Missing environment variable ACALA_NODE_URL');
+    process.exit(1);
+  }
+  if (!process.env.ACALA_PRIVATE_KEY) {
+    console.error('Missing environment variable ACALA_PRIVATE_KEY');
+    process.exit(1);
+  }
+  if (!process.env.ACALA_TOKEN_BRIDGE_ADDRESS) {
+    console.error('Missing environment variable ACALA_TOKEN_BRIDGE_ADDRESS');
+    process.exit(1);
+  }
+
+  return {
+    chainId: CHAIN_ID_ACALA,
+    nodeUrl: process.env.ACALA_NODE_URL,
+    substrateNodeUrl: process.env.ACALA_SUBSTRATE_NODE_URL,
+    walletPrivateKey: process.env.ACALA_PRIVATE_KEY,
+    tokenBridgeAddress: process.env.ACALA_TOKEN_BRIDGE_ADDRESS,
   };
 }
