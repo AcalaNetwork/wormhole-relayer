@@ -115,10 +115,10 @@ export const relayEVM = async (
     signer,
     hexToUint8Array(signedVAA),
     // TODO: eth_getEthGas or drop for the best
-    {
-      'gasPrice': '0x2f955803ea',
-      'gasLimit': '0x6fc3540'
-    }
+    // {
+    //   'gasPrice': '0x2f955803ea',
+    //   'gasLimit': '0x6fc3540'
+    // }
   );
 
   console.log('successfully redeemed on evm', receipt);
