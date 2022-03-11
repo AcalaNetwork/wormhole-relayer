@@ -13,7 +13,9 @@
     "build": "tsc",
     "start": "yarn build && node dist/index.js",
     "dev": "nodemon --watch \"*\" --ext \"js,ts,json\" --ignore \"src/**/*.{spec,test}.ts\" --exec \"ts-node src/index.ts\"",
-    "test": "mocha src/__tests__/*.test.ts --timeout 200000"
+    "test": "mocha src/__tests__/*.test.ts --timeout 200000",
+    "test:relay": "mocha src/__tests__/relay.test.ts --timeout 300000",
+    "test:shouldRelay": "mocha src/__tests__/shouldRelay.test.ts --timeout 300000"
   },
   "devDependencies": {
     "@improbable-eng/grpc-web-node-http-transport": "^0.15.0",
@@ -40,8 +42,8 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "@acala-network/eth-providers": "^2.2.3",
     "@certusone/wormhole-sdk": "~0.2.1",
-    "@acala-network/eth-providers": "~2.1.13",
     "@improbable-eng/grpc-web": "^0.14.0",
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.24.0",

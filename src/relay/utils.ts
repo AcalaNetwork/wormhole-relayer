@@ -26,7 +26,7 @@ interface ShouldRelayResult {
   msg: string;
 } 
 
-// https://github.com/certusone/wormhole/blob/77ecc035a3e2dd7d6c86fb0ecedda5e1dbc66cda/sdk/js/src/utils/parseVaa.ts#L61
+/* https://github.com/certusone/wormhole/blob/77ecc035a3e2dd7d6c86fb0ecedda5e1dbc66cda/sdk/js/src/utils/parseVaa.ts#L61 */
 const normalizeVaaAmount = (
   amount: bigint,
   assetDecimals: number
@@ -49,7 +49,7 @@ const truncate = (str: string, maxDecimalDigits: number) => {
   }
   return str;
 };
-// ----------------------------------------------------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------------------------------------------------- */
 
 export const parseVaa = async (bytes: Uint8Array): Promise<VaaInfo> => {
   const { parse_vaa } = await importCoreWasm();
@@ -113,7 +113,12 @@ export const relayEVM = async (
   const receipt = await redeemOnEth(
     chainConfigInfo.tokenBridgeAddress,
     signer,
-    hexToUint8Array(signedVAA)
+    hexToUint8Array(signedVAA),
+    // TODO: eth_getEthGas or drop for the best
+    // {
+    //   'gasPrice': '0x2f955803ea',
+    //   'gasLimit': '0x6fc3540'
+    // }
   );
 
   console.log('successfully redeemed on evm', receipt);

@@ -6,4 +6,7 @@ services:
       target: relayer
     ports:
       - 3111:3111
+      # - 3112:3112
+    environment:
+      - PORT=3111
     restart: always

@@ -62,9 +62,10 @@ describe('/shouldRelay', () => {
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('token not supported');
-  
+      
+      const USDT_BSC = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd';
       const targetChain = 11;
-      const originTokenAddress = '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e';
+      const originTokenAddress = USDT_BSC;
       res = await checkShouldRelay({
         targetChain,
         originTokenAddress,

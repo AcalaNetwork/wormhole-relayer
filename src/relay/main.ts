@@ -18,6 +18,7 @@ const validateRequest = async (request: any, response: any) => {
   if (!chainConfigInfo) {
     return response.status(400).json({ error: 'Unsupported chainId' });
   }
+
   const signedVAA = request.body?.signedVAA;
   if (!signedVAA) {
     return response.status(400).json({ error: 'signedVAA is required' });
@@ -59,8 +60,18 @@ export async function relay(request: any, response: any) {
       request,
       response
     );
+
+    console.log(`
+      -----------------------------
+      ----- Relay Succeed 🎉🎉 -----
+      -----------------------------
+    `);
   } catch (e) {
-    console.log('Error while relaying');
+    console.log(`
+      ---------------------------
+      ----- Relay Failed ❌ -----
+      ---------------------------
+    `);
     console.error(e);
     return response.status(500).json({ error: e, msg: 'Unable to relay this request.' });
   }
