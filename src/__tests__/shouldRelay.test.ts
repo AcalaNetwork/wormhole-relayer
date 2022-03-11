@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { expect } from 'chai';
 import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../relay/consts';
+import { SHOULD_RELAY_URL } from './consts';
 
 describe('/shouldRelay', () => {
-  const checkShouldRelay = (params: any) => axios.get('http://localhost:3111/shouldRelay', { params });
+  const checkShouldRelay = (params: any) => axios.get(SHOULD_RELAY_URL, { params });
 
   it('when should relay', async () => {
     for (const targetChain in RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS) {

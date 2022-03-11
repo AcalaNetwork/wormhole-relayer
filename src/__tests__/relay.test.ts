@@ -16,28 +16,18 @@ import { ethers } from 'ethers';
 import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
 import axios from 'axios';
 import { expect } from 'chai';
-
-// const BSC_NODE_URL = 'ws://157.245.62.53:8546';
-// const BSC_PRIVATE_KEY = '0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d';
-// const RELAYER_WALLET_ADDRESS = '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1';
-// const BSC_CORE_BRIDGE_ADDRESS ='0xC89Ce4735882C9F0f0FE26686c53074E09B0D550';
-// const BSC_TOKEN_BRIDGE_ADDRESS = '0x0290FB167208Af455bB137780163b7B7a9a10C16';
-
-const BSC_NODE_URL = 'https://data-seed-prebsc-1-s1.binance.org:8545/';
-const BSC_PRIVATE_KEY = '0xefb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044';
-const RELAYER_WALLET_ADDRESS = '0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3';
-const BSC_CORE_BRIDGE_ADDRESS = '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D';
-const BSC_TOKEN_BRIDGE_ADDRESS = '0x9dcF9D205C9De35334D646BeE44b2D2859712A09';
-const KARURA_TOKEN_BRIDGE_ADDRESS = '0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37';
-
-// const WBSC_ADDRESS = '0xDDb64fE46a91D46ee29420539FC25FD07c5FEa3E';
-// const ERC20_ADDRESS = '0x2D8BE6BF0baA74e0A907016679CaE9190e80dD0A';
-const ERC20_ADDRESS = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd';     // BSC USDT
-const NOT_SUPPORTED_ADDRESS = '';
-
-// const WORMHOLE_GUARDIAN_RPC = ['http://157.245.62.53:7071'];
-const WORMHOLE_GUARDIAN_RPC = ['https://wormhole-v2-testnet-api.certus.one'];
-const RELAYER_URL = 'http://localhost:3111/relay';
+import {
+  RELAY_URL,
+  RELAYER_WALLET_ADDRESS,
+  WORMHOLE_GUARDIAN_RPC,
+  BSC_NODE_URL,
+  BSC_PRIVATE_KEY,
+  BSC_CORE_BRIDGE_ADDRESS,
+  BSC_TOKEN_BRIDGE_ADDRESS,
+  KARURA_TOKEN_BRIDGE_ADDRESS,
+  ERC20_ADDRESS,
+  NOT_SUPPORTED_ADDRESS,
+} from './consts';
 
 setDefaultWasm('node');
 
@@ -107,7 +97,7 @@ describe('/relay', () => {
       const signedVAA = await transferFromBSCToKarura('0.01', ERC20_ADDRESS);
       console.log({ signedVAA });
 
-      const result = await axios.post(RELAYER_URL, {
+      const result = await axios.post(RELAY_URL, {
         targetChain: CHAIN_ID_KARURA,
         signedVAA,
       });
@@ -125,7 +115,7 @@ describe('/relay', () => {
 
       let failed = false;
       try {
-        await axios.post(RELAYER_URL, {
+        await axios.post(RELAY_URL, {
           targetChain: CHAIN_ID_KARURA,
           signedVAA,
         });
@@ -144,7 +134,7 @@ describe('/relay', () => {
 
       let failed = false;
       try {
-        await axios.post(RELAYER_URL, {
+        await axios.post(RELAY_URL, {
           targetChain: CHAIN_ID_KARURA,
           signedVAA,
         });

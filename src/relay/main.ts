@@ -24,7 +24,7 @@ const validateRequest = async (request: any, response: any) => {
     return response.status(400).json({ error: 'signedVAA is required' });
   }
 
-  //TODO parse & validate VAA.
+  // parse & validate VAA, make sure we want to relay this request
   const vaaInfo = await parseVaa(hexToUint8Array(signedVAA));
   console.log('parsed VAA info: ', vaaInfo);
 
@@ -62,15 +62,15 @@ export async function relay(request: any, response: any) {
     );
 
     console.log(`
-      -----------------------------
-      ----- Relay Succeed 🎉🎉 -----
-      -----------------------------
+      ---------------------------------------
+      ---------- Relay Succeed 🎉🎉 ----------
+      ----------------------------------
     `);
   } catch (e) {
     console.log(`
-      ---------------------------
-      ----- Relay Failed ❌ -----
-      ---------------------------
+      -------------------------------------
+      ---------- Relay Failed ❌ ----------
+      -------------------------------------
     `);
     console.error(e);
     return response.status(500).json({ error: e, msg: 'Unable to relay this request.' });
