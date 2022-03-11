@@ -60,8 +60,18 @@ export async function relay(request: any, response: any) {
       request,
       response
     );
+
+    console.log(`
+      -----------------------------
+      ----- Relay Succeed 🎉🎉 -----
+      -----------------------------
+    `);
   } catch (e) {
-    console.log('Error while relaying');
+    console.log(`
+      ---------------------------
+      ----- Relay Failed ❌ -----
+      ---------------------------
+    `);
     console.error(e);
     return response.status(500).json({ error: e, msg: 'Unable to relay this request.' });
   }

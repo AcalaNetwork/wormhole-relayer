@@ -1,4 +1,4 @@
-import { ChainId, CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
+import { ChainId, CHAIN_ID_KARURA, CHAIN_ID_ACALA } from '@certusone/wormhole-sdk';
 import { setDefaultWasm } from '@certusone/wormhole-sdk/lib/cjs/solana/wasm';
 import dotenv from 'dotenv';
 

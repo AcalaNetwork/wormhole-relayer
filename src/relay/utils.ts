@@ -113,7 +113,12 @@ export const relayEVM = async (
   const receipt = await redeemOnEth(
     chainConfigInfo.tokenBridgeAddress,
     signer,
-    hexToUint8Array(signedVAA)
+    hexToUint8Array(signedVAA),
+    // TODO: eth_getEthGas or drop for the best
+    {
+      'gasPrice': '0x2f955803ea',
+      'gasLimit': '0x6fc3540'
+    }
   );
 
   console.log('successfully redeemed on evm', receipt);

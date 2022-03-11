@@ -24,13 +24,13 @@
     "@polkadot/api" "^7.1.1"
     "@polkadot/rpc-core" "^7.1.1"
 
-"@acala-network/eth-providers@~2.1.13":
-  version "2.1.13"
-  resolved "https://registry.npmmirror.com/@acala-network/eth-providers/-/eth-providers-2.1.13.tgz"
-  integrity sha512-QiCBOux4bXytQFSQn8PqDTONMXPBLpyuUUrtLIsjB5Rs4rqPmDT2JoJQSd1IfFqpWLRucT3ueBHjuPZMpc9Udw==
+"@acala-network/eth-providers@^2.2.3":
+  version "2.2.3"
+  resolved "https://registry.npmmirror.com/@acala-network/eth-providers/-/eth-providers-2.2.3.tgz#e57a8f53677b9967a15983afb40328d7e7f2ce8a"
+  integrity sha512-T2eqrB2Ni69k2/JuHZa5mWNl4p35dh2v89h7lCszcUfpxW20jM/E3ApllBL4dtux6BK6ANthwKlrsH9L0ktYAg==
   dependencies:
     "@acala-network/api" "~3.0.3-3"
-    "@acala-network/eth-transactions" "2.1.13"
+    "@acala-network/eth-transactions" "2.2.3"
     "@acala-network/types" "~3.0.3-3"
     "@ethersproject/abstract-provider" "~5.5.0"
     "@ethersproject/bignumber" "~5.5.0"
@@ -52,10 +52,10 @@
     graphql "~16.0.1"
     graphql-request "~3.6.1"
 
-"@acala-network/eth-transactions@2.1.13":
-  version "2.1.13"
-  resolved "https://registry.npmmirror.com/@acala-network/eth-transactions/-/eth-transactions-2.1.13.tgz"
-  integrity sha512-/npsIjaqR5so0dPsNsmSi4ut91hZWfZaV5zh4wkDcIqwmMfN/ZyVr++bJZG0wKsdYKpOX345KQrZHrd9cQZQ/A==
+"@acala-network/eth-transactions@2.2.3":
+  version "2.2.3"
+  resolved "https://registry.npmmirror.com/@acala-network/eth-transactions/-/eth-transactions-2.2.3.tgz#7bc059944391748a81ceb0b2cb185aa3b188d717"
+  integrity sha512-hIJij67Jz4vgOGHI/7PWGD1fK8pA44ECv5g2wiGVJA3laKhKaYhkSuOMzqy+c3BYmqBEwuXq6AZPsICK5zFD7g==
   dependencies:
     "@ethersproject/address" "~5.5.0"
     "@ethersproject/bignumber" "~5.5.0"
