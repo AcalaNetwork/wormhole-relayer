@@ -16,7 +16,7 @@ const validateRequest = async (request: any, response: any) => {
   const chainConfigInfo = getChainConfigInfo(chainId);
 
   if (!chainConfigInfo) {
-    return response.status(400).json({ error: 'Unsupported chainId' });
+    return response.status(400).json({ error: 'Unsupported chainId', chainId });
   }
 
   const signedVAA = request.body?.signedVAA;

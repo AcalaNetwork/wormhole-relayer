@@ -36,6 +36,8 @@ describe('/shouldRelay', () => {
   });
 
   describe('when should not relay', () => {
+    const USDT_BSC = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd';
+
     it('when missing params', async () => {
       let res = await checkShouldRelay({
         sourceAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
@@ -76,7 +78,6 @@ describe('/shouldRelay', () => {
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('token not supported');
       
-      const USDT_BSC = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd';
       const targetChain = 11;
       const sourceAsset = USDT_BSC;
       res = await checkShouldRelay({
@@ -86,6 +87,16 @@ describe('/shouldRelay', () => {
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal(`transfer amount too small, expect at least ${RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain][sourceAsset]}`);
+    });
+
+    it('when amount is not number', async () => {
+      const res = await checkShouldRelay({
+        targetChain: 11,
+        sourceAsset: USDT_BSC,
+        amount: '{"type":"BigNumber","hex":"0xe8d4a51000"}',
+      });
+      expect(res.data.shouldRelay).to.equal(false);
+      expect(res.data.msg).to.contain('failed to parse amount');
     });
   });
 });

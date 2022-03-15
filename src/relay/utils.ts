@@ -5,7 +5,7 @@ import {
   importCoreWasm,
   ChainId,
 } from '@certusone/wormhole-sdk';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { ChainConfigInfo } from '../configureEnv';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
@@ -77,7 +77,7 @@ export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
 export const shouldRelay = ({
   targetChain,
   sourceAsset,
-  amount,
+  amount: _amount,
 }: {
   targetChain: number;
   sourceAsset: string;
@@ -87,7 +87,13 @@ export const shouldRelay = ({
 
   if (!targetChain) return _noRelay('missing targetChain');
   if (!sourceAsset) return _noRelay('missing sourceAsset');
-  if (!amount) return _noRelay('missing transfer amount');
+  if (!_amount) return _noRelay('missing transfer amount');
+  let amount: bigint;
+  try {
+    amount = BigInt(_amount);
+  } catch (e) {
+    return _noRelay(`failed to parse amount: ${_amount}`);
+  }
 
   const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain] as any;
   if (!supported) return _noRelay('target chain not supported');
