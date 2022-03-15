@@ -64,7 +64,7 @@ export async function relay(request: any, response: any) {
     console.log(`
       ---------------------------------------
       ---------- Relay Succeed 🎉🎉 ----------
-      ----------------------------------
+      ---------------------------------------
     `);
   } catch (e) {
     console.log(`

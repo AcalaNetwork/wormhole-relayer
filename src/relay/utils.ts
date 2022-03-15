@@ -65,34 +65,34 @@ export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
     targetChain,
     originAddress,
   } = vaaInfo;
-  const originTokenAddress = `0x${originAddress.substring(originAddress.length - 40).toLowerCase()}`;
-  const amount = normalizeVaaAmount(vaaAmount, TOKEN_DECIMALS[originTokenAddress]);
+  const sourceAsset = `0x${originAddress.substring(originAddress.length - 40).toLowerCase()}`;
+  const amount = normalizeVaaAmount(vaaAmount, TOKEN_DECIMALS[sourceAsset]);
 
-  const res = shouldRelay({ targetChain, originTokenAddress, amount });
+  const res = shouldRelay({ targetChain, sourceAsset, amount });
 
-  console.log('should relay: ', { targetChain, originTokenAddress, amount, res });
+  console.log('should relay: ', { targetChain, sourceAsset, amount, res });
   return res;
 };
 
 export const shouldRelay = ({
   targetChain,
-  originTokenAddress,
+  sourceAsset,
   amount,
 }: {
   targetChain: number;
-  originTokenAddress: string;
+  sourceAsset: string;
   amount: bigint;
 }): ShouldRelayResult => {
   const _noRelay = (msg: string): ShouldRelayResult => ({ shouldRelay: false, msg });
 
   if (!targetChain) return _noRelay('missing targetChain');
-  if (!originTokenAddress) return _noRelay('missing originTokenAddress');
+  if (!sourceAsset) return _noRelay('missing sourceAsset');
   if (!amount) return _noRelay('missing transfer amount');
 
   const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain] as any;
   if (!supported) return _noRelay('target chain not supported');
 
-  const minTransfer = supported[originTokenAddress];
+  const minTransfer = supported[sourceAsset.toLowerCase()];
   if (!minTransfer) return _noRelay('token not supported');
   if (amount < BigInt(minTransfer)) return _noRelay(`transfer amount too small, expect at least ${minTransfer}`);
 
@@ -114,7 +114,7 @@ export const relayEVM = async (
     chainConfigInfo.tokenBridgeAddress,
     signer,
     hexToUint8Array(signedVAA),
-    // TODO: eth_getEthGas or drop for the best
+    // doesn't seem to need it
     // {
     //   'gasPrice': '0x2f955803ea',
     //   'gasLimit': '0x6fc3540'

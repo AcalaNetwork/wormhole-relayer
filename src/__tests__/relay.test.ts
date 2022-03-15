@@ -64,13 +64,13 @@ const transferEvm = async (
   );
 };
 
-const transferFromBSCToKarura = async (amount: string, originTokenAddress: string, decimals = 18): string => {
+const transferFromBSCToKarura = async (amount: string, sourceAsset: string, decimals = 18): string => {
   const sequence = await transferEvm(
     CHAIN_ID_BSC,
     CHAIN_ID_KARURA,
     amount,
     RELAYER_WALLET_ADDRESS,
-    originTokenAddress,
+    sourceAsset,
     decimals,
   );
   console.log({ sequence });
