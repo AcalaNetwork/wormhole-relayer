@@ -13,7 +13,7 @@ export const KARURA_TOKEN_BRIDGE_ADDRESS = '0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91
 export const ERC20_ADDRESS = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd';     // BSC USDT
 export const NOT_SUPPORTED_ADDRESS = '';
 
-// const RELAYER_URL = 'http://localhost:3111/relay';
+// const RELAYER_URL = 'http://localhost:3111';
 // const RELAYER_WALLET_ADDRESS = '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1';
 export const RELAYER_URL = 'http://103.253.145.222:3111';
 export const RELAY_URL = `${RELAYER_URL}/relay`;
