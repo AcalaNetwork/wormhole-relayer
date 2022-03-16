@@ -94,7 +94,7 @@ const transferFromBSCToKarura = async (amount: string, sourceAsset: string, deci
 describe('/relay', () => {
   describe('Send ERC20 from BSC to Karura', () => {
     it('relay correctly when should relay', async () => {
-      const signedVAA = await transferFromBSCToKarura('0.01', ERC20_ADDRESS);
+      const signedVAA = await transferFromBSCToKarura('0.1', ERC20_ADDRESS);
       console.log({ signedVAA });
 
       const result = await axios.post(RELAY_URL, {
@@ -110,7 +110,7 @@ describe('/relay', () => {
     });
 
     it('throw correct error when transfer amount too small', async () => {
-      const signedVAA = await transferFromBSCToKarura('0.001', ERC20_ADDRESS);
+      const signedVAA = await transferFromBSCToKarura('0.01', ERC20_ADDRESS);
       console.log({ signedVAA });
 
       let failed = false;
