@@ -20,7 +20,7 @@ checks if the relayer can relay this request
 GET /shouldRelay
 params: {
   targetChain: ChainId,
-  sourceAsset: string,    // original address without padding 0s
+  originAsset: string,    // original address without padding 0s
   amount: string,
 }
 ```
@@ -28,17 +28,17 @@ params: {
 example
 ```
 # ---------- when should relay ---------- #
-GET /shouldRelay?sourceAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=10000000000000000000&targetChain=11
+GET /shouldRelay?originAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=10000000000000000000&targetChain=11
 => {"shouldRelay":true,"msg":""}
 
 # ---------- when should not relay ---------- #
-GET /shouldRelay?sourceAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=100000&targetChain=11
+GET /shouldRelay?originAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=100000&targetChain=11
 => {"shouldRelay":false,"msg":"transfer amount too small, expect at least 10000000000000000"}
 
-GET /shouldRelay?sourceAsset=0x00000000000000000111111111111&amount=10000000000000000000&targetChain=11
+GET /shouldRelay?originAsset=0x00000000000000000111111111111&amount=10000000000000000000&targetChain=11
 => {"shouldRelay":false,"msg":"token not supported"}
 
-GET /shouldRelay?sourceAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=100000&targetChain=11
+GET /shouldRelay?originAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=100000&targetChain=11
 => {"shouldRelay":false,"msg":"target chain not supported"}
 ```
 ### `/relay`
