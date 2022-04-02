@@ -4,14 +4,13 @@ import {
   parseTransferPayload,
   importCoreWasm,
   ChainId,
+  hexToNativeString,
 } from '@certusone/wormhole-sdk';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { ChainConfigInfo } from '../configureEnv';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
-import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import {
   RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS,
-  TOKEN_DECIMALS,
 } from './consts';
 
 interface VaaInfo {
@@ -26,31 +25,6 @@ interface ShouldRelayResult {
   msg: string;
 } 
 
-/* https://github.com/certusone/wormhole/blob/77ecc035a3e2dd7d6c86fb0ecedda5e1dbc66cda/sdk/js/src/utils/parseVaa.ts#L61 */
-const normalizeVaaAmount = (
-  amount: bigint,
-  assetDecimals: number
-): bigint => {
-  const MAX_VAA_DECIMALS = 8;
-  if (assetDecimals <= MAX_VAA_DECIMALS) {
-    return amount;
-  }
-  const decimalStringVaa = formatUnits(amount, MAX_VAA_DECIMALS);
-  const normalizedAmount = parseUnits(decimalStringVaa, assetDecimals);
-  const normalizedBigInt = BigInt(truncate(normalizedAmount.toString(), 0));
-
-  return normalizedBigInt;
-};
-
-const truncate = (str: string, maxDecimalDigits: number) => {
-  if (str.includes('.')) {
-    const parts = str.split('.');
-    return parts[0] + '.' + parts[1].slice(0, maxDecimalDigits);
-  }
-  return str;
-};
-/* ---------------------------------------------------------------------------------------------------------------------- */
-
 export const parseVaa = async (bytes: Uint8Array): Promise<VaaInfo> => {
   const { parse_vaa } = await importCoreWasm();
   const parsedVaa = parse_vaa(bytes);
@@ -61,33 +35,34 @@ export const parseVaa = async (bytes: Uint8Array): Promise<VaaInfo> => {
 
 export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
   const {
-    amount: vaaAmount,
+    amount,
     targetChain,
+    originChain,
     originAddress,
   } = vaaInfo;
-  const sourceAsset = `0x${originAddress.substring(originAddress.length - 40).toLowerCase()}`;
-  const amount = normalizeVaaAmount(vaaAmount, TOKEN_DECIMALS[sourceAsset]);
+  const originAsset = hexToNativeString(originAddress, originChain);
 
-  const res = shouldRelay({ targetChain, sourceAsset, amount });
+  const res = shouldRelay({ targetChain, originAsset, amount });
 
-  console.log('should relay: ', { targetChain, sourceAsset, amount, res });
+  console.log('should relay: ', { targetChain, originAsset, amount, res });
   return res;
 };
 
 export const shouldRelay = ({
   targetChain,
-  sourceAsset,
+  originAsset,
   amount: _amount,
 }: {
   targetChain: number;
-  sourceAsset: string;
+  originAsset: string;
   amount: bigint;
 }): ShouldRelayResult => {
   const _noRelay = (msg: string): ShouldRelayResult => ({ shouldRelay: false, msg });
 
   if (!targetChain) return _noRelay('missing targetChain');
-  if (!sourceAsset) return _noRelay('missing sourceAsset');
+  if (!originAsset) return _noRelay('missing originAsset');
   if (!_amount) return _noRelay('missing transfer amount');
+
   let amount: bigint;
   try {
     amount = BigInt(_amount);
@@ -95,10 +70,10 @@ export const shouldRelay = ({
     return _noRelay(`failed to parse amount: ${_amount}`);
   }
 
-  const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain] as any;
+  const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain];
   if (!supported) return _noRelay('target chain not supported');
 
-  const minTransfer = supported[sourceAsset.toLowerCase()];
+  const minTransfer = supported[originAsset.toLowerCase()];
   if (!minTransfer) return _noRelay('token not supported');
   if (amount < BigInt(minTransfer)) return _noRelay(`transfer amount too small, expect at least ${minTransfer}`);
 

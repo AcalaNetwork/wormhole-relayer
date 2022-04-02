@@ -13,7 +13,7 @@ describe('/shouldRelay', () => {
       for (const [token, minTransfer] of Object.entries(supported)) {
         const res = await checkShouldRelay({
           targetChain,
-          sourceAsset: token,
+          originAsset: token,
           amount: minTransfer,
         });
 
@@ -25,7 +25,7 @@ describe('/shouldRelay', () => {
       for (const [token, minTransfer] of Object.entries(supported)) {
         const res = await checkShouldRelay({
           targetChain,
-          sourceAsset: token.toUpperCase(),
+          originAsset: token.toUpperCase(),
           amount: minTransfer,
         });
 
@@ -40,7 +40,7 @@ describe('/shouldRelay', () => {
 
     it('when missing params', async () => {
       let res = await checkShouldRelay({
-        sourceAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
+        originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
         amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
@@ -51,11 +51,11 @@ describe('/shouldRelay', () => {
         amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
-      expect(res.data.msg).to.equal('missing sourceAsset');
+      expect(res.data.msg).to.equal('missing originAsset');
   
       res = await checkShouldRelay({
         targetChain: 11,
-        sourceAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
+        originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('missing transfer amount');
@@ -64,7 +64,7 @@ describe('/shouldRelay', () => {
     it('when relay condition not met', async () => {
       let res = await checkShouldRelay({
         targetChain: 12345,
-        sourceAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
+        originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
         amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
@@ -72,27 +72,27 @@ describe('/shouldRelay', () => {
   
       res = await checkShouldRelay({
         targetChain: 11,
-        sourceAsset: '0x111111111191d46ee29420539fc25f0000000000',
+        originAsset: '0x111111111191d46ee29420539fc25f0000000000',
         amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('token not supported');
       
       const targetChain = 11;
-      const sourceAsset = USDT_BSC;
+      const originAsset = USDT_BSC;
       res = await checkShouldRelay({
         targetChain,
-        sourceAsset,
+        originAsset,
         amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
-      expect(res.data.msg).to.equal(`transfer amount too small, expect at least ${RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain][sourceAsset]}`);
+      expect(res.data.msg).to.equal(`transfer amount too small, expect at least ${RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain][originAsset]}`);
     });
 
     it('when amount is not number', async () => {
       const res = await checkShouldRelay({
         targetChain: 11,
-        sourceAsset: USDT_BSC,
+        originAsset: USDT_BSC,
         amount: '{"type":"BigNumber","hex":"0xe8d4a51000"}',
       });
       expect(res.data.shouldRelay).to.equal(false);

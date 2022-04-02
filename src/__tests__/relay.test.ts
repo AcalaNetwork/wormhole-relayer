@@ -73,7 +73,7 @@ const transferFromBSCToKarura = async (amount: string, sourceAsset: string, deci
     sourceAsset,
     decimals,
   );
-  console.log({ sequence });
+  console.log('transfer complete', { sequence });
 
   // poll until the guardian(s) witness and sign the vaa
   const emitterAddress = await getEmitterAddressEth(BSC_TOKEN_BRIDGE_ADDRESS);
