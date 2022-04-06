@@ -8,6 +8,7 @@ import {
   parseSequenceFromLogEth,
   ChainId,
   CHAIN_ID_KARURA,
+  CHAIN_ID_ETH,
 } from '@certusone/wormhole-sdk';
 import getSignedVAAWithRetry from '@certusone/wormhole-sdk/lib/cjs/rpc/getSignedVAAWithRetry';
 import { setDefaultWasm } from '@certusone/wormhole-sdk/lib/cjs/solana/wasm';
@@ -20,18 +21,25 @@ import {
   RELAY_URL,
   RELAYER_WALLET_ADDRESS,
   WORMHOLE_GUARDIAN_RPC,
-  BSC_NODE_URL,
-  BSC_PRIVATE_KEY,
+  NODE_URL_BSC,
+  RELAYER_PRIVATE_KEY,
   BSC_CORE_BRIDGE_ADDRESS,
   BSC_TOKEN_BRIDGE_ADDRESS,
   KARURA_TOKEN_BRIDGE_ADDRESS,
-  ERC20_ADDRESS,
+  BSC_USDT_ADDRESS,
   NOT_SUPPORTED_ADDRESS,
+  GOERLI_USDC_ADDRESS,
+  NODE_URL_GOERLI,
+  GOERLI_TOKEN_BRIDGE_ADDRESS,
+  GOERLI_CORE_BRIDGE_ADDRESS,
 } from './consts';
 
 setDefaultWasm('node');
 
 const transferEvm = async (
+  nodeUrl: string,
+  tokenBridgeAddress: string,
+  coreBridgeAddress: string,
   sourceChain: ChainId,
   targetChain: ChainId,
   amount: string,
@@ -39,8 +47,8 @@ const transferEvm = async (
   assetAddress: string,
   decimals: number,
 ): Promise<string> => {
-  const provider = new ethers.providers.JsonRpcProvider(BSC_NODE_URL);
-  const signer = new ethers.Wallet(BSC_PRIVATE_KEY, provider);
+  const provider = new ethers.providers.JsonRpcProvider(nodeUrl);
+  const signer = new ethers.Wallet(RELAYER_PRIVATE_KEY, provider);
 
   const amountParsed = parseUnits(amount, decimals);
   const hexString = nativeToHexString(recipientAddress, targetChain);
@@ -50,7 +58,7 @@ const transferEvm = async (
   const vaaCompatibleAddress = hexToUint8Array(hexString);
 
   const receipt = await transferFromEth(
-    BSC_TOKEN_BRIDGE_ADDRESS,
+    tokenBridgeAddress,
     signer,
     assetAddress,
     amountParsed,
@@ -60,12 +68,15 @@ const transferEvm = async (
 
   return await parseSequenceFromLogEth(
     receipt,
-    BSC_CORE_BRIDGE_ADDRESS,
+    coreBridgeAddress,
   );
 };
 
 const transferFromBSCToKarura = async (amount: string, sourceAsset: string, decimals = 18): string => {
   const sequence = await transferEvm(
+    NODE_URL_BSC,
+    BSC_TOKEN_BRIDGE_ADDRESS,
+    BSC_CORE_BRIDGE_ADDRESS,
     CHAIN_ID_BSC,
     CHAIN_ID_KARURA,
     amount,
@@ -73,7 +84,7 @@ const transferFromBSCToKarura = async (amount: string, sourceAsset: string, deci
     sourceAsset,
     decimals,
   );
-  console.log('transfer complete', { sequence });
+  console.log('transfer from BSC complete', { sequence }, 'waiting for VAA...');
 
   // poll until the guardian(s) witness and sign the vaa
   const emitterAddress = await getEmitterAddressEth(BSC_TOKEN_BRIDGE_ADDRESS);
@@ -91,10 +102,40 @@ const transferFromBSCToKarura = async (amount: string, sourceAsset: string, deci
   return signedVAA;
 };
 
+const transferFromGoerliToKarura = async (amount: string, sourceAsset: string, decimals = 6): string => {
+  const sequence = await transferEvm(
+    NODE_URL_GOERLI,
+    GOERLI_TOKEN_BRIDGE_ADDRESS,
+    GOERLI_CORE_BRIDGE_ADDRESS,
+    CHAIN_ID_ETH,
+    CHAIN_ID_KARURA,
+    amount,
+    RELAYER_WALLET_ADDRESS,
+    sourceAsset,
+    decimals,
+  );
+  console.log('transfer from Goerli complete', { sequence }, 'waiting for VAA...');
+
+  // poll until the guardian(s) witness and sign the vaa
+  const emitterAddress = await getEmitterAddressEth(GOERLI_TOKEN_BRIDGE_ADDRESS);
+  const { vaaBytes } = await getSignedVAAWithRetry(
+    WORMHOLE_GUARDIAN_RPC,
+    CHAIN_ID_ETH,
+    emitterAddress,
+    sequence,
+    {
+      transport: NodeHttpTransport(),
+    }
+  );
+
+  const signedVAA = uint8ArrayToHex(vaaBytes);
+  return signedVAA;
+};
+
 describe('/relay', () => {
   describe('Send ERC20 from BSC to Karura', () => {
     it('relay correctly when should relay', async () => {
-      const signedVAA = await transferFromBSCToKarura('0.1', ERC20_ADDRESS);
+      const signedVAA = await transferFromBSCToKarura('0.1', BSC_USDT_ADDRESS);
       console.log({ signedVAA });
 
       const result = await axios.post(RELAY_URL, {
@@ -110,7 +151,7 @@ describe('/relay', () => {
     });
 
     it('throw correct error when transfer amount too small', async () => {
-      const signedVAA = await transferFromBSCToKarura('0.01', ERC20_ADDRESS);
+      const signedVAA = await transferFromBSCToKarura('0.01', BSC_USDT_ADDRESS);
       console.log({ signedVAA });
 
       let failed = false;
@@ -145,6 +186,24 @@ describe('/relay', () => {
       }
 
       expect(failed).to.equal(true);
+    });
+  });
+
+  describe('Send ERC20 from Goerli to Karura', () => {
+    it('relay correctly when should relay', async () => {
+      const signedVAA = await transferFromGoerliToKarura('0.05', GOERLI_USDC_ADDRESS);
+      console.log({ signedVAA });
+
+      const result = await axios.post(RELAY_URL, {
+        targetChain: CHAIN_ID_KARURA,
+        signedVAA,
+      });
+
+      expect(result.data).to.includes({
+        from: RELAYER_WALLET_ADDRESS,
+        to: KARURA_TOKEN_BRIDGE_ADDRESS,
+        status: 1,
+      });
     });
   });
 });
