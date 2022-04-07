@@ -95,11 +95,6 @@ export const relayEVM = async (
     chainConfigInfo.tokenBridgeAddress,
     signer,
     hexToUint8Array(signedVAA),
-    // doesn't seem to need it
-    // {
-    //   'gasPrice': '0x2f955803ea',
-    //   'gasLimit': '0x6fc3540'
-    // }
   );
 
   console.log('successfully redeemed on evm', receipt);

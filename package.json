@@ -13,9 +13,9 @@
     "build": "tsc",
     "start": "yarn build && node dist/index.js",
     "dev": "nodemon --watch \"*\" --ext \"js,ts,json\" --ignore \"src/**/*.{spec,test}.ts\" --exec \"ts-node src/index.ts\"",
-    "test": "mocha src/__tests__/*.test.ts --timeout 200000",
-    "test:relay": "mocha src/__tests__/relay.test.ts --timeout 500000",
-    "test:shouldRelay": "mocha src/__tests__/shouldRelay.test.ts --timeout 300000",
+    "test": "mocha src/__tests__/*.test.ts",
+    "test:relay": "mocha src/__tests__/relay.test.ts",
+    "test:shouldRelay": "mocha src/__tests__/shouldRelay.test.ts",
     "relay": "ts-node src/scripts/manual-relay.ts"
   },
   "devDependencies": {

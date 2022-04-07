@@ -22,7 +22,7 @@ import {
   RELAYER_WALLET_ADDRESS,
   WORMHOLE_GUARDIAN_RPC,
   NODE_URL_BSC,
-  RELAYER_PRIVATE_KEY,
+  SENDER_PRIVATE_KEY,
   BSC_CORE_BRIDGE_ADDRESS,
   BSC_TOKEN_BRIDGE_ADDRESS,
   KARURA_TOKEN_BRIDGE_ADDRESS,
@@ -48,7 +48,7 @@ const transferEvm = async (
   decimals: number,
 ): Promise<string> => {
   const provider = new ethers.providers.JsonRpcProvider(nodeUrl);
-  const signer = new ethers.Wallet(RELAYER_PRIVATE_KEY, provider);
+  const signer = new ethers.Wallet(SENDER_PRIVATE_KEY, provider);
 
   const amountParsed = parseUnits(amount, decimals);
   const hexString = nativeToHexString(recipientAddress, targetChain);
