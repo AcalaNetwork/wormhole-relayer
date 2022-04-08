@@ -99,7 +99,7 @@ export const relayEVM = async (
     hexToUint8Array(signedVAA),
   );
 
-  console.log('successfully redeemed on evm', receipt);
+  console.log('successfully redeemed on evm', receipt.transactionHash);
   response.status(200).json(receipt);
 };
 
