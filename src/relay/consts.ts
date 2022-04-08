@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env' });
 
-const isTestnet = process.env.TESTNET_MODE;
+const isTestnet = Number(process.env.TESTNET_MODE);
 
 // thredhold amount is defined as "amount that will show on VAA"
 // address should be lower case address to be consistent

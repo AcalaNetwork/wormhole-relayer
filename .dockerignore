@@ -1,6 +1,7 @@
 .git
 .vscode
 .dockerignore
+.env
 docker-compose.yml
 
 **/node_modules
