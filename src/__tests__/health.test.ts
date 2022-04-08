@@ -51,25 +51,17 @@ describe('/health', () => {
     });
   });
 
-  // need to manually change env to an poor account
-  it.skip('when balance low', async () => {
-    const [
-      balanceKarura,
-      balanceAcala,
-      healthCheck
-    ] = await Promise.all([
-      fetchBalance(relayerAddressKarura, KARURA_RPC_URL_HTTP),
-      fetchBalance(relayerAddressAcala, ACALA_RPC_URL_HTTP),
-      axios.get(HEALTH_URL, {}),
-    ]);
+  // need to manually change env to poor accounts `1570b994d8c79a9b10a8c5cd577c7fdb2b9461d01f7e84a0e07693212488a7ab`
+  it.only('when balance low', async () => {
+    const healthCheck = await axios.get(HEALTH_URL, {});
 
     expect(healthCheck.data).to.deep.equal({
       isHealthy: false,
       isRunning: true,
       isBalanceOKKarura: false,
       isBalanceOKAcala: false,
-      balanceKarura,
-      balanceAcala,
+      balanceKarura: 7.888540373466,
+      balanceAcala: 14.995946871269,
       msg: 'relayer balance too low',
     });
   });

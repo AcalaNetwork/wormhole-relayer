@@ -115,5 +115,3 @@ GET /health
   "msg": ""
 }
 ```
-
-unhealthy relayer test account: `0xA76F290C490C70F2d816D286eFE47Fd64a35800B`
