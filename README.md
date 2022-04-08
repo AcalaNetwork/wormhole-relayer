@@ -115,3 +115,6 @@ GET /health
   "msg": "relayer balance too low"
 }
 ```
+
+## Production Config
+modify `.env` to use real private keys for relayers, also set `DEV_MODE=0`
