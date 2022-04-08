@@ -20,13 +20,14 @@ export const BSC_USDT_ADDRESS = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd';
 export const GOERLI_USDC_ADDRESS = '0x07865c6E87B9F70255377e024ace6630C1Eaa37F';
 export const NOT_SUPPORTED_ADDRESS = '';
 
-// const RELAYER_URL = 'http://localhost:3111';
+const RELAYER_URL = 'http://localhost:3111';
 // export const RELAYER_URL = 'http://103.253.145.222:3111';
-export const RELAYER_URL = 'https://karura-dev.aca-dev.network/eth/relayer';
-// const RELAYER_WALLET_ADDRESS = '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1';
+// export const RELAYER_URL = 'https://karura-dev.aca-dev.network/eth/relayer';
+
 export const RELAY_URL = `${RELAYER_URL}/relay`;
 export const SHOULD_RELAY_URL = `${RELAYER_URL}/shouldRelay`;
-export const RELAYER_WALLET_ADDRESS = '0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3';
+export const HEALTH_URL = `${RELAYER_URL}/health`;
+export const KARURA_RPC_URL = 'https://karura-dev.aca-dev.network/eth/http';
 
 // const WORMHOLE_GUARDIAN_RPC = ['http://157.245.62.53:7071'];
 export const WORMHOLE_GUARDIAN_RPC = ['https://wormhole-v2-testnet-api.certus.one'];

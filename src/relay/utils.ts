@@ -6,12 +6,14 @@ import {
   ChainId,
   hexToNativeString,
 } from '@certusone/wormhole-sdk';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { ChainConfigInfo } from '../configureEnv';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
 import {
   RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS,
 } from './consts';
+import axios from 'axios';
+import { formatEther } from 'ethers/lib/utils';
 
 interface VaaInfo {
   amount: bigint;
@@ -99,4 +101,25 @@ export const relayEVM = async (
 
   console.log('successfully redeemed on evm', receipt);
   response.status(200).json(receipt);
+};
+
+export const fetchBalance = async (address: string, url: string): Promise<number> => {
+  try {
+    const response = await axios.get(url, {
+      data: {
+        id: 0,
+        jsonrpc: '2.0',
+        method: 'eth_getBalance',
+        params: [
+          address,
+          'latest',
+        ],
+      }
+    });
+
+    return Number(formatEther(response.data.result));
+  } catch (e) {
+    console.log('fetchBalance error: ', e);
+    return -1;
+  }
 };

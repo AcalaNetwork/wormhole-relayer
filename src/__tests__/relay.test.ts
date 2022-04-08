@@ -13,13 +13,13 @@ import {
 import getSignedVAAWithRetry from '@certusone/wormhole-sdk/lib/cjs/rpc/getSignedVAAWithRetry';
 import { setDefaultWasm } from '@certusone/wormhole-sdk/lib/cjs/solana/wasm';
 import { parseUnits } from '@ethersproject/units';
-import { ethers } from 'ethers';
+import { ethers, Wallet } from 'ethers';
 import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
 import axios from 'axios';
+import dotenv from 'dotenv';
 import { expect } from 'chai';
 import {
   RELAY_URL,
-  RELAYER_WALLET_ADDRESS,
   WORMHOLE_GUARDIAN_RPC,
   NODE_URL_BSC,
   SENDER_PRIVATE_KEY,
@@ -35,6 +35,17 @@ import {
 } from './consts';
 
 setDefaultWasm('node');
+
+dotenv.config({ path: '.env' });
+const {
+  KARURA_PRIVATE_KEY,
+  ACALA_PRIVATE_KEY,
+  KARURA_RPC_URL_HTTP,
+  ACALA_RPC_URL_HTTP,
+} = process.env;
+
+const relayerAddressKarura = new Wallet(KARURA_PRIVATE_KEY).address;
+const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY).address;
 
 const transferEvm = async (
   nodeUrl: string,
@@ -80,7 +91,7 @@ const transferFromBSCToKarura = async (amount: string, sourceAsset: string, deci
     CHAIN_ID_BSC,
     CHAIN_ID_KARURA,
     amount,
-    RELAYER_WALLET_ADDRESS,
+    relayerAddressKarura,
     sourceAsset,
     decimals,
   );
@@ -110,7 +121,7 @@ const transferFromGoerliToKarura = async (amount: string, sourceAsset: string, d
     CHAIN_ID_ETH,
     CHAIN_ID_KARURA,
     amount,
-    RELAYER_WALLET_ADDRESS,
+    relayerAddressKarura,
     sourceAsset,
     decimals,
   );
@@ -144,7 +155,7 @@ describe('/relay', () => {
       });
 
       expect(result.data).to.includes({
-        from: RELAYER_WALLET_ADDRESS,
+        from: relayerAddressKarura,
         to: KARURA_TOKEN_BRIDGE_ADDRESS,
         status: 1,
       });
@@ -200,7 +211,7 @@ describe('/relay', () => {
       });
 
       expect(result.data).to.includes({
-        from: RELAYER_WALLET_ADDRESS,
+        from: relayerAddressKarura,
         to: KARURA_TOKEN_BRIDGE_ADDRESS,
         status: 1,
       });

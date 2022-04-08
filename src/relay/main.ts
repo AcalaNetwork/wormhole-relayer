@@ -2,8 +2,11 @@ import {
   ChainId,
   hexToUint8Array,
 } from '@certusone/wormhole-sdk';
+import axios from 'axios';
+import { Wallet } from 'ethers';
 import { RelayerEnvironment, validateEnvironment } from '../configureEnv';
-import { relayEVM, shouldRelay, parseVaa, shouldRelayVaa } from './utils';
+import { BALANCE_LOW_THREASHOLD } from './consts';
+import { relayEVM, shouldRelay, parseVaa, shouldRelayVaa, fetchBalance } from './utils';
 
 const env: RelayerEnvironment = validateEnvironment();
 
@@ -42,7 +45,7 @@ const validateRequest = async (request: any, response: any) => {
   return { chainConfigInfo, chainId, signedVAA };
 };
 
-export async function relay(request: any, response: any) {
+export const relay = async (request: any, response: any): Promise<void> =>  {
   const {
     chainConfigInfo,
     chainId,
@@ -75,11 +78,87 @@ export async function relay(request: any, response: any) {
     console.error(e);
     return response.status(500).json({ error: e, msg: 'Unable to relay this request.' });
   }
-}
+};
 
-export function checkShouldRelay(request: any, response: any) {
+export const checkShouldRelay = (request: any, response: any): void =>  {
   const res = shouldRelay(request.query);
 
   console.log('checkShouldRelay:', request.query, res.shouldRelay);
   response.status(200).json(res);
-}
+};
+
+export const health = async (request: any, response: any): Promise<void> => {
+  const {
+    KARURA_PRIVATE_KEY,
+    ACALA_PRIVATE_KEY,
+    KARURA_RPC_URL_HTTP,
+    ACALA_RPC_URL_HTTP,
+  } = process.env;
+
+  /* -------------------- prepare requests -------------------- */
+  const relayerAddressKarura = new Wallet(KARURA_PRIVATE_KEY).address;
+  const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY).address;
+
+  const shouldRelayURL = request.protocol + '://' + request.get('host') + '/shouldRelay';
+
+  const shouldRelayPromise = axios.get(shouldRelayURL, {
+    params: {
+      originAsset: '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
+      amount:'10000000',
+      targetChain: '11',
+    }
+  });
+
+  const shouldNotRelayPromise = axios.get(shouldRelayURL, {
+    params: {
+      originAsset: '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
+      amount: '100000',
+      targetChain: '11',
+    }
+  });
+
+  /* -------------------- get all results -------------------- */
+  const [
+    balanceKarura,
+    balanceAcala,
+    shouldRelay,
+    shouldNotRelay,
+  ] = await Promise.all([
+    fetchBalance(relayerAddressKarura, KARURA_RPC_URL_HTTP),
+    fetchBalance(relayerAddressAcala, ACALA_RPC_URL_HTTP),
+    shouldRelayPromise,
+    shouldNotRelayPromise
+  ]);
+
+  const isBalanceOKKarura = balanceKarura > BALANCE_LOW_THREASHOLD;
+  const isBalanceOKAcala = balanceAcala > BALANCE_LOW_THREASHOLD;
+
+  const isRunning = (
+    shouldRelay.data?.shouldRelay === true &&
+    shouldNotRelay.data?.shouldRelay === false
+  );
+
+  /* -------------------- is healthy -------------------- */
+  let isHealthy = true;
+  let msg = '';
+
+  if (!isBalanceOKKarura || !isBalanceOKAcala) {
+    isHealthy = false;
+    msg = 'relayer balance too low';
+  }
+
+  if (!isRunning) {
+    isHealthy = false;
+    msg = '/shouldRelay endpoint is down';
+  }
+
+  response.status(200).json({
+    isHealthy,
+    isRunning,
+    balanceKarura,
+    balanceAcala,
+    isBalanceOKKarura,
+    isBalanceOKAcala,
+    msg,
+  });
+};

@@ -80,3 +80,40 @@ POST /relay
   events: [ [Object] ]
 }
 ```
+
+### `/health`
+checks if the relayer is healthy:
+- is it still running?
+- is the relayer account balance enough?
+```
+GET /health
+```
+
+example
+```
+# ---------- when healthy ---------- #
+GET /health
+{
+  "isHealthy": true,
+  "isRunning": true,
+  "balanceKarura": 79.892162918604,
+  "balanceAcala": 79.892162918604,
+  "isBalanceOKKarura": true,
+  "isBalanceOKAcala": true,
+  "msg": ""
+}
+
+# ---------- when unhealthy ---------- #
+GET /health
+{
+  "isHealthy": false,
+  "isRunning": true,
+  "balanceKarura": 15.1234,
+  "balanceAcala": 8.342,
+  "isBalanceOKKarura": false,
+  "isBalanceOKAcala": false,
+  "msg": ""
+}
+```
+
+unhealthy relayer test account: `0xA76F290C490C70F2d816D286eFE47Fd64a35800B`
