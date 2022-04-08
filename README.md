@@ -11,7 +11,7 @@ The relayer to pay gas fee and redeem token on Karura/Acala after user send toke
 docker-compose version: `docker-compose version 1.29.2, build 5becea4c`
 
 - start dev server with docker: `docker-compose up`
-- start dev server with docker in background: `docker-compose up -d`
+- start dev server with docker in background: `docker-compose up -d --build`
 
 ## Endpoints
 ### `/shouldRelay`
