@@ -1,11 +1,13 @@
 import {
   ChainId,
+  CHAIN_ID_ACALA,
+  CHAIN_ID_KARURA,
   hexToUint8Array,
 } from '@certusone/wormhole-sdk';
 import axios from 'axios';
 import { Wallet } from 'ethers';
 import { RelayerEnvironment, validateEnvironment } from '../configureEnv';
-import { BALANCE_LOW_THREASHOLD } from './consts';
+import { BALANCE_LOW_THREASHOLD, RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from './consts';
 import { relayEVM, shouldRelay, parseVaa, shouldRelayVaa, fetchBalance } from './utils';
 
 const env: RelayerEnvironment = validateEnvironment();
@@ -102,19 +104,38 @@ export const health = async (request: any, response: any): Promise<void> => {
 
     const shouldRelayURL = request.protocol + '://' + request.get('host') + '/shouldRelay';
 
-    const shouldRelayPromise = axios.get(shouldRelayURL, {
+    const [tokenKarura, threasholdKarura] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_KARURA])[0];
+    const [tokenAcala, threasholdAcala] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_ACALA])[0];
+
+    const shouldRelayPromiseKar = axios.get(shouldRelayURL, {
       params: {
-        originAsset: '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
-        amount: '10000000',
-        targetChain: '11',
+        originAsset: tokenKarura,
+        amount: threasholdKarura,
+        targetChain: CHAIN_ID_KARURA,
       }
     });
 
-    const shouldNotRelayPromise = axios.get(shouldRelayURL, {
+    const shouldNotRelayPromiseKar = axios.get(shouldRelayURL, {
       params: {
-        originAsset: '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
-        amount: '100000',
-        targetChain: '11',
+        originAsset: tokenKarura,
+        amount: 100,
+        targetChain: CHAIN_ID_KARURA,
+      }
+    });
+
+    const shouldRelayPromiseAca = axios.get(shouldRelayURL, {
+      params: {
+        originAsset: tokenAcala,
+        amount: threasholdAcala,
+        targetChain: CHAIN_ID_ACALA,
+      }
+    });
+
+    const shouldNotRelayPromiseAca = axios.get(shouldRelayURL, {
+      params: {
+        originAsset: tokenAcala,
+        amount: 100,
+        targetChain: CHAIN_ID_ACALA,
       }
     });
 
@@ -122,21 +143,27 @@ export const health = async (request: any, response: any): Promise<void> => {
     const [
       balanceKarura,
       balanceAcala,
-      shouldRelay,
-      shouldNotRelay,
+      shouldRelayKar,
+      shouldNotRelayKar,
+      shouldRelayAca,
+      shouldNotRelayAca,
     ] = await Promise.all([
       fetchBalance(relayerAddressKarura, KARURA_RPC_URL_HTTP),
       fetchBalance(relayerAddressAcala, ACALA_RPC_URL_HTTP),
-      shouldRelayPromise,
-      shouldNotRelayPromise
+      shouldRelayPromiseKar,
+      shouldNotRelayPromiseKar,
+      shouldRelayPromiseAca,
+      shouldNotRelayPromiseAca,
     ]);
 
     const isBalanceOKKarura = balanceKarura > BALANCE_LOW_THREASHOLD;
     const isBalanceOKAcala = balanceAcala > BALANCE_LOW_THREASHOLD;
 
     const isRunning = (
-      shouldRelay.data?.shouldRelay === true &&
-      shouldNotRelay.data?.shouldRelay === false
+      shouldRelayKar.data?.shouldRelay === true &&
+      shouldRelayAca.data?.shouldRelay === true &&
+      shouldNotRelayKar.data?.shouldRelay === false &&
+      shouldNotRelayAca.data?.shouldRelay === false
     );
 
     /* -------------------- is healthy -------------------- */

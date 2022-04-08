@@ -6,7 +6,7 @@ import {
   ChainId,
   hexToNativeString,
 } from '@certusone/wormhole-sdk';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { ChainConfigInfo } from '../configureEnv';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
 import {
