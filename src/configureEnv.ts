@@ -27,12 +27,12 @@ export function validateEnvironment(): RelayerEnvironment {
 }
 
 function configKarura(): ChainConfigInfo {
-  if (!process.env.KARURA_NODE_URL) {
-    console.error('Missing environment variable KARURA_NODE_URL');
+  if (!process.env.KARURA_RPC_URL_WS) {
+    console.error('Missing environment variable KARURA_RPC_URL_WS');
     process.exit(1);
   }
   if (!process.env.KARURA_SUBSTRATE_NODE_URL) {
-    console.error('Missing environment variable KARURA_NODE_URL');
+    console.error('Missing environment variable KARURA_RPC_URL_WS');
     process.exit(1);
   }
   if (!process.env.KARURA_PRIVATE_KEY) {
@@ -46,7 +46,7 @@ function configKarura(): ChainConfigInfo {
 
   return {
     chainId: CHAIN_ID_KARURA,
-    nodeUrl: process.env.KARURA_NODE_URL,
+    nodeUrl: process.env.KARURA_RPC_URL_WS,
     substrateNodeUrl: process.env.KARURA_SUBSTRATE_NODE_URL,
     walletPrivateKey: process.env.KARURA_PRIVATE_KEY,
     tokenBridgeAddress: process.env.KARURA_TOKEN_BRIDGE_ADDRESS,
@@ -54,12 +54,12 @@ function configKarura(): ChainConfigInfo {
 }
 
 function configAcala(): ChainConfigInfo {
-  if (!process.env.ACALA_NODE_URL) {
-    console.error('Missing environment variable ACALA_NODE_URL');
+  if (!process.env.ACALA_RPC_URL_WS) {
+    console.error('Missing environment variable ACALA_RPC_URL_WS');
     process.exit(1);
   }
   if (!process.env.ACALA_SUBSTRATE_NODE_URL) {
-    console.error('Missing environment variable ACALA_NODE_URL');
+    console.error('Missing environment variable ACALA_RPC_URL_WS');
     process.exit(1);
   }
   if (!process.env.ACALA_PRIVATE_KEY) {
@@ -73,7 +73,7 @@ function configAcala(): ChainConfigInfo {
 
   return {
     chainId: CHAIN_ID_ACALA,
-    nodeUrl: process.env.ACALA_NODE_URL,
+    nodeUrl: process.env.ACALA_RPC_URL_WS,
     substrateNodeUrl: process.env.ACALA_SUBSTRATE_NODE_URL,
     walletPrivateKey: process.env.ACALA_PRIVATE_KEY,
     tokenBridgeAddress: process.env.ACALA_TOKEN_BRIDGE_ADDRESS,

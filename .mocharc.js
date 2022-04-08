@@ -1,4 +1,4 @@
 module.exports = {
-  timeout: 30000,
+  timeout: 500000,
   require: ['ts-node/register/transpile-only']
 };

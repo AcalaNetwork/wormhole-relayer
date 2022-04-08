@@ -1,9 +1,14 @@
 import {
   ChainId,
+  CHAIN_ID_ACALA,
+  CHAIN_ID_KARURA,
   hexToUint8Array,
 } from '@certusone/wormhole-sdk';
+import axios from 'axios';
+import { Wallet } from 'ethers';
 import { RelayerEnvironment, validateEnvironment } from '../configureEnv';
-import { relayEVM, shouldRelay, parseVaa, shouldRelayVaa } from './utils';
+import { BALANCE_LOW_THREASHOLD, RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from './consts';
+import { relayEVM, shouldRelay, parseVaa, shouldRelayVaa, fetchBalance } from './utils';
 
 const env: RelayerEnvironment = validateEnvironment();
 
@@ -42,7 +47,7 @@ const validateRequest = async (request: any, response: any) => {
   return { chainConfigInfo, chainId, signedVAA };
 };
 
-export async function relay(request: any, response: any) {
+export const relay = async (request: any, response: any): Promise<void> =>  {
   const {
     chainConfigInfo,
     chainId,
@@ -75,11 +80,121 @@ export async function relay(request: any, response: any) {
     console.error(e);
     return response.status(500).json({ error: e, msg: 'Unable to relay this request.' });
   }
-}
+};
 
-export function checkShouldRelay(request: any, response: any) {
+export const checkShouldRelay = (request: any, response: any): void =>  {
   const res = shouldRelay(request.query);
 
   console.log('checkShouldRelay:', request.query, res.shouldRelay);
   response.status(200).json(res);
-}
+};
+
+export const health = async (request: any, response: any): Promise<void> => {
+  const {
+    KARURA_PRIVATE_KEY,
+    ACALA_PRIVATE_KEY,
+    KARURA_RPC_URL_HTTP,
+    ACALA_RPC_URL_HTTP,
+  } = process.env;
+
+  try {
+    /* -------------------- prepare requests -------------------- */
+    const relayerAddressKarura = new Wallet(KARURA_PRIVATE_KEY).address;
+    const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY).address;
+
+    const shouldRelayURL = request.protocol + '://' + request.get('host') + '/shouldRelay';
+
+    const [tokenKarura, threasholdKarura] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_KARURA])[0];
+    const [tokenAcala, threasholdAcala] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_ACALA])[0];
+
+    const shouldRelayPromiseKar = axios.get(shouldRelayURL, {
+      params: {
+        originAsset: tokenKarura,
+        amount: threasholdKarura,
+        targetChain: CHAIN_ID_KARURA,
+      }
+    });
+
+    const shouldNotRelayPromiseKar = axios.get(shouldRelayURL, {
+      params: {
+        originAsset: tokenKarura,
+        amount: 100,
+        targetChain: CHAIN_ID_KARURA,
+      }
+    });
+
+    const shouldRelayPromiseAca = axios.get(shouldRelayURL, {
+      params: {
+        originAsset: tokenAcala,
+        amount: threasholdAcala,
+        targetChain: CHAIN_ID_ACALA,
+      }
+    });
+
+    const shouldNotRelayPromiseAca = axios.get(shouldRelayURL, {
+      params: {
+        originAsset: tokenAcala,
+        amount: 100,
+        targetChain: CHAIN_ID_ACALA,
+      }
+    });
+
+    /* -------------------- get all results -------------------- */
+    const [
+      balanceKarura,
+      balanceAcala,
+      shouldRelayKar,
+      shouldNotRelayKar,
+      shouldRelayAca,
+      shouldNotRelayAca,
+    ] = await Promise.all([
+      fetchBalance(relayerAddressKarura, KARURA_RPC_URL_HTTP),
+      fetchBalance(relayerAddressAcala, ACALA_RPC_URL_HTTP),
+      shouldRelayPromiseKar,
+      shouldNotRelayPromiseKar,
+      shouldRelayPromiseAca,
+      shouldNotRelayPromiseAca,
+    ]);
+
+    const isBalanceOKKarura = balanceKarura > BALANCE_LOW_THREASHOLD;
+    const isBalanceOKAcala = balanceAcala > BALANCE_LOW_THREASHOLD;
+
+    const isRunning = (
+      shouldRelayKar.data?.shouldRelay === true &&
+      shouldRelayAca.data?.shouldRelay === true &&
+      shouldNotRelayKar.data?.shouldRelay === false &&
+      shouldNotRelayAca.data?.shouldRelay === false
+    );
+
+    /* -------------------- is healthy -------------------- */
+    let isHealthy = true;
+    let msg = '';
+
+    if (!isBalanceOKKarura || !isBalanceOKAcala) {
+      isHealthy = false;
+      msg = 'relayer balance too low';
+    }
+
+    if (!isRunning) {
+      isHealthy = false;
+      msg = '/shouldRelay endpoint is down';
+    }
+
+    response.status(200).json({
+      isHealthy,
+      isRunning,
+      balanceKarura,
+      balanceAcala,
+      isBalanceOKKarura,
+      isBalanceOKAcala,
+      msg,
+    });
+  } catch (e) {
+    console.log('error when checking health: ', e);
+
+    response.status(400).json({
+      isHealthy: false,
+      msg: `error when checking health ${JSON.stringify(e)}`,
+    });
+  }
+};
