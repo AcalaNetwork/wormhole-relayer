@@ -34,7 +34,7 @@ const startServer = () => {
       ----------------------------------------------------------------
     `);
 
-    process.env.TESTNET_MODE && console.log(TESTNET_MODE_WARNING)
+    Number(process.env.TESTNET_MODE) && console.log(TESTNET_MODE_WARNING);
   });
 };
 
