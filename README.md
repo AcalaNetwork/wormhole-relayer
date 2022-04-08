@@ -117,4 +117,4 @@ GET /health
 ```
 
 ## Production Config
-modify `.env` to use real private keys for relayers, also set `DEV_MODE=0`
+modify `.env` to use real private keys for relayers, also set `TESTNET_MODE=0`

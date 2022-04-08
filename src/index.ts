@@ -3,7 +3,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { relay, checkShouldRelay, health } from './relay/main';
-import { DEV_MODE_WARNING } from './relay/consts';
+import { TESTNET_MODE_WARNING } from './relay/consts';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
@@ -30,11 +30,11 @@ const startServer = () => {
       ACALA_RPC_URL_HTTP       : ${process.env.ACALA_RPC_URL_HTTP}
       KARURA_SUBSTRATE_NODE_URL: ${process.env.KARURA_SUBSTRATE_NODE_URL}
       ACALA_SUBSTRATE_NODE_URL : ${process.env.ACALA_SUBSTRATE_NODE_URL}
-      DEV_MODE                 : ${process.env.DEV_MODE}
+      TESTNET_MODE             : ${process.env.TESTNET_MODE}
       ----------------------------------------------------------------
     `);
 
-    process.env.DEV_MODE && console.log(DEV_MODE_WARNING)
+    process.env.TESTNET_MODE && console.log(TESTNET_MODE_WARNING)
   });
 };
 

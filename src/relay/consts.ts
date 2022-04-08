@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env' });
 
-const isDev = process.env.DEV_MODE;
+const isTestnet = process.env.TESTNET_MODE;
 
 // thredhold amount is defined as "amount that will show on VAA"
 // address should be lower case address to be consistent
@@ -40,15 +40,15 @@ const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD = {
   },
 };
 
-export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = isDev
+export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = isTestnet
   ? RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV
   : RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD;
 
 export const BALANCE_LOW_THREASHOLD = 20;
 
-export const DEV_MODE_WARNING = `
-  ------------------------------
-  🔨 running in testnet DEV mode
-  ❌ don't use it for production
-  ------------------------------
+export const TESTNET_MODE_WARNING = `
+  ----------------------------
+  🔨 running in testnet mode
+  ❌ don't use it for mainnet!
+  ----------------------------
 `;
