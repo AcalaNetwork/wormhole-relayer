@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { expect } from 'chai';
 import dotenv from 'dotenv';
+import { Wallet } from 'ethers';
 import { HEALTH_URL,  } from './consts';
 import { fetchBalance } from '../relay/utils';
-import { Wallet } from 'ethers';
 
 dotenv.config({ path: '.env' });
 const {

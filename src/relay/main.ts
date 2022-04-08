@@ -95,70 +95,79 @@ export const health = async (request: any, response: any): Promise<void> => {
     ACALA_RPC_URL_HTTP,
   } = process.env;
 
-  /* -------------------- prepare requests -------------------- */
-  const relayerAddressKarura = new Wallet(KARURA_PRIVATE_KEY).address;
-  const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY).address;
+  try {
+    /* -------------------- prepare requests -------------------- */
+    const relayerAddressKarura = new Wallet(KARURA_PRIVATE_KEY).address;
+    const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY).address;
 
-  const shouldRelayURL = request.protocol + '://' + request.get('host') + '/shouldRelay';
+    const shouldRelayURL = request.protocol + '://' + request.get('host') + '/shouldRelay';
 
-  const shouldRelayPromise = axios.get(shouldRelayURL, {
-    params: {
-      originAsset: '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
-      amount:'10000000',
-      targetChain: '11',
+    const shouldRelayPromise = axios.get(shouldRelayURL, {
+      params: {
+        originAsset: '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
+        amount: '10000000',
+        targetChain: '11',
+      }
+    });
+
+    const shouldNotRelayPromise = axios.get(shouldRelayURL, {
+      params: {
+        originAsset: '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
+        amount: '100000',
+        targetChain: '11',
+      }
+    });
+
+    /* -------------------- get all results -------------------- */
+    const [
+      balanceKarura,
+      balanceAcala,
+      shouldRelay,
+      shouldNotRelay,
+    ] = await Promise.all([
+      fetchBalance(relayerAddressKarura, KARURA_RPC_URL_HTTP),
+      fetchBalance(relayerAddressAcala, ACALA_RPC_URL_HTTP),
+      shouldRelayPromise,
+      shouldNotRelayPromise
+    ]);
+
+    const isBalanceOKKarura = balanceKarura > BALANCE_LOW_THREASHOLD;
+    const isBalanceOKAcala = balanceAcala > BALANCE_LOW_THREASHOLD;
+
+    const isRunning = (
+      shouldRelay.data?.shouldRelay === true &&
+      shouldNotRelay.data?.shouldRelay === false
+    );
+
+    /* -------------------- is healthy -------------------- */
+    let isHealthy = true;
+    let msg = '';
+
+    if (!isBalanceOKKarura || !isBalanceOKAcala) {
+      isHealthy = false;
+      msg = 'relayer balance too low';
     }
-  });
 
-  const shouldNotRelayPromise = axios.get(shouldRelayURL, {
-    params: {
-      originAsset: '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
-      amount: '100000',
-      targetChain: '11',
+    if (!isRunning) {
+      isHealthy = false;
+      msg = '/shouldRelay endpoint is down';
     }
-  });
 
-  /* -------------------- get all results -------------------- */
-  const [
-    balanceKarura,
-    balanceAcala,
-    shouldRelay,
-    shouldNotRelay,
-  ] = await Promise.all([
-    fetchBalance(relayerAddressKarura, KARURA_RPC_URL_HTTP),
-    fetchBalance(relayerAddressAcala, ACALA_RPC_URL_HTTP),
-    shouldRelayPromise,
-    shouldNotRelayPromise
-  ]);
+    response.status(200).json({
+      isHealthy,
+      isRunning,
+      balanceKarura,
+      balanceAcala,
+      isBalanceOKKarura,
+      isBalanceOKAcala,
+      msg,
+    });
+  } catch (e) {
+    console.log('error when checking health: ', e);
 
-  const isBalanceOKKarura = balanceKarura > BALANCE_LOW_THREASHOLD;
-  const isBalanceOKAcala = balanceAcala > BALANCE_LOW_THREASHOLD;
-
-  const isRunning = (
-    shouldRelay.data?.shouldRelay === true &&
-    shouldNotRelay.data?.shouldRelay === false
-  );
-
-  /* -------------------- is healthy -------------------- */
-  let isHealthy = true;
-  let msg = '';
-
-  if (!isBalanceOKKarura || !isBalanceOKAcala) {
-    isHealthy = false;
-    msg = 'relayer balance too low';
+    response.status(400).json({
+      isHealthy: false,
+      msg: `error when checking health ${JSON.stringify(e)}`,
+    });
   }
-
-  if (!isRunning) {
-    isHealthy = false;
-    msg = '/shouldRelay endpoint is down';
-  }
-
-  response.status(200).json({
-    isHealthy,
-    isRunning,
-    balanceKarura,
-    balanceAcala,
-    isBalanceOKKarura,
-    isBalanceOKAcala,
-    msg,
-  });
 };

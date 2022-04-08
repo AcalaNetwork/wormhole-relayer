@@ -112,6 +112,6 @@ GET /health
   "balanceAcala": 8.342,
   "isBalanceOKKarura": false,
   "isBalanceOKAcala": false,
-  "msg": ""
+  "msg": "relayer balance too low"
 }
 ```

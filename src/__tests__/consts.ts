@@ -27,7 +27,6 @@ const RELAYER_URL = 'http://localhost:3111';
 export const RELAY_URL = `${RELAYER_URL}/relay`;
 export const SHOULD_RELAY_URL = `${RELAYER_URL}/shouldRelay`;
 export const HEALTH_URL = `${RELAYER_URL}/health`;
-export const KARURA_RPC_URL = 'https://karura-dev.aca-dev.network/eth/http';
 
 // const WORMHOLE_GUARDIAN_RPC = ['http://157.245.62.53:7071'];
 export const WORMHOLE_GUARDIAN_RPC = ['https://wormhole-v2-testnet-api.certus.one'];
