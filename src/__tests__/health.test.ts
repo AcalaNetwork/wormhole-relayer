@@ -52,7 +52,7 @@ describe('/health', () => {
   });
 
   // need to manually change env to poor accounts `1570b994d8c79a9b10a8c5cd577c7fdb2b9461d01f7e84a0e07693212488a7ab`
-  it.only('when balance low', async () => {
+  it.skip('when balance low', async () => {
     const healthCheck = await axios.get(HEALTH_URL, {});
 
     expect(healthCheck.data).to.deep.equal({
