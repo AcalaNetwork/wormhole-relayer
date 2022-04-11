@@ -95,6 +95,7 @@ export const health = async (request: any, response: any): Promise<void> => {
     ACALA_PRIVATE_KEY,
     KARURA_RPC_URL_HTTP,
     ACALA_RPC_URL_HTTP,
+    PORT,
   } = process.env;
 
   try {
@@ -102,7 +103,7 @@ export const health = async (request: any, response: any): Promise<void> => {
     const relayerAddressKarura = new Wallet(KARURA_PRIVATE_KEY).address;
     const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY).address;
 
-    const shouldRelayURL = request.protocol + '://' + request.get('host') + '/shouldRelay';
+    const shouldRelayURL = `http://localhost:${PORT}/shouldRelay`;
 
     const [tokenKarura, threasholdKarura] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_KARURA])[0];
     const [tokenAcala, threasholdAcala] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_ACALA])[0];
