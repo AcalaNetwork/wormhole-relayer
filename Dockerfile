@@ -8,4 +8,6 @@ COPY package.json yarn.lock ./
 RUN yarn
 
 COPY . .
+
+USER node
 CMD yarn start
