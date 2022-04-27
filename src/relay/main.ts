@@ -31,7 +31,10 @@ const validateRequest = async (request: any, response: any) => {
 
   // parse & validate VAA, make sure we want to relay this request
   const vaaInfo = await parseVaa(hexToUint8Array(signedVAA));
-  console.log('parsed VAA info: ', vaaInfo);
+  const vaaInfoString = JSON.stringify(vaaInfo, (key, value) =>
+    typeof value === 'bigint' ? value.toString() : value
+  );
+  console.log(`parsed VAA info: ${vaaInfoString}`);
 
   const { shouldRelay: _shouldRelay, msg } = shouldRelayVaa(vaaInfo);
   if (!_shouldRelay) {
@@ -56,7 +59,8 @@ export const relay = async (request: any, response: any): Promise<void> =>  {
 
   if (!chainConfigInfo) return;
 
-  console.log('relaying: ', { chainConfigInfo, chainId, signedVAA });
+  const relayInfo = JSON.stringify({ chainConfigInfo, chainId, signedVAA });
+  console.log(`relaying: ${relayInfo}`);
 
   try {
     await relayEVM(
@@ -66,17 +70,9 @@ export const relay = async (request: any, response: any): Promise<void> =>  {
       response
     );
 
-    console.log(`
-      ---------------------------------------
-      ---------- Relay Succeed 🎉🎉 ----------
-      ---------------------------------------
-    `);
+    console.log(`Relay Succeed 🎉🎉: ${relayInfo}`);
   } catch (e) {
-    console.log(`
-      -------------------------------------
-      ---------- Relay Failed ❌ ----------
-      -------------------------------------
-    `);
+    console.log(`Relay Failed ❌: ${relayInfo}`);
     console.error(e);
     return response.status(500).json({ error: e, msg: 'Unable to relay this request.' });
   }
@@ -85,7 +81,7 @@ export const relay = async (request: any, response: any): Promise<void> =>  {
 export const checkShouldRelay = (request: any, response: any): void =>  {
   const res = shouldRelay(request.query);
 
-  console.log('checkShouldRelay:', request.query, res.shouldRelay);
+  console.log(`checkShouldRelay: ${JSON.stringify({ ...request.query, res: res.shouldRelay})}`);
   response.status(200).json(res);
 };
 

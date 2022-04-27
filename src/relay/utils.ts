@@ -46,7 +46,11 @@ export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
 
   const res = shouldRelay({ targetChain, originAsset, amount });
 
-  console.log('should relay: ', { targetChain, originAsset, amount, res });
+  const info = JSON.stringify({ targetChain, originAsset, amount, res }, (key, value) =>
+    typeof value === 'bigint' ? value.toString() : value
+  );
+  console.log(`check should relay VAA: ${info}`);
+
   return res;
 };
 
