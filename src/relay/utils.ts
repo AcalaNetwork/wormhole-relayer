@@ -123,7 +123,7 @@ export const fetchBalance = async (address: string, url: string): Promise<number
 
     return Number(formatEther(response.data.result));
   } catch (e) {
-    console.log('fetchBalance error: ', e);
+    console.log('fetchBalance error: ', e.toJSON?.() || e);
     return -1;
   }
 };

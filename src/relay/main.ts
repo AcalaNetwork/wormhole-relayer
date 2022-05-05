@@ -97,12 +97,12 @@ export const health = async (request: any, response: any): Promise<void> => {
   try {
     /* -------------------- prepare requests -------------------- */
     const relayerAddressKarura = new Wallet(KARURA_PRIVATE_KEY).address;
-    const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY).address;
+    // const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY).address;
 
     const shouldRelayURL = `http://localhost:${PORT}/shouldRelay`;
 
     const [tokenKarura, threasholdKarura] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_KARURA])[0];
-    const [tokenAcala, threasholdAcala] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_ACALA])[0];
+    // const [tokenAcala, threasholdAcala] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_ACALA])[0];
 
     const shouldRelayPromiseKar = axios.get(shouldRelayURL, {
       params: {
@@ -120,54 +120,54 @@ export const health = async (request: any, response: any): Promise<void> => {
       }
     });
 
-    const shouldRelayPromiseAca = axios.get(shouldRelayURL, {
-      params: {
-        originAsset: tokenAcala,
-        amount: threasholdAcala,
-        targetChain: CHAIN_ID_ACALA,
-      }
-    });
+    // const shouldRelayPromiseAca = axios.get(shouldRelayURL, {
+    //   params: {
+    //     originAsset: tokenAcala,
+    //     amount: threasholdAcala,
+    //     targetChain: CHAIN_ID_ACALA,
+    //   }
+    // });
 
-    const shouldNotRelayPromiseAca = axios.get(shouldRelayURL, {
-      params: {
-        originAsset: tokenAcala,
-        amount: 100,
-        targetChain: CHAIN_ID_ACALA,
-      }
-    });
+    // const shouldNotRelayPromiseAca = axios.get(shouldRelayURL, {
+    //   params: {
+    //     originAsset: tokenAcala,
+    //     amount: 100,
+    //     targetChain: CHAIN_ID_ACALA,
+    //   }
+    // });
 
     /* -------------------- get all results -------------------- */
     const [
       balanceKarura,
-      balanceAcala,
+      // balanceAcala,
       shouldRelayKar,
       shouldNotRelayKar,
-      shouldRelayAca,
-      shouldNotRelayAca,
+      // shouldRelayAca,
+      // shouldNotRelayAca,
     ] = await Promise.all([
       fetchBalance(relayerAddressKarura, KARURA_RPC_URL_HTTP),
-      fetchBalance(relayerAddressAcala, ACALA_RPC_URL_HTTP),
+      // fetchBalance(relayerAddressAcala, ACALA_RPC_URL_HTTP),
       shouldRelayPromiseKar,
       shouldNotRelayPromiseKar,
-      shouldRelayPromiseAca,
-      shouldNotRelayPromiseAca,
+      // shouldRelayPromiseAca,
+      // shouldNotRelayPromiseAca,
     ]);
 
     const isBalanceOKKarura = balanceKarura > BALANCE_LOW_THREASHOLD;
-    const isBalanceOKAcala = balanceAcala > BALANCE_LOW_THREASHOLD;
+    // const isBalanceOKAcala = balanceAcala > BALANCE_LOW_THREASHOLD;
 
     const isRunning = (
       shouldRelayKar.data?.shouldRelay === true &&
-      shouldRelayAca.data?.shouldRelay === true &&
-      shouldNotRelayKar.data?.shouldRelay === false &&
-      shouldNotRelayAca.data?.shouldRelay === false
+      // shouldRelayAca.data?.shouldRelay === true &&
+      shouldNotRelayKar.data?.shouldRelay === false
+      // shouldNotRelayAca.data?.shouldRelay === false
     );
 
     /* -------------------- is healthy -------------------- */
     let isHealthy = true;
     let msg = '';
 
-    if (!isBalanceOKKarura || !isBalanceOKAcala) {
+    if (!isBalanceOKKarura) {
       isHealthy = false;
       msg = 'relayer balance too low';
     }
@@ -181,9 +181,9 @@ export const health = async (request: any, response: any): Promise<void> => {
       isHealthy,
       isRunning,
       balanceKarura,
-      balanceAcala,
+      // balanceAcala,
       isBalanceOKKarura,
-      isBalanceOKAcala,
+      // isBalanceOKAcala,
       msg,
     });
   } catch (e) {
@@ -191,7 +191,7 @@ export const health = async (request: any, response: any): Promise<void> => {
 
     response.status(400).json({
       isHealthy: false,
-      msg: `error when checking health ${JSON.stringify(e)}`,
+      msg: `error when checking health ${e.toJSON?.() || JSON.stringify(e)}`,
     });
   }
 };
