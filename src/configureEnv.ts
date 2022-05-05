@@ -55,20 +55,16 @@ function configKarura(): ChainConfigInfo {
 
 function configAcala(): ChainConfigInfo {
   if (!process.env.ACALA_RPC_URL_WS) {
-    console.error('Missing environment variable ACALA_RPC_URL_WS');
-    process.exit(1);
+    console.warn('Missing environment variable ACALA_RPC_URL_WS');
   }
   if (!process.env.ACALA_SUBSTRATE_NODE_URL) {
-    console.error('Missing environment variable ACALA_RPC_URL_WS');
-    process.exit(1);
+    console.warn('Missing environment variable ACALA_RPC_URL_WS');
   }
   if (!process.env.ACALA_PRIVATE_KEY) {
-    console.error('Missing environment variable ACALA_PRIVATE_KEY');
-    process.exit(1);
+    console.warn('Missing environment variable ACALA_PRIVATE_KEY');
   }
   if (!process.env.ACALA_TOKEN_BRIDGE_ADDRESS) {
-    console.error('Missing environment variable ACALA_TOKEN_BRIDGE_ADDRESS');
-    process.exit(1);
+    console.warn('Missing environment variable ACALA_TOKEN_BRIDGE_ADDRESS');
   }
 
   return {
