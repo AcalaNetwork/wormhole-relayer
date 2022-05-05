@@ -69,9 +69,9 @@ function configAcala(): ChainConfigInfo {
 
   return {
     chainId: CHAIN_ID_ACALA,
-    nodeUrl: process.env.ACALA_RPC_URL_WS,
-    substrateNodeUrl: process.env.ACALA_SUBSTRATE_NODE_URL,
-    walletPrivateKey: process.env.ACALA_PRIVATE_KEY,
-    tokenBridgeAddress: process.env.ACALA_TOKEN_BRIDGE_ADDRESS,
+    nodeUrl: process.env.ACALA_RPC_URL_WS || '',
+    substrateNodeUrl: process.env.ACALA_SUBSTRATE_NODE_URL || '',
+    walletPrivateKey: process.env.ACALA_PRIVATE_KEY || '',
+    tokenBridgeAddress: process.env.ACALA_TOKEN_BRIDGE_ADDRESS || '',
   };
 }
