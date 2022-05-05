@@ -99,26 +99,26 @@ export const health = async (request: any, response: any): Promise<void> => {
     const relayerAddressKarura = new Wallet(KARURA_PRIVATE_KEY).address;
     // const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY).address;
 
-    const shouldRelayURL = `http://localhost:${PORT}/shouldRelay`;
+    // const shouldRelayURL = `http://localhost:${PORT}/shouldRelay`;
 
-    const [tokenKarura, threasholdKarura] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_KARURA])[0];
+    // const [tokenKarura, threasholdKarura] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_KARURA])[0];
     // const [tokenAcala, threasholdAcala] = Object.entries(RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[CHAIN_ID_ACALA])[0];
 
-    const shouldRelayPromiseKar = axios.get(shouldRelayURL, {
-      params: {
-        originAsset: tokenKarura,
-        amount: threasholdKarura,
-        targetChain: CHAIN_ID_KARURA,
-      }
-    });
+    // const shouldRelayPromiseKar = axios.get(shouldRelayURL, {
+    //   params: {
+    //     originAsset: tokenKarura,
+    //     amount: threasholdKarura,
+    //     targetChain: CHAIN_ID_KARURA,
+    //   }
+    // });
 
-    const shouldNotRelayPromiseKar = axios.get(shouldRelayURL, {
-      params: {
-        originAsset: tokenKarura,
-        amount: 100,
-        targetChain: CHAIN_ID_KARURA,
-      }
-    });
+    // const shouldNotRelayPromiseKar = axios.get(shouldRelayURL, {
+    //   params: {
+    //     originAsset: tokenKarura,
+    //     amount: 100,
+    //     targetChain: CHAIN_ID_KARURA,
+    //   }
+    // });
 
     // const shouldRelayPromiseAca = axios.get(shouldRelayURL, {
     //   params: {
@@ -140,15 +140,15 @@ export const health = async (request: any, response: any): Promise<void> => {
     const [
       balanceKarura,
       // balanceAcala,
-      shouldRelayKar,
-      shouldNotRelayKar,
+      // shouldRelayKar,
+      // shouldNotRelayKar,
       // shouldRelayAca,
       // shouldNotRelayAca,
     ] = await Promise.all([
       fetchBalance(relayerAddressKarura, KARURA_RPC_URL_HTTP),
       // fetchBalance(relayerAddressAcala, ACALA_RPC_URL_HTTP),
-      shouldRelayPromiseKar,
-      shouldNotRelayPromiseKar,
+      // shouldRelayPromiseKar,
+      // shouldNotRelayPromiseKar,
       // shouldRelayPromiseAca,
       // shouldNotRelayPromiseAca,
     ]);
@@ -156,12 +156,12 @@ export const health = async (request: any, response: any): Promise<void> => {
     const isBalanceOKKarura = balanceKarura > BALANCE_LOW_THREASHOLD;
     // const isBalanceOKAcala = balanceAcala > BALANCE_LOW_THREASHOLD;
 
-    const isRunning = (
-      shouldRelayKar.data?.shouldRelay === true &&
-      // shouldRelayAca.data?.shouldRelay === true &&
-      shouldNotRelayKar.data?.shouldRelay === false
-      // shouldNotRelayAca.data?.shouldRelay === false
-    );
+    // const isRunning = (
+    //   shouldRelayKar.data?.shouldRelay === true &&
+    //   shouldRelayAca.data?.shouldRelay === true &&
+    //   shouldNotRelayKar.data?.shouldRelay === false
+    //   shouldNotRelayAca.data?.shouldRelay === false
+    // );
 
     /* -------------------- is healthy -------------------- */
     let isHealthy = true;
@@ -172,14 +172,14 @@ export const health = async (request: any, response: any): Promise<void> => {
       msg = 'relayer balance too low';
     }
 
-    if (!isRunning) {
-      isHealthy = false;
-      msg = '/shouldRelay endpoint is down';
-    }
+    // if (!isRunning) {
+    //   isHealthy = false;
+    //   msg = '/shouldRelay endpoint is down';
+    // }
 
     response.status(200).json({
       isHealthy,
-      isRunning,
+      // isRunning,
       balanceKarura,
       // balanceAcala,
       isBalanceOKKarura,
@@ -191,7 +191,7 @@ export const health = async (request: any, response: any): Promise<void> => {
 
     response.status(400).json({
       isHealthy: false,
-      msg: `error when checking health ${e.toJSON?.() || JSON.stringify(e)}`,
+      msg: `error when checking health ${JSON.stringify(e)}`,
     });
   }
 };
