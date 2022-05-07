@@ -59,7 +59,7 @@ export const relay = async (request: any, response: any): Promise<void> =>  {
 
   if (!chainConfigInfo) return;
 
-  const relayInfo = JSON.stringify({ chainConfigInfo, chainId, signedVAA });
+  const relayInfo = JSON.stringify({ chainId, signedVAA });
   console.log(`relaying: ${relayInfo}`);
 
   try {
