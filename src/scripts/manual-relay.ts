@@ -1,6 +1,7 @@
 import { CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
 import { ChainConfigInfo } from '../configureEnv';
 import { relayEVM } from '../relay/utils';
+import axios from 'axios';
 
 const karuraChainConfig: ChainConfigInfo = {
   chainId: CHAIN_ID_KARURA,
@@ -44,8 +45,23 @@ const manualRelayVAA = async (chainConfigInfo: ChainConfigInfo, signedVAA: strin
   }
 };
 
+const manualRelayTxHash = async (txHash: string, rpcUrl: string) => {
+  const receipt = (await axios.post(rpcUrl, {
+    id: 0,
+    jsonrpc: '2.0',
+    method: 'eth_getTransactionReceipt',
+    params: [txHash]
+  })).data;
+
+  console.log(receipt)
+};
+
 
 
 (async () => {
-  await manualRelayVAA(karuraChainConfig, vaa);
+  // await manualRelayVAA(karuraChainConfig, vaa);
+
+  const txHash = '0x6ae0bd05b7af34a8a84b738218609511d5aa248ba89a551b02b3af60e579799d';
+  const karuraRpcUrl = 'https://mainnet.infura.io/v3/d5ce150a796d463397bf9f906fc1aae6';
+  await manualRelayTxHash(txHash, karuraRpcUrl);
 })();
