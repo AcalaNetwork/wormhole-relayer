@@ -68,6 +68,7 @@ const transferEvm = async (
   }
   const vaaCompatibleAddress = hexToUint8Array(hexString);
 
+  console.log('sending tx...')
   const receipt = await transferFromEth(
     tokenBridgeAddress,
     signer,

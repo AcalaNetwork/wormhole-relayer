@@ -44,7 +44,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@acala-network/eth-providers": "^2.2.3",
+    "@acala-network/eth-providers": "^2.4.12",
     "@certusone/wormhole-sdk": "~0.2.1",
     "@improbable-eng/grpc-web": "^0.14.0",
     "@solana/spl-token": "^0.1.8",
@@ -59,16 +59,5 @@
     "protobufjs": "^6.11.2",
     "rxjs": "^7.3.0",
     "ts-node": "^10.5.0"
-  },
-  "resolutions": {
-    "@polkadot/api": "~6.11.1",
-    "@polkadot/api-derive": "~6.11.1",
-    "@polkadot/types": "~6.11.1",
-    "@polkadot/rpc-core": "~6.11.1",
-    "@polkadot/types-known": "~6.11.1",
-    "@polkadot/rpc-provider": "~6.11.1",
-    "@polkadot/keyring": "~8.1.2",
-    "@polkadot/util": "~8.1.2",
-    "@polkadot/util-crypto": "~8.1.2"
   }
 }

@@ -6,7 +6,7 @@ import {
   ChainId,
   hexToNativeString,
 } from '@certusone/wormhole-sdk';
-import { ethers } from 'ethers';
+import { ContractReceipt, ethers } from 'ethers';
 import { ChainConfigInfo } from '../configureEnv';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
 import {
@@ -91,7 +91,7 @@ export const relayEVM = async (
   signedVAA: string,
   request: any,
   response: any
-) => {
+): Promise<ContractReceipt> => {
   const provider = EvmRpcProvider.from(chainConfigInfo.substrateNodeUrl);
   await provider.isReady();
 
@@ -103,8 +103,7 @@ export const relayEVM = async (
     hexToUint8Array(signedVAA),
   );
 
-  console.log('successfully redeemed on evm', receipt.transactionHash);
-  response.status(200).json(receipt);
+  return receipt;
 };
 
 export const fetchBalance = async (address: string, url: string): Promise<number> => {
