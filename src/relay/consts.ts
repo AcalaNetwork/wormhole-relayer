@@ -9,7 +9,7 @@ dotenv.config({ path: '.env' });
 const isTestnet = Number(process.env.TESTNET_MODE);
 
 // thredhold amount is defined as "amount that will show on VAA"
-// address should be lower case address to be consistent
+// address should be **lower case** address to be consistent
 const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV = {
   [CHAIN_ID_KARURA]: {
     // 0.1 BSC USDT => karura WUSDT 0x478dEFc2Fc2be13a505dafBDF1e5400847E2efF6
@@ -48,8 +48,6 @@ const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD = {
 export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = isTestnet
   ? RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV
   : RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD;
-
-export const BALANCE_LOW_THREASHOLD = 20;
 
 export const TESTNET_MODE_WARNING = `
   ----------------------------

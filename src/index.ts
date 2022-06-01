@@ -2,13 +2,13 @@ import cors from 'cors';
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import { relay, checkShouldRelay, health } from './relay/main';
+import { relay, checkShouldRelay } from './relay/main';
 import { TESTNET_MODE_WARNING } from './relay/consts';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
 
-const startServer = () => {
+const startServer = async (): Promise<void> => {
   const app = express();
 
   app.use(cors());
@@ -17,7 +17,6 @@ const startServer = () => {
 
   app.post('/relay', relay);
   app.get('/shouldRelay', checkShouldRelay);
-  app.get('/health', health);
 
   app.listen(PORT, () => {
     console.log(`
@@ -38,4 +37,7 @@ const startServer = () => {
   });
 };
 
-startServer();
+startServer().catch((e) => {
+  console.log('❗️❗️ something is wrong with relayer: ', e);
+  process.exit(1);
+});

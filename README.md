@@ -81,40 +81,5 @@ POST /relay
 }
 ```
 
-### `/health`
-checks if the relayer is healthy:
-- is it still running?
-- is the relayer account balance enough?
-```
-GET /health
-```
-
-example
-```
-# ---------- when healthy ---------- #
-GET /health
-{
-  "isHealthy": true,
-  "isRunning": true,
-  "balanceKarura": 79.892162918604,
-  "balanceAcala": 79.892162918604,
-  "isBalanceOKKarura": true,
-  "isBalanceOKAcala": true,
-  "msg": ""
-}
-
-# ---------- when unhealthy ---------- #
-GET /health
-{
-  "isHealthy": false,
-  "isRunning": true,
-  "balanceKarura": 15.1234,
-  "balanceAcala": 8.342,
-  "isBalanceOKKarura": false,
-  "isBalanceOKAcala": false,
-  "msg": "relayer balance too low"
-}
-```
-
 ## Production Config
 modify `.env` to use real private keys for relayers, also set `TESTNET_MODE=0`
