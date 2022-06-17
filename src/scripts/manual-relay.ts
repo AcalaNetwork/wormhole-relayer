@@ -14,17 +14,8 @@ const karuraChainConfig: ChainConfigInfo = {
 const vaa = '01000000000100dcc241f8a3b9932715eb25599a82641a72620efcbcf016da44ccd0e6bb08f72c37fc93c8f343b984bf7388dd7e5b73d48add8ae578c4ea3c5ce060a50d0722ad01624d4b6a358800000002000000000000000000000000f890982f9310df57d00f659cf4fd87e65aded8d700000000000003130f01000000000000000000000000000000000000000000000000000000000000c35000000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f0002000000000000000000000000e3234f433914d4cfcf846491ec5a7831ab9f0bb3000b0000000000000000000000000000000000000000000000000000000000000000';
 
 const manualRelayVAA = async (chainConfigInfo: ChainConfigInfo, signedVAA: string) => {
-  let r;
-  const res = new Promise(resolve => r = resolve);
-
-  const response = {
-    status: () => ({
-      json: r,
-    })
-  };
-
   try {
-    await relayEVM(chainConfigInfo, signedVAA, null, response);
+    const receipt = await relayEVM(chainConfigInfo, signedVAA);
 
     console.log(`
       ---------------------------------------
@@ -32,7 +23,8 @@ const manualRelayVAA = async (chainConfigInfo: ChainConfigInfo, signedVAA: strin
       ---------------------------------------
     `);
 
-    console.log(res);
+    console.log(receipt);
+
   } catch (e) {
     console.log(`
       -------------------------------------
@@ -43,8 +35,6 @@ const manualRelayVAA = async (chainConfigInfo: ChainConfigInfo, signedVAA: strin
     console.error(e);
   }
 };
-
-
 
 (async () => {
   await manualRelayVAA(karuraChainConfig, vaa);

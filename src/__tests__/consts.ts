@@ -1,5 +1,6 @@
 export const NODE_URL_BSC = 'https://data-seed-prebsc-1-s1.binance.org:8545/';
-export const NODE_URL_GOERLI = 'https://rpc.goerli.mudit.blog/';
+// export const NODE_URL_GOERLI = 'https://rpc.goerli.mudit.blog/';
+export const NODE_URL_GOERLI = 'https://goerli.optimism.io/';
 
 export const SENDER_PRIVATE_KEY = '0xefb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044';
 
