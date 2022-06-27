@@ -72,6 +72,6 @@ export const relay = async (request: any, response: any): Promise<void> =>  {
 export const checkShouldRelay = (request: any, response: any): void =>  {
   const res = shouldRelay(request.query);
 
-  console.log(`checkShouldRelay: ${JSON.stringify({ ...request.query, res: res.shouldRelay})}`);
+  console.log(`checkShouldRelay: ${JSON.stringify({ ...request.query, ...res })}`);
   response.status(200).json(res);
 };
