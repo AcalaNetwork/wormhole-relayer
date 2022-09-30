@@ -11,11 +11,9 @@ export type ChainConfigInfo = {
   nodeUrl: string;
   substrateNodeUrl: string,
   tokenBridgeAddress: string;
-  bridgeAddress?: string;
   walletPrivateKey: string;
 };
 
-//Polygon is not supported on local Tilt network atm.
 export function validateEnvironment(): RelayerEnvironment {
   setDefaultWasm('node');
   dotenv.config({ path: '.env' });
@@ -27,12 +25,12 @@ export function validateEnvironment(): RelayerEnvironment {
 }
 
 function configKarura(): ChainConfigInfo {
-  if (!process.env.KARURA_RPC_URL_WS) {
-    console.error('Missing environment variable KARURA_RPC_URL_WS');
+  if (!process.env.KARURA_ETH_RPC_URL) {
+    console.error('Missing environment variable KARURA_ETH_RPC_URL');
     process.exit(1);
   }
   if (!process.env.KARURA_SUBSTRATE_NODE_URL) {
-    console.error('Missing environment variable KARURA_RPC_URL_WS');
+    console.error('Missing environment variable KARURA_SUBSTRATE_NODE_URL');
     process.exit(1);
   }
   if (!process.env.KARURA_PRIVATE_KEY) {
@@ -46,7 +44,7 @@ function configKarura(): ChainConfigInfo {
 
   return {
     chainId: CHAIN_ID_KARURA,
-    nodeUrl: process.env.KARURA_RPC_URL_WS,
+    nodeUrl: process.env.KARURA_ETH_RPC_URL,
     substrateNodeUrl: process.env.KARURA_SUBSTRATE_NODE_URL,
     walletPrivateKey: process.env.KARURA_PRIVATE_KEY,
     tokenBridgeAddress: process.env.KARURA_TOKEN_BRIDGE_ADDRESS,
@@ -54,11 +52,11 @@ function configKarura(): ChainConfigInfo {
 }
 
 function configAcala(): ChainConfigInfo {
-  if (!process.env.ACALA_RPC_URL_WS) {
-    console.warn('Missing environment variable ACALA_RPC_URL_WS');
+  if (!process.env.ACALA_ETH_RPC_URL) {
+    console.warn('Missing environment variable ACALA_ETH_RPC_URL');
   }
   if (!process.env.ACALA_SUBSTRATE_NODE_URL) {
-    console.warn('Missing environment variable ACALA_RPC_URL_WS');
+    console.warn('Missing environment variable ACALA_SUBSTRATE_NODE_URL');
   }
   if (!process.env.ACALA_PRIVATE_KEY) {
     console.warn('Missing environment variable ACALA_PRIVATE_KEY');
@@ -69,7 +67,7 @@ function configAcala(): ChainConfigInfo {
 
   return {
     chainId: CHAIN_ID_ACALA,
-    nodeUrl: process.env.ACALA_RPC_URL_WS || '',
+    nodeUrl: process.env.ACALA_ETH_RPC_URL || '',
     substrateNodeUrl: process.env.ACALA_SUBSTRATE_NODE_URL || '',
     walletPrivateKey: process.env.ACALA_PRIVATE_KEY || '',
     tokenBridgeAddress: process.env.ACALA_TOKEN_BRIDGE_ADDRESS || '',

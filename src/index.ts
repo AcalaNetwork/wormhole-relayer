@@ -24,14 +24,12 @@ const startServer = async (): Promise<void> => {
       ----------------------------------------------------------------
       ⚡               relayer running on port ${PORT}               ⚡
       ----------------------------------------------------------------
-      KARURA_RPC_URL_WS        : ${process.env.KARURA_RPC_URL_WS}
-      ACALA_RPC_URL_WS         : ${process.env.ACALA_RPC_URL_WS}
-      KARURA_RPC_URL_HTTP      : ${process.env.KARURA_RPC_URL_HTTP}
-      ACALA_RPC_URL_HTTP       : ${process.env.ACALA_RPC_URL_HTTP}
-      KARURA_SUBSTRATE_NODE_URL: ${process.env.KARURA_SUBSTRATE_NODE_URL}
-      ACALA_SUBSTRATE_NODE_URL : ${process.env.ACALA_SUBSTRATE_NODE_URL}
-      TESTNET_MODE             : ${process.env.TESTNET_MODE}
-      VERSION                  : ${VERSION}
+      KARURA_ETH_RPC_URL        : ${process.env.KARURA_ETH_RPC_URL}
+      ACALA_ETH_RPC_URL         : ${process.env.ACALA_ETH_RPC_URL}
+      KARURA_SUBSTRATE_NODE_URL : ${process.env.KARURA_SUBSTRATE_NODE_URL}
+      ACALA_SUBSTRATE_NODE_URL  : ${process.env.ACALA_SUBSTRATE_NODE_URL}
+      TESTNET_MODE              : ${process.env.TESTNET_MODE}
+      VERSION                   : ${VERSION}
       ----------------------------------------------------------------
     `);
 

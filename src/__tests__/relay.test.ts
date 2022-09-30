@@ -15,7 +15,7 @@ import { setDefaultWasm } from '@certusone/wormhole-sdk/lib/cjs/solana/wasm';
 import { parseUnits } from '@ethersproject/units';
 import { ethers, Wallet } from 'ethers';
 import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import dotenv from 'dotenv';
 import { expect } from 'chai';
 import {
@@ -40,18 +40,15 @@ dotenv.config({ path: '.env' });
 const {
   KARURA_PRIVATE_KEY,
   ACALA_PRIVATE_KEY,
-  KARURA_RPC_URL_HTTP,
-  ACALA_RPC_URL_HTTP,
 } = process.env;
 
-const relayerAddressKarura = new Wallet(KARURA_PRIVATE_KEY).address;
-const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY).address;
+const relayerAddressKarura = new Wallet(KARURA_PRIVATE_KEY as string).address;
+const relayerAddressAcala = new Wallet(ACALA_PRIVATE_KEY as string).address;
 
 const transferEvm = async (
   nodeUrl: string,
   tokenBridgeAddress: string,
   coreBridgeAddress: string,
-  sourceChain: ChainId,
   targetChain: ChainId,
   amount: string,
   recipientAddress: string,
@@ -68,7 +65,7 @@ const transferEvm = async (
   }
   const vaaCompatibleAddress = hexToUint8Array(hexString);
 
-  console.log('sending tx...')
+  console.log('sending tx...');
   const receipt = await transferFromEth(
     tokenBridgeAddress,
     signer,
@@ -78,18 +75,17 @@ const transferEvm = async (
     vaaCompatibleAddress,
   );
 
-  return await parseSequenceFromLogEth(
+  return parseSequenceFromLogEth(
     receipt,
     coreBridgeAddress,
   );
 };
 
-const transferFromBSCToKarura = async (amount: string, sourceAsset: string, decimals = 18): string => {
+const transferFromBSCToKarura = async (amount: string, sourceAsset: string, decimals = 18): Promise<string> => {
   const sequence = await transferEvm(
     NODE_URL_BSC,
     BSC_TOKEN_BRIDGE_ADDRESS,
     BSC_CORE_BRIDGE_ADDRESS,
-    CHAIN_ID_BSC,
     CHAIN_ID_KARURA,
     amount,
     relayerAddressKarura,
@@ -114,12 +110,11 @@ const transferFromBSCToKarura = async (amount: string, sourceAsset: string, deci
   return signedVAA;
 };
 
-const transferFromGoerliToKarura = async (amount: string, sourceAsset: string, decimals = 6): string => {
+const transferFromGoerliToKarura = async (amount: string, sourceAsset: string, decimals = 6): Promise<string> => {
   const sequence = await transferEvm(
     NODE_URL_GOERLI,
     GOERLI_TOKEN_BRIDGE_ADDRESS,
     GOERLI_CORE_BRIDGE_ADDRESS,
-    CHAIN_ID_ETH,
     CHAIN_ID_KARURA,
     amount,
     relayerAddressKarura,
@@ -146,7 +141,7 @@ const transferFromGoerliToKarura = async (amount: string, sourceAsset: string, d
 
 describe('/relay', () => {
   describe('Send ERC20 from BSC to Karura', () => {
-    it('relay correctly when should relay', async () => {
+    it.only('relay correctly when should relay', async () => {
       const signedVAA = await transferFromBSCToKarura('0.1', BSC_USDT_ADDRESS);
       console.log({ signedVAA });
 

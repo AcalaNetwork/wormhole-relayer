@@ -21,6 +21,5 @@ const RELAYER_URL = 'http://localhost:3111';
 
 export const RELAY_URL = `${RELAYER_URL}/relay`;
 export const SHOULD_RELAY_URL = `${RELAYER_URL}/shouldRelay`;
-export const HEALTH_URL = `${RELAYER_URL}/health`;
 
 export const WORMHOLE_GUARDIAN_RPC = ['https://wormhole-v2-testnet-api.certus.one'];
