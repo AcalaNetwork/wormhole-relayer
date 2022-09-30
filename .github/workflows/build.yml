@@ -22,8 +22,8 @@ jobs:
         with:
           images: acala/relayer
           tags: |
-            type=sha
             type=semver,pattern={{raw}}
+            type=raw,value={{sha}}
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Build and push
         uses: docker/build-push-action@v3

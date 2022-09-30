@@ -14,6 +14,13 @@ docker-compose version: `docker-compose version 1.29.2, build 5becea4c`
 - start dev server with docker in background: `docker-compose up -d --build`
 
 ## Endpoints
+### `/version`
+get the relayer version
+```
+GET /version
+1.0.0
+```
+
 ### `/shouldRelay`
 checks if the relayer can relay this request
 ```

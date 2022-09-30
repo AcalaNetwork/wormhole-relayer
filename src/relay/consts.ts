@@ -66,3 +66,5 @@ export const TESTNET_MODE_WARNING = `
   ❌ don't use it for mainnet!
   ----------------------------
 `;
+
+export const VERSION = '1.0.0';

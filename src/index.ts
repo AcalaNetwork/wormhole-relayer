@@ -2,7 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import { relay, checkShouldRelay } from './relay/main';
+import { relay, checkShouldRelay, getVersion } from './relay/main';
 import { TESTNET_MODE_WARNING } from './relay/consts';
 
 dotenv.config({ path: '.env' });
@@ -17,6 +17,7 @@ const startServer = async (): Promise<void> => {
 
   app.post('/relay', relay);
   app.get('/shouldRelay', checkShouldRelay);
+  app.get('/version', getVersion);
 
   app.listen(PORT, () => {
     console.log(`

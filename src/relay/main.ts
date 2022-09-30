@@ -3,6 +3,7 @@ import {
   hexToUint8Array,
 } from '@certusone/wormhole-sdk';
 import { RelayerEnvironment, validateEnvironment } from '../configureEnv';
+import { VERSION } from './consts';
 import { relayEVM, shouldRelay, parseVaa, shouldRelayVaa } from './utils';
 
 const env: RelayerEnvironment = validateEnvironment();
@@ -75,3 +76,5 @@ export const checkShouldRelay = (request: any, response: any): void =>  {
   console.log(`checkShouldRelay: ${JSON.stringify({ ...request.query, ...res })}`);
   response.status(200).json(res);
 };
+
+export const getVersion = (request: any, response: any): void => response.status(200).end(VERSION);
