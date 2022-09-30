@@ -3,7 +3,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { relay, checkShouldRelay, getVersion } from './relay/main';
-import { TESTNET_MODE_WARNING } from './relay/consts';
+import { TESTNET_MODE_WARNING, VERSION } from './relay/consts';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
@@ -31,6 +31,7 @@ const startServer = async (): Promise<void> => {
       KARURA_SUBSTRATE_NODE_URL: ${process.env.KARURA_SUBSTRATE_NODE_URL}
       ACALA_SUBSTRATE_NODE_URL : ${process.env.ACALA_SUBSTRATE_NODE_URL}
       TESTNET_MODE             : ${process.env.TESTNET_MODE}
+      VERSION                  : ${VERSION}
       ----------------------------------------------------------------
     `);
 
