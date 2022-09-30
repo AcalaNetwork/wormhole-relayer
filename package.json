@@ -1,14 +1,13 @@
 {
-  "name": "@certusone/wormhole-rest-relayer",
-  "version": "0.0.1",
-  "description": "SDK for interacting with Wormhole",
-  "homepage": "https://wormholenetwork.com",
+  "name": "acala-ormhole-relayer",
+  "version": "1.0.0",
+  "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
     "lib/**/*"
   ],
-  "repository": "https://github.com/certusone/wormhole/tree/dev.v2/examples",
+  "repository": "https://github.com/AcalaNetwork/wormhole-relayer/",
   "scripts": {
     "build": "tsc",
     "start": "yarn build && node dist/index.js",
