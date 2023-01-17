@@ -95,7 +95,7 @@ const transferFromBSCToKarura = async (amount: string, sourceAsset: string, deci
   console.log('transfer from BSC complete', { sequence }, 'waiting for VAA...');
 
   // poll until the guardian(s) witness and sign the vaa
-  const emitterAddress = await getEmitterAddressEth(BSC_TOKEN_BRIDGE_ADDRESS);
+  const emitterAddress = getEmitterAddressEth(BSC_TOKEN_BRIDGE_ADDRESS);
   const { vaaBytes } = await getSignedVAAWithRetry(
     WORMHOLE_GUARDIAN_RPC,
     CHAIN_ID_BSC,
@@ -103,7 +103,7 @@ const transferFromBSCToKarura = async (amount: string, sourceAsset: string, deci
     sequence,
     {
       transport: NodeHttpTransport(),
-    }
+    },
   );
 
   const signedVAA = uint8ArrayToHex(vaaBytes);
@@ -132,7 +132,7 @@ const transferFromGoerliToKarura = async (amount: string, sourceAsset: string, d
     sequence,
     {
       transport: NodeHttpTransport(),
-    }
+    },
   );
 
   const signedVAA = uint8ArrayToHex(vaaBytes);
@@ -145,10 +145,13 @@ describe('/relay', () => {
       const signedVAA = await transferFromBSCToKarura('0.1', BSC_USDT_ADDRESS);
       console.log({ signedVAA });
 
+      console.log(`relaying with ${RELAY_URL}`);
       const result = await axios.post(RELAY_URL, {
         targetChain: CHAIN_ID_KARURA,
         signedVAA,
       });
+
+      console.log('relay result: ', result.data);
 
       expect(result.data).to.includes({
         from: relayerAddressKarura,

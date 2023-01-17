@@ -19,6 +19,7 @@ import { relayEVM } from '../relay/utils';
 // };
 
 const manualRelayVAA = async (relayerUrl: string, targetChain: ChainID, signedVAA: string) => {
+  console.log(`relaying with ${relayerUrl}`);
   try {
     const res = await axios.post(`${relayerUrl}/relay`, {
       targetChain: CHAIN_ID_KARURA,
