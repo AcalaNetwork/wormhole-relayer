@@ -1,6 +1,6 @@
 {
-  "name": "acala-ormhole-relayer",
-  "version": "1.0.0",
+  "name": "acala-wormhole-relayer",
+  "version": "1.2.0",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
