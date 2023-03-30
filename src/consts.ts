@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env' });
 
-const isTestnet = Number(process.env.TESTNET_MODE);
+const isTestnet = Number(process.env.TESTNET_MODE ?? 1);
 
 // thredhold amount is defined as "amount that will show on VAA"
 // address should be **lower case** address to be consistent
@@ -60,6 +60,60 @@ export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = isTestnet
   ? RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV
   : RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD;
 
+// https://book.wormhole.com/reference/contracts.html#token-bridge
+// TODO: import these from newer version of wormhole sdk
+export const ADDRESSES = {
+  karuraTestnet: {
+    tokenBridgeAddr: '0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37',
+    factoryAddr: '0xc22ea30a2f5090c03149639babaeeb0b5e17b34b',
+    feeAddr: '0x109FdB5a8f3EC051C21B3482ac89599e7D76561C',
+    xtokensAddr: '0x',
+  },
+  acalaTestnet: {
+    tokenBridgeAddr: '0xebA00cbe08992EdD08ed7793E07ad6063c807004',
+    factoryAddr: '',
+    feeAddr: '',
+    xtokensAddr: '0x',
+  },
+  karura: {
+    tokenBridgeAddr: '0xae9d7fe007b3327AA64A32824Aaac52C42a6E624',
+    factoryAddr: '',
+    feeAddr: '',
+    xtokensAddr: '0x',
+  },
+  acala: {
+    tokenBridgeAddr: '0xae9d7fe007b3327AA64A32824Aaac52C42a6E624',
+    factoryAddr: '',
+    feeAddr: '',
+    xtokensAddr: '0x',
+  },
+} as const;
+
+export const HYDRA = 'HYDRA';
+export const BASILISK = 'BASILISK';
+
+const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV = {
+  [HYDRA]: [
+    '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
+  ],
+  [BASILISK]: [
+    '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
+  ],
+} as const;
+
+const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD = {
+  [HYDRA]: [
+    '',     // USDC
+  ],
+  [BASILISK]: [
+    '',     // USDC
+  ],
+} as const;
+
+export const ROUTE_SUPPORTED_CHAINS_AND_ASSETS = isTestnet
+  ? ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV
+  : ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD;
+
 export const TESTNET_MODE_WARNING = `
   ----------------------------
   🔨 running in testnet mode
@@ -67,4 +121,4 @@ export const TESTNET_MODE_WARNING = `
   ----------------------------
 `;
 
-export const VERSION = '1.2.0';
+export const VERSION = '1.3.0';

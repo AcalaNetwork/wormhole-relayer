@@ -2,19 +2,19 @@ import { CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
 import { ChainID } from '@certusone/wormhole-sdk/lib/cjs/proto/publicrpc/v1/publicrpc';
 import axios from 'axios';
 import { ChainConfigInfo } from '../configureEnv';
-import { relayEVM } from '../relay/utils';
+import { relayEVM } from '../utils';
 
-// const KARURA_ETH_RPC_URL='https://eth-rpc-karura-testnet.aca-staging.network';
-// const ACALA_ETH_RPC_URL='https://eth-rpc-acala-testnet.aca-staging.network';
-// const KARURA_SUBSTRATE_NODE_URL='wss://karura-dev.aca-dev.network/rpc/ws';
-// const ACALA_SUBSTRATE_NODE_URL='wss://acala-dev.aca-dev.network/rpc/ws';
+// const KARURA_ETH_RPC='https://eth-rpc-karura-testnet.aca-staging.network';
+// const ACALA_ETH_RPC='https://eth-rpc-acala-testnet.aca-staging.network';
+// const KARURA_NODE_URL='wss://karura-dev.aca-dev.network/rpc/ws';
+// const ACALA_NODE_URL='wss://acala-dev.aca-dev.network/rpc/ws';
 
 // const karuraChainConfig: ChainConfigInfo = {
 //   chainId: CHAIN_ID_KARURA,
-//   // nodeUrl: 'ws://103.253.145.222:3331',
-//   nodeUrl: undefined,
-//   substrateNodeUrl: KARURA_SUBSTRATE_NODE_URL,
-//   tokenBridgeAddress: '0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37',
+//   // ethRpc: 'ws://103.253.145.222:3331',
+//   ethRpc: undefined,
+//   nodeUrl: KARURA_NODE_URL,
+//   tokenBridgeAddr: '0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37',
 //   walletPrivateKey: '0xefb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044',
 // };
 

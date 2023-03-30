@@ -2,8 +2,9 @@ import cors from 'cors';
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import { relay, checkShouldRelay, getVersion } from './relay/main';
-import { TESTNET_MODE_WARNING, VERSION } from './relay/consts';
+import { relay, checkShouldRelay, getVersion } from './relay';
+import { TESTNET_MODE_WARNING, VERSION } from './consts';
+import { handleRouteWormhole, handleRouteXcm, shouldRouteWormhole, shouldRouteXcm } from './route';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
@@ -16,7 +17,13 @@ const startServer = async (): Promise<void> => {
   app.use(bodyParser.json());
 
   app.post('/relay', relay);
+  app.post('/routeXcm', handleRouteXcm);
+  app.post('/routeWormhole', handleRouteWormhole);
+
   app.get('/shouldRelay', checkShouldRelay);
+  app.get('/shouldRouteWormhole', shouldRouteWormhole);
+  app.get('/shouldRouteXcm', shouldRouteXcm);
+
   app.get('/version', getVersion);
 
   app.listen(PORT, () => {
@@ -24,12 +31,12 @@ const startServer = async (): Promise<void> => {
       ----------------------------------------------------------------
       ⚡               relayer running on port ${PORT}               ⚡
       ----------------------------------------------------------------
-      KARURA_ETH_RPC_URL        : ${process.env.KARURA_ETH_RPC_URL}
-      ACALA_ETH_RPC_URL         : ${process.env.ACALA_ETH_RPC_URL}
-      KARURA_SUBSTRATE_NODE_URL : ${process.env.KARURA_SUBSTRATE_NODE_URL}
-      ACALA_SUBSTRATE_NODE_URL  : ${process.env.ACALA_SUBSTRATE_NODE_URL}
-      TESTNET_MODE              : ${process.env.TESTNET_MODE}
-      VERSION                   : ${VERSION}
+      KARURA_ETH_RPC  : ${process.env.KARURA_ETH_RPC}
+      ACALA_ETH_RPC   : ${process.env.ACALA_ETH_RPC}
+      KARURA_NODE_URL : ${process.env.KARURA_NODE_URL}
+      ACALA_NODE_URL  : ${process.env.ACALA_NODE_URL}
+      TESTNET_MODE    : ${process.env.TESTNET_MODE}
+      VERSION         : ${VERSION}
       ----------------------------------------------------------------
     `);
 

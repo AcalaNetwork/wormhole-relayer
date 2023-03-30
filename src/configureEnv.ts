@@ -1,6 +1,7 @@
 import { ChainId, CHAIN_ID_KARURA, CHAIN_ID_ACALA } from '@certusone/wormhole-sdk';
 import { setDefaultWasm } from '@certusone/wormhole-sdk/lib/cjs/solana/wasm';
 import dotenv from 'dotenv';
+import { ADDRESSES } from './consts';
 
 export type RelayerEnvironment = {
   supportedChains: ChainConfigInfo[];
@@ -8,11 +9,16 @@ export type RelayerEnvironment = {
 
 export type ChainConfigInfo = {
   chainId: ChainId;
-  nodeUrl: string;
-  substrateNodeUrl: string,
-  tokenBridgeAddress: string;
+  ethRpc: string;
+  nodeUrl: string,
   walletPrivateKey: string;
+  tokenBridgeAddr: string;
+  feeAddr: string;
+  factoryAddr: string;
+  xtokensAddr: string;
 };
+
+const isTestnet = Number(process.env.TESTNET_MODE ?? 1);
 
 export function validateEnvironment(): RelayerEnvironment {
   setDefaultWasm('node');
@@ -25,51 +31,61 @@ export function validateEnvironment(): RelayerEnvironment {
 }
 
 function configKarura(): ChainConfigInfo {
-  if (!process.env.KARURA_ETH_RPC_URL) {
-    console.error('Missing environment variable KARURA_ETH_RPC_URL');
-    process.exit(1);
+  const requiredEnvVars = [
+    'KARURA_ETH_RPC',
+    'KARURA_NODE_URL',
+    'KARURA_PRIVATE_KEY',
+  ];
+
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+      console.error(`Missing environment variable ${envVar}`);
+      process.exit(1);
+    }
   }
-  if (!process.env.KARURA_SUBSTRATE_NODE_URL) {
-    console.error('Missing environment variable KARURA_SUBSTRATE_NODE_URL');
-    process.exit(1);
-  }
-  if (!process.env.KARURA_PRIVATE_KEY) {
-    console.error('Missing environment variable KARURA_PRIVATE_KEY');
-    process.exit(1);
-  }
-  if (!process.env.KARURA_TOKEN_BRIDGE_ADDRESS) {
-    console.error('Missing environment variable KARURA_TOKEN_BRIDGE_ADDRESS');
-    process.exit(1);
-  }
+
+  const addresses = isTestnet
+    ? ADDRESSES.karuraTestnet
+    : ADDRESSES.karura;
 
   return {
     chainId: CHAIN_ID_KARURA,
-    nodeUrl: process.env.KARURA_ETH_RPC_URL,
-    substrateNodeUrl: process.env.KARURA_SUBSTRATE_NODE_URL,
-    walletPrivateKey: process.env.KARURA_PRIVATE_KEY,
-    tokenBridgeAddress: process.env.KARURA_TOKEN_BRIDGE_ADDRESS,
+    ethRpc: process.env.KARURA_ETH_RPC!,
+    nodeUrl: process.env.KARURA_NODE_URL!,
+    walletPrivateKey: process.env.KARURA_PRIVATE_KEY!,
+    ...addresses,
   };
 }
 
 function configAcala(): ChainConfigInfo {
-  if (!process.env.ACALA_ETH_RPC_URL) {
-    console.warn('Missing environment variable ACALA_ETH_RPC_URL');
+  const requiredEnvVars = [
+    'ACALA_ETH_RPC',
+    'ACALA_NODE_URL',
+    'ACALA_PRIVATE_KEY',
+  ];
+
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+      console.error(`Missing environment variable ${envVar}`);
+      process.exit(1);
+    }
   }
-  if (!process.env.ACALA_SUBSTRATE_NODE_URL) {
-    console.warn('Missing environment variable ACALA_SUBSTRATE_NODE_URL');
-  }
-  if (!process.env.ACALA_PRIVATE_KEY) {
-    console.warn('Missing environment variable ACALA_PRIVATE_KEY');
-  }
-  if (!process.env.ACALA_TOKEN_BRIDGE_ADDRESS) {
-    console.warn('Missing environment variable ACALA_TOKEN_BRIDGE_ADDRESS');
-  }
+
+  const addresses = isTestnet
+    ? ADDRESSES.acalaTestnet
+    : ADDRESSES.acala;
 
   return {
     chainId: CHAIN_ID_ACALA,
-    nodeUrl: process.env.ACALA_ETH_RPC_URL || '',
-    substrateNodeUrl: process.env.ACALA_SUBSTRATE_NODE_URL || '',
-    walletPrivateKey: process.env.ACALA_PRIVATE_KEY || '',
-    tokenBridgeAddress: process.env.ACALA_TOKEN_BRIDGE_ADDRESS || '',
+    ethRpc: process.env.ACALA_ETH_RPC!,
+    nodeUrl: process.env.ACALA_NODE_URL!,
+    walletPrivateKey: process.env.ACALA_PRIVATE_KEY!,
+    ...addresses,
   };
 }
+
+const env: RelayerEnvironment = validateEnvironment();
+
+export const getChainConfigInfo = (chainId: number): ChainConfigInfo | undefined => (
+  env.supportedChains.find((x) => x.chainId === chainId)
+);
