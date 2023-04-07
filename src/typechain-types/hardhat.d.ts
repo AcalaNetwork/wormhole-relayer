@@ -53,10 +53,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockToken__factory>;
     getContractFactory(
-      name: "MockXtokens",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.MockXtokens__factory>;
-    getContractFactory(
       name: "WormholeRouter",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.WormholeRouter__factory>;
@@ -115,11 +111,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.MockToken>;
-    getContractAt(
-      name: "MockXtokens",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.MockXtokens>;
     getContractAt(
       name: "WormholeRouter",
       address: string,

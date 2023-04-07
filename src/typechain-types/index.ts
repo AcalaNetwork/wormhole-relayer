@@ -26,8 +26,6 @@ export type { FeeRegistry } from "./src/FeeRegistry";
 export { FeeRegistry__factory } from "./factories/src/FeeRegistry__factory";
 export type { MockToken } from "./src/MockToken";
 export { MockToken__factory } from "./factories/src/MockToken__factory";
-export type { MockXtokens } from "./src/MockXtokens";
-export { MockXtokens__factory } from "./factories/src/MockXtokens__factory";
 export type { WormholeRouter } from "./src/WormholeRouter";
 export { WormholeRouter__factory } from "./factories/src/WormholeRouter__factory";
 export type { XcmRouter } from "./src/XcmRouter";

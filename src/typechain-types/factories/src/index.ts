@@ -5,6 +5,5 @@ export { BaseRouter__factory } from "./BaseRouter__factory";
 export { Factory__factory } from "./Factory__factory";
 export { FeeRegistry__factory } from "./FeeRegistry__factory";
 export { MockToken__factory } from "./MockToken__factory";
-export { MockXtokens__factory } from "./MockXtokens__factory";
 export { WormholeRouter__factory } from "./WormholeRouter__factory";
 export { XcmRouter__factory } from "./XcmRouter__factory";
