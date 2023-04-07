@@ -16,6 +16,7 @@ export const KARURA_TOKEN_BRIDGE_ADDRESS = '0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91
 
 export const BSC_USDT_ADDRESS = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd';
 export const BSC_USDC_ADDRESS = '0x861B5C16A2EcED022241072A7beA9D530b99EB6f';
+export const KARURA_USDC_ADDRESS = '0xE5BA1e8E6BBbdC8BbC72A58d68E74B13FcD6e4c7';
 export const GOERLI_USDC_ADDRESS = '0x07865c6E87B9F70255377e024ace6630C1Eaa37F';
 export const NOT_SUPPORTED_ADDRESS = '';
 
@@ -27,5 +28,8 @@ export const RELAY_URL = `${RELAYER_URL}/relay`;
 export const SHOULD_RELAY_URL = `${RELAYER_URL}/shouldRelay`;
 export const SHOULD_ROUTE_XCM_URL = `${RELAYER_URL}/shouldRouteXcm`;
 export const SHOULD_ROUTE_WORMHOLE_URL = `${RELAYER_URL}/shouldRouteWormhole`;
+
+export const ROUTE_XCM_URL = `${RELAYER_URL}/routeXcm`;
+export const RELAY_AND_ROUTE_URL = `${RELAYER_URL}/relayAndRoute`;
 
 export const WORMHOLE_GUARDIAN_RPC = ['https://wormhole-v2-testnet-api.certus.one'];

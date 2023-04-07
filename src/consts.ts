@@ -62,7 +62,7 @@ export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = isTestnet
   : RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD;
 
 // https://book.wormhole.com/reference/contracts.html#token-bridge
-// TODO: import these from newer version of wormhole sdk
+// TODO: import these from newer version of wormhole sdk, and asset router pkg
 
 export const ADDRESSES = {
   karuraTestnet: {

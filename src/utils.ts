@@ -11,6 +11,7 @@ import {
   CHAIN_ID_KARURA,
   transferFromEth,
   parseSequenceFromLogEth,
+  CHAIN_ID_ETH,
 } from '@certusone/wormhole-sdk';
 import { BigNumber, BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
 import { ChainConfigInfo } from './configureEnv';
@@ -125,8 +126,8 @@ export const getRouterChainTokenAddr = async (originAddr: string, chainInfo: Cha
   const tokenBridge = Bridge__factory.connect(chainInfo.tokenBridgeAddr, signer);
 
   return tokenBridge.wrappedAsset(
-    chainInfo.chainId,
-    Buffer.from(nativeToHexString(originAddr, chainInfo.chainId) as string, 'hex'),   // TODO: use tryNativeToHexString
+    CHAIN_ID_ETH,
+    Buffer.from(nativeToHexString(originAddr, CHAIN_ID_ETH) as string, 'hex'),   // TODO: use tryNativeToHexString
   );
 };
 

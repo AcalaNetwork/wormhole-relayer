@@ -5,7 +5,7 @@ import { ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from '../consts';
 import { SHOULD_ROUTE_WORMHOLE_URL, SHOULD_ROUTE_XCM_URL } from './consts';
 
 describe('/shouldRouteXcm', () => {
-  const checkShouldRouteXcm = (params: any) => axios.get(SHOULD_ROUTE_XCM_URL, { params });
+  const shouldRouteXcm = (params: any) => axios.get(SHOULD_ROUTE_XCM_URL, { params });
 
   const dest = '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
 
@@ -13,7 +13,7 @@ describe('/shouldRouteXcm', () => {
     for (const [routerChainId, supportedChains] of Object.entries(ROUTE_SUPPORTED_CHAINS_AND_ASSETS)) {
       for (const [destChain, supportedTokens] of Object.entries(supportedChains)) {
         for (const tokenAddr of supportedTokens) {
-          let res = await checkShouldRouteXcm({
+          let res = await shouldRouteXcm({
             dest,
             routerChainId,
             targetChain: destChain,
@@ -25,7 +25,7 @@ describe('/shouldRouteXcm', () => {
           expect(res.data.routerAddr).to.equal('0x8341Cd8b7bd360461fe3ce01422fE3E24628262F');
 
           // should be case insensitive
-          res = await checkShouldRouteXcm({
+          res = await shouldRouteXcm({
             dest,
             routerChainId: routerChainId,
             targetChain: destChain,
@@ -42,7 +42,7 @@ describe('/shouldRouteXcm', () => {
 
   describe('when should not route', () => {
     it('when missing params', async () => {
-      let res = await checkShouldRouteXcm({
+      let res = await shouldRouteXcm({
         routerChainId: 11,
         targetChain: 'BASILISK',
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
@@ -50,7 +50,7 @@ describe('/shouldRouteXcm', () => {
       expect(res.data.shouldRoute).to.equal(false);
       expect(res.data.msg).to.contain('dest is a required field');
 
-      res = await checkShouldRouteXcm({
+      res = await shouldRouteXcm({
         dest,
         targetChain: 'BASILISK',
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
@@ -58,7 +58,7 @@ describe('/shouldRouteXcm', () => {
       expect(res.data.shouldRoute).to.equal(false);
       expect(res.data.msg).to.contain('routerChainId is a required field');
 
-      res = await checkShouldRouteXcm({
+      res = await shouldRouteXcm({
         dest,
         routerChainId: 11,
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
@@ -66,7 +66,7 @@ describe('/shouldRouteXcm', () => {
       expect(res.data.shouldRoute).to.equal(false);
       expect(res.data.msg).to.contain('targetChain is a required field');
 
-      res = await checkShouldRouteXcm({
+      res = await shouldRouteXcm({
         dest,
         routerChainId: 11,
         targetChain: 'BASILISK',
@@ -83,14 +83,14 @@ describe('/shouldRouteXcm', () => {
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
       };
 
-      let res = await checkShouldRouteXcm({
+      let res = await shouldRouteXcm({
         ...validArgs,
         routerChainId: 8,
       });
       expect(res.data.shouldRoute).to.equal(false);
       expect(res.data.msg).to.contain('unsupported router chainId: 8');
 
-      res = await checkShouldRouteXcm({
+      res = await shouldRouteXcm({
         ...validArgs,
         targetChain: 'COSMOS',
       });
@@ -98,7 +98,7 @@ describe('/shouldRouteXcm', () => {
       expect(res.data.msg).to.contain('unsupported target chain: COSMOS');
 
       const unsupportedToken = '0x07865c6e87b9f70255377e024ace6630c1e00000';
-      res = await checkShouldRouteXcm({
+      res = await shouldRouteXcm({
         ...validArgs,
         originAddr: unsupportedToken,
       });
@@ -106,7 +106,7 @@ describe('/shouldRouteXcm', () => {
       expect(res.data.msg).to.contain(`unsupported token on BASILISK. Token origin address: ${unsupportedToken}`);
 
       // TODO: need to validate dest?
-      // res = await checkShouldRouteXcm({
+      // res = await shouldRouteXcm({
       //   ...validArgs,
       //   dest: '0xabcd'
       // });

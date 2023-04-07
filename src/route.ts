@@ -218,15 +218,15 @@ export const shouldRouteWormhole = async (request: any, response: any): Promise<
 };
 
 export const handleRouteXcm = async (request: any, response: any): Promise<void> =>  {
-  const receipt = await routeXcm(request.query);
+  const receipt = await routeXcm(request.body);
 
   console.log(`routeXcm: ${JSON.stringify({ ...request.query, receipt })}`);
-  response.status(200).json(receipt);
+  response.status(200).json(receipt.transactionHash);
 };
 
 export const handleRouteWormhole = async (request: any, response: any): Promise<void> =>  {
   const receipt = await routeWormhole(request.query);
 
   console.log(`routeXcm: ${JSON.stringify({ ...request.query, receipt })}`);
-  response.status(200).json(receipt);
+  response.status(200).json(receipt.transactionHash);
 };

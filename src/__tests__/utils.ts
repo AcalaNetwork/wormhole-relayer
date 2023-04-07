@@ -5,7 +5,7 @@ import {
   CHAIN_ID_KARURA,
 } from '@certusone/wormhole-sdk';
 import getSignedVAAWithRetry from '@certusone/wormhole-sdk/lib/cjs/rpc/getSignedVAAWithRetry';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, Contract, ethers } from 'ethers';
 import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
 import { bridgeToken } from '../utils';
 import {
