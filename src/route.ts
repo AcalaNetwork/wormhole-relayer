@@ -1,4 +1,5 @@
-import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk';
+import { CHAIN_ID_ETH, nativeToHexString } from '@certusone/wormhole-sdk';
+import { Request, Response, NextFunction } from 'express';
 import { ContractReceipt, Overrides, Signer } from 'ethers';
 import { getChainConfigInfo, ChainConfigInfo } from './configureEnv';
 import { XcmInstructionsStruct } from './typechain-types/src/XcmRouter';
@@ -7,19 +8,21 @@ import { EvmRpcProvider } from '@acala-network/eth-providers';
 import { WormholeInstructionsStruct } from './typechain-types/src/Factory';
 import { Factory__factory } from './typechain-types';
 import { ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from './consts';
+import { ChainID } from '@certusone/wormhole-sdk/lib/cjs/proto/publicrpc/v1/publicrpc';
 
 interface baseRouteArgs {
   routerChainId: string,  // acala or karura
   originAddr: string;     // origin token address
+}
+
+export interface RouteArgsWormhole extends baseRouteArgs {
+  targetChainId: string;
   destAddr: string,       // recepient address
 }
 
-interface RouteArgsWormhole extends baseRouteArgs {
-  targetChainId: string;
-}
-
-interface RouteArgsXcm extends baseRouteArgs {
+export interface RouteArgsXcm extends baseRouteArgs {
   targetChain: string;
+  dest: string,       // xcm encoded dest
 }
 
 interface RouteProps {
@@ -29,7 +32,7 @@ interface RouteProps {
   gasOverride: Overrides;
 }
 
-const _prepareRoute = async (routerChainId: number | string) => {
+const _prepareRoute = async (routerChainId: string) => {
   const chainConfigInfo = getChainConfigInfo(Number(routerChainId));
   if (!chainConfigInfo) {
     throw new Error(`unsupported routerChainId: ${routerChainId}`);
@@ -46,18 +49,23 @@ const _prepareRoute = async (routerChainId: number | string) => {
 };
 
 const prepareRouteXcm = async ({
-  destAddr,
+  dest,
   routerChainId,
   targetChain,
   originAddr,
 }: RouteArgsXcm): Promise<RouteProps> => {
-  const supportedTokens = ROUTE_SUPPORTED_CHAINS_AND_ASSETS[targetChain];
-  if (!supportedTokens) {
-    throw new Error(`Unsupported target chain: ${targetChain}`);
+  const configByRouterChain = ROUTE_SUPPORTED_CHAINS_AND_ASSETS[routerChainId];
+  if (!configByRouterChain) {
+    throw new Error(`unsupported router chainId: ${routerChainId}`);
   }
 
-  if (!supportedTokens.includes(originAddr)) {
-    throw new Error(`Unsupported token on ${targetChain}. Token Origin Address: ${originAddr}`);
+  const supportedTokens = configByRouterChain[targetChain];
+  if (!supportedTokens) {
+    throw new Error(`unsupported target chain: ${targetChain}`);
+  }
+
+  if (!supportedTokens.includes(originAddr.toLowerCase())) {
+    throw new Error(`unsupported token on ${targetChain}. Token origin address: ${originAddr}`);
   }
 
   const {
@@ -66,10 +74,9 @@ const prepareRouteXcm = async ({
     gasOverride,
   } = await _prepareRoute(routerChainId);
 
-  const xcmInstruction: XcmInstructionsStruct = {
-    dest: destAddr,
-    weight: '0x00',
-  };
+  const weight = '0x00';    // unlimited
+  const xcmInstruction = { dest, weight };
+
   const factory = Factory__factory.connect(chainConfigInfo.factoryAddr, signer);
   const routerAddr = await factory.callStatic.deployXcmRouter(chainConfigInfo.feeAddr, xcmInstruction, gasOverride);
 
@@ -87,7 +94,16 @@ const prepareRouteWormhole = async ({
   originAddr,
   targetChainId,
 }: RouteArgsWormhole): Promise<RouteProps> => {
-  // TODO: check chainid is valid
+  console.log({
+    destAddr,
+    routerChainId,
+    originAddr,
+    targetChainId,
+  });
+
+  if (Number(targetChainId) !== CHAIN_ID_ETH) {
+    throw new Error(`unsupported target chain: ${targetChainId}`);
+  }
 
   const {
     chainConfigInfo,
@@ -95,9 +111,10 @@ const prepareRouteWormhole = async ({
     gasOverride,
   } = await _prepareRoute(routerChainId);
 
+  const recipient = Buffer.from(nativeToHexString(destAddr, chainConfigInfo.chainId) as string, 'hex');
   const wormholeInstructions: WormholeInstructionsStruct = {
     recipientChain: targetChainId,
-    recipient: destAddr,
+    recipient,
     nonce: 0,
     arbiterFee: 0,
   };
@@ -123,7 +140,7 @@ const routeXcm = async (routeArgsXcm: RouteArgsXcm): Promise<ContractReceipt> =>
   const { chainConfigInfo, signer, gasOverride } = await prepareRouteXcm(routeArgsXcm);
 
   const xcmInstruction: XcmInstructionsStruct = {
-    dest: routeArgsXcm.destAddr,
+    dest: routeArgsXcm.dest,
     weight: '0x00',
   };
   const factory = Factory__factory.connect(chainConfigInfo.factoryAddr, signer);
@@ -162,7 +179,7 @@ const routeWormhole = async (routeArgsWormhole: RouteArgsWormhole): Promise<Cont
   return receipt;
 };
 
-export const shouldRouteXcm = async (request: any, response: any): Promise<void> =>  {
+export const shouldRouteXcm = async (request: Request<any, any, any, RouteArgsXcm>, response: Response): Promise<void> =>  {
   const res = {
     shouldRoute: true,
     routerAddr: '0x',
@@ -172,7 +189,7 @@ export const shouldRouteXcm = async (request: any, response: any): Promise<void>
   try {
     res.routerAddr = (await prepareRouteXcm(request.query)).routerAddr;
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.msg = error.message;
     res.shouldRoute = false;
   }
@@ -191,7 +208,7 @@ export const shouldRouteWormhole = async (request: any, response: any): Promise<
   try {
     res.routerAddr = (await prepareRouteWormhole(request.query)).routerAddr;
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.msg = error.message;
     res.shouldRoute = false;
   }

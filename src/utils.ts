@@ -12,7 +12,7 @@ import {
   transferFromEth,
   parseSequenceFromLogEth,
 } from '@certusone/wormhole-sdk';
-import { ContractReceipt, ethers, Signer, Wallet } from 'ethers';
+import { BigNumber, BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
 import { ChainConfigInfo } from './configureEnv';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
 import {
@@ -137,13 +137,11 @@ export const bridgeToken = async (
   recipientAddr: string,
   sourceAssetAddr: string,
   targetChain: ChainId,
-  amount: string,
-  decimals: number,
+  amount: BigNumberish,
 ): Promise<{
   receipt: ContractReceipt,
   sequence: string,
 }> => {
-  const amountParsed = parseUnits(amount, decimals);
   const hexString = nativeToHexString(recipientAddr, targetChain);
   if (!hexString) {
     throw new Error('Invalid recipient');
@@ -155,7 +153,7 @@ export const bridgeToken = async (
     tokenBridgeAddr,
     signer,
     sourceAssetAddr,
-    amountParsed,
+    amount,
     targetChain,
     vaaCompatibleAddr,
   );

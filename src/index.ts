@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { relay, checkShouldRelay, getVersion } from './relay';
 import { TESTNET_MODE_WARNING, VERSION } from './consts';
 import { handleRouteWormhole, handleRouteXcm, shouldRouteWormhole, shouldRouteXcm } from './route';
+import { validateRouteXcmArgs } from './middlewares/validate';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
@@ -22,7 +23,7 @@ const startServer = async (): Promise<void> => {
 
   app.get('/shouldRelay', checkShouldRelay);
   app.get('/shouldRouteWormhole', shouldRouteWormhole);
-  app.get('/shouldRouteXcm', shouldRouteXcm);
+  app.get('/shouldRouteXcm', validateRouteXcmArgs(), shouldRouteXcm);
 
   app.get('/version', getVersion);
 

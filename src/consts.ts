@@ -3,6 +3,7 @@ import {
   CHAIN_ID_ACALA,
 } from '@certusone/wormhole-sdk';
 import dotenv from 'dotenv';
+import { XTOKENS } from '@acala-network/contracts/utils/Predeploy';
 
 dotenv.config({ path: '.env' });
 
@@ -62,12 +63,13 @@ export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = isTestnet
 
 // https://book.wormhole.com/reference/contracts.html#token-bridge
 // TODO: import these from newer version of wormhole sdk
+
 export const ADDRESSES = {
   karuraTestnet: {
     tokenBridgeAddr: '0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37',
-    factoryAddr: '0xc22ea30a2f5090c03149639babaeeb0b5e17b34b',
-    feeAddr: '0x109FdB5a8f3EC051C21B3482ac89599e7D76561C',
-    xtokensAddr: '0x',
+    factoryAddr: '0xed9ae45a067cadc843e26d377c9cd8e963b299f1',
+    feeAddr: '0x8dA2DebebFE5cCe133a80e7114621192780765BB',
+    xtokensAddr: XTOKENS,
   },
   acalaTestnet: {
     tokenBridgeAddr: '0xebA00cbe08992EdD08ed7793E07ad6063c807004',
@@ -92,23 +94,26 @@ export const ADDRESSES = {
 export const HYDRA = 'HYDRA';
 export const BASILISK = 'BASILISK';
 
-const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV = {
-  [HYDRA]: [
-    '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
-  ],
-  [BASILISK]: [
-    '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
-  ],
-} as const;
+export interface RouterConfigs {
+  [routerChainId: string]: {
+    [destChainName: string]: string[];
+  }
+}
 
-const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD = {
-  [HYDRA]: [
-    '',     // USDC
-  ],
-  [BASILISK]: [
-    '',     // USDC
-  ],
-} as const;
+const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV: RouterConfigs = {
+  // [CHAIN_ID_ACALA]: {
+  //   [HYDRA]: [
+  //     '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
+  //   ],
+  // },
+  [CHAIN_ID_KARURA]: {
+    [BASILISK]: [
+      '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
+    ],
+  },
+};
+
+const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD: RouterConfigs = {};
 
 export const ROUTE_SUPPORTED_CHAINS_AND_ASSETS = isTestnet
   ? ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV
