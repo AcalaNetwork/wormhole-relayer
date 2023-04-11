@@ -1,18 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
-import { string, object, ObjectSchema, ValidationError } from 'yup';
+import { string, object, ObjectSchema } from 'yup';
 import { RelayAndRouteParams, RouteParamsXcm } from '../route';
 
 const routeParamsXcmSchema: ObjectSchema<RouteParamsXcm> = object({
   routerChainId: string().required(),
   originAddr: string().required(),
-  targetChain: string().required(),
+  destParaId: string().required(),
   dest: string().required(),
 });
 
 const relayAndRouteParamsSchema: ObjectSchema<RelayAndRouteParams> = object({
   routerChainId: string().required(),
   originAddr: string().required(),
-  targetChain: string().required(),
+  destParaId: string().required(),
   dest: string().required(),
   signedVAA: string().required(),
 });

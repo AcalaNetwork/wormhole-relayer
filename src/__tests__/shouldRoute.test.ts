@@ -1,7 +1,7 @@
 import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk';
 import axios from 'axios';
 import { expect } from 'chai';
-import { ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from '../consts';
+import { BASILISK_PARA_ID, ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from '../consts';
 import { SHOULD_ROUTE_WORMHOLE_URL, SHOULD_ROUTE_XCM_URL } from './consts';
 
 describe('/shouldRouteXcm', () => {
@@ -11,12 +11,12 @@ describe('/shouldRouteXcm', () => {
 
   it('when should route', async () => {
     for (const [routerChainId, supportedChains] of Object.entries(ROUTE_SUPPORTED_CHAINS_AND_ASSETS)) {
-      for (const [destChain, supportedTokens] of Object.entries(supportedChains)) {
+      for (const [destParaId, supportedTokens] of Object.entries(supportedChains)) {
         for (const tokenAddr of supportedTokens) {
           let res = await shouldRouteXcm({
             dest,
             routerChainId,
-            targetChain: destChain,
+            destParaId,
             originAddr: tokenAddr,
           });
 
@@ -28,7 +28,7 @@ describe('/shouldRouteXcm', () => {
           res = await shouldRouteXcm({
             dest,
             routerChainId: routerChainId,
-            targetChain: destChain,
+            destParaId,
             originAddr: tokenAddr.toUpperCase(),
           });
 
@@ -44,7 +44,7 @@ describe('/shouldRouteXcm', () => {
     it('when missing params', async () => {
       let res = await shouldRouteXcm({
         routerChainId: 11,
-        targetChain: 'BASILISK',
+        destParaId: BASILISK_PARA_ID,
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
       });
       expect(res.data.shouldRoute).to.equal(false);
@@ -52,7 +52,7 @@ describe('/shouldRouteXcm', () => {
 
       res = await shouldRouteXcm({
         dest,
-        targetChain: 'BASILISK',
+        destParaId: BASILISK_PARA_ID,
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
       });
       expect(res.data.shouldRoute).to.equal(false);
@@ -64,12 +64,12 @@ describe('/shouldRouteXcm', () => {
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
       });
       expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('targetChain is a required field');
+      expect(res.data.msg).to.contain('destParaId is a required field');
 
       res = await shouldRouteXcm({
         dest,
         routerChainId: 11,
-        targetChain: 'BASILISK',
+        destParaId: BASILISK_PARA_ID,
       });
       expect(res.data.shouldRoute).to.equal(false);
       expect(res.data.msg).to.contain('originAddr is a required field');
@@ -79,7 +79,7 @@ describe('/shouldRouteXcm', () => {
       const validArgs = {
         dest,
         routerChainId: 11,
-        targetChain: 'BASILISK',
+        destParaId: BASILISK_PARA_ID,
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
       };
 
@@ -92,10 +92,10 @@ describe('/shouldRouteXcm', () => {
 
       res = await shouldRouteXcm({
         ...validArgs,
-        targetChain: 'COSMOS',
+        destParaId: 1111,
       });
       expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('unsupported target chain: COSMOS');
+      expect(res.data.msg).to.contain('unsupported dest parachain: 1111');
 
       const unsupportedToken = '0x07865c6e87b9f70255377e024ace6630c1e00000';
       res = await shouldRouteXcm({
@@ -103,7 +103,7 @@ describe('/shouldRouteXcm', () => {
         originAddr: unsupportedToken,
       });
       expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain(`unsupported token on BASILISK. Token origin address: ${unsupportedToken}`);
+      expect(res.data.msg).to.contain(`unsupported token on dest parachin 2090. Token origin address: ${unsupportedToken}`);
 
       // TODO: need to validate dest?
       // res = await shouldRouteXcm({

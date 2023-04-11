@@ -16,8 +16,9 @@ import {
   TEST_RELAYER_ADDR,
 } from './consts';
 
-import { RelayAndRouteParams } from '../route';
+import { RelayAndRouteParams, RouteParamsXcm } from '../route';
 import { transferFromBSCToKarura } from './utils';
+import { BASILISK_PARA_ID } from '../consts';
 
 const KARURA_NODE_URL = 'wss://karura-testnet.aca-staging.network/rpc/karura/ws';
 const TEST_KEY = 'efb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044';
@@ -36,7 +37,7 @@ const mockXcmToRouter = async (routerAddr: string, signer: Wallet) => {
 
 describe('/routeXcm', () => {
   const shouldRouteXcm = (params: any) => axios.get(SHOULD_ROUTE_XCM_URL, { params });
-  const routeXcm = (params: any) => axios.post(ROUTE_XCM_URL, params);
+  const routeXcm = (params: RouteParamsXcm) => axios.post(ROUTE_XCM_URL, params);
 
   const dest = '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
 
@@ -53,8 +54,8 @@ describe('/routeXcm', () => {
   it('when should route', async () => {
     const routeArgs = {
       dest,
-      routerChainId: 11,
-      targetChain: 'BASILISK',
+      routerChainId: '11',
+      destParaId: BASILISK_PARA_ID,
       originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
     };
 
@@ -72,80 +73,7 @@ describe('/routeXcm', () => {
     await provider.disconnect();
   });
 
-  describe.skip('when should not route', () => {
-    it('when missing params', async () => {
-      let res = await routeXcm({
-        routerChainId: 11,
-        targetChain: 'BASILISK',
-        originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('dest is a required field');
-
-      res = await routeXcm({
-        dest,
-        targetChain: 'BASILISK',
-        originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('routerChainId is a required field');
-
-      res = await routeXcm({
-        dest,
-        routerChainId: 11,
-        originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('targetChain is a required field');
-
-      res = await routeXcm({
-        dest,
-        routerChainId: 11,
-        targetChain: 'BASILISK',
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('originAddr is a required field');
-    });
-
-    it('when wrong params', async () => {
-      const validArgs = {
-        dest,
-        routerChainId: 11,
-        targetChain: 'BASILISK',
-        originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
-      };
-
-      let res = await routeXcm({
-        ...validArgs,
-        routerChainId: 8,
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('unsupported router chainId: 8');
-
-      res = await routeXcm({
-        ...validArgs,
-        targetChain: 'COSMOS',
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('unsupported target chain: COSMOS');
-
-      const unsupportedToken = '0x07865c6e87b9f70255377e024ace6630c1e00000';
-      res = await routeXcm({
-        ...validArgs,
-        originAddr: unsupportedToken,
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain(`unsupported token on BASILISK. Token origin address: ${unsupportedToken}`);
-
-      // TODO: need to validate dest?
-      // res = await routeXcm({
-      //   ...validArgs,
-      //   dest: '0xabcd'
-      // });
-      // expect(res.data.shouldRoute).to.equal(false);
-      // expect(res.data.msg).to.contain('unsupported router chainId: 8');
-    });
-  });
+  // describe.skip('when should not route', () => {})
 });
 
 describe.only('/relayAndRoute', () => {
@@ -165,11 +93,12 @@ describe.only('/relayAndRoute', () => {
   };
 
   before(async () => {
-    // await provider.isReady();
+    await provider.isReady();
     await api.isReady;
   });
 
   after(async () => {
+    console.log('disconnecting ...');
     await provider.disconnect();
     await api.disconnect();
   });
@@ -178,7 +107,7 @@ describe.only('/relayAndRoute', () => {
     const routeArgs = {
       dest,
       routerChainId: '11',
-      targetChain: 'BASILISK',
+      destParaId: BASILISK_PARA_ID,
       originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
     };
 
@@ -209,7 +138,7 @@ describe.only('/relayAndRoute', () => {
     console.log(`route finished! txHash: ${res.data}`);
 
     console.log('waiting for token to arrive at basilisk ...');
-    await sleep(15000);
+    await sleep(25000);
 
     const afterBalUser = await getUsdcBalance('bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak');
     const afterBalRelayer = (await usdc.balanceOf(TEST_RELAYER_ADDR)).toBigInt();

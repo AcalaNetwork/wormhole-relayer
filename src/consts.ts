@@ -91,8 +91,8 @@ export const ADDRESSES = {
   },
 } as const;
 
-export const HYDRA = 'HYDRA';
-export const BASILISK = 'BASILISK';
+export const HYDRA_PARA_ID = '';
+export const BASILISK_PARA_ID = '2090';
 
 export interface RouterConfigs {
   [routerChainId: string]: {
@@ -102,12 +102,12 @@ export interface RouterConfigs {
 
 const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV: RouterConfigs = {
   // [CHAIN_ID_ACALA]: {
-  //   [HYDRA]: [
+  //   [HYDRA_PARA_ID]: [
   //     '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
   //   ],
   // },
   [CHAIN_ID_KARURA]: {
-    [BASILISK]: [
+    [BASILISK_PARA_ID]: [
       '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
     ],
   },

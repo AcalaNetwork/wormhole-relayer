@@ -1,12 +1,11 @@
 import { CHAIN_ID_ETH, nativeToHexString } from '@certusone/wormhole-sdk';
 import { Request, Response } from 'express';
 import { ContractReceipt, Overrides, Signer } from 'ethers';
+import { Factory__factory } from '@acala-network/asset-router';
+import { WormholeInstructionsStruct, XcmInstructionsStruct } from '@acala-network/asset-router/dist/src/Factory';
 import { getChainConfigInfo, ChainConfigInfo } from './configureEnv';
-import { XcmInstructionsStruct } from './typechain-types/src/XcmRouter';
 import { getRouterChainTokenAddr, getSigner, relayEVM } from './utils';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
-import { WormholeInstructionsStruct } from './typechain-types/src/Factory';
-import { Factory__factory } from './typechain-types';
 import { ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from './consts';
 
 interface RouteParamsBase {
@@ -20,8 +19,8 @@ export interface RouteParamsWormhole extends RouteParamsBase {
 }
 
 export interface RouteParamsXcm extends RouteParamsBase {
-  targetChain: string;
-  dest: string,       // xcm encoded dest
+  destParaId: string;  // TODO: maybe can decode from dest
+  dest: string,           // xcm encoded dest
 }
 
 export interface RelayAndRouteParams extends RouteParamsXcm {
@@ -53,8 +52,8 @@ const _prepareRoute = async (routerChainId: string) => {
 
 const prepareRouteXcm = async ({
   dest,
+  destParaId,
   routerChainId,
-  targetChain,
   originAddr,
 }: RouteParamsXcm): Promise<RouteProps> => {
   const configByRouterChain = ROUTE_SUPPORTED_CHAINS_AND_ASSETS[routerChainId];
@@ -62,13 +61,13 @@ const prepareRouteXcm = async ({
     throw new Error(`unsupported router chainId: ${routerChainId}`);
   }
 
-  const supportedTokens = configByRouterChain[targetChain];
+  const supportedTokens = configByRouterChain[destParaId];
   if (!supportedTokens) {
-    throw new Error(`unsupported target chain: ${targetChain}`);
+    throw new Error(`unsupported dest parachain: ${destParaId}`);
   }
 
   if (!supportedTokens.includes(originAddr.toLowerCase())) {
-    throw new Error(`unsupported token on ${targetChain}. Token origin address: ${originAddr}`);
+    throw new Error(`unsupported token on dest parachin ${destParaId}. Token origin address: ${originAddr}`);
   }
 
   const {
