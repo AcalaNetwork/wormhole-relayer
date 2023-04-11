@@ -88,5 +88,42 @@ POST /relay
 }
 ```
 
+### `/shouldRoute`
+checks if the relayer can relay and route this request
+```
+GET /shouldRelay
+params: {
+  targetChain: ChainId,
+  originAsset: string,    // original address without padding 0s
+  routerChainId: string,  // acala or karura
+  dest: string,           // xcm encoded dest
+}
+```
+
+### `/routeXcm`
+route this request
+```
+POST /shouldRelay
+data: {
+  targetChain: string,    // destination chain id
+  originAsset: string,    // original address without padding 0s
+  routerChainId: string,  // acala (10) or karura (11)
+  dest: string,           // xcm encoded dest
+}
+```
+
+### `/relayAndRoute`
+relay from wormhole, and route token to target chain
+```
+POST /shouldRelay
+data: {
+  targetChain: string,    // destination chain id
+  originAsset: string,    // original address without padding 0s
+  routerChainId: string,  // acala (10) or karura (11)
+  dest: string,           // xcm encoded dest
+  signedVAA: string,      // hex encoded string
+}
+```
+
 ## Production Config
 modify `.env` to use real private keys for relayers, also set `TESTNET_MODE=0`

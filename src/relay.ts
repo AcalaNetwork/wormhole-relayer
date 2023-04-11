@@ -53,7 +53,7 @@ export const relay = async (request: any, response: any): Promise<void> =>  {
 
   try {
     const receipt = await relayEVM(chainConfigInfo, signedVAA);
-    
+
     console.log(`Relay Succeed 🎉🎉: ${relayInfo}, txHash: ${receipt.transactionHash}`);
     response.status(200).json(receipt);
   } catch (e) {

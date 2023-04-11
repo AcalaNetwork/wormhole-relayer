@@ -1,9 +1,11 @@
 import { Wallet } from 'ethers';
 
-export const ETH_RPC_BSC = 'https://bsc-testnet.public.blastapi.io	';
+// export const ETH_RPC_BSC = 'https://bsc-testnet.public.blastapi.io';
+export const ETH_RPC_BSC = 'https://endpoints.omniatech.io/v1/bsc/testnet/public';
 export const ETH_RPC_GOERLI = 'https://goerli.optimism.io/';
+export const BASILISK_TESTNET_NODE_URL = 'wss://karura-testnet.aca-staging.network/rpc/basilisk/ws';
 
-export const TEST_SENDER_PRIVATE_KEY = 'a872f6cbd25a0e04a08b1e21098017a9e6194d101d75e13111f71410c59cd57f';
+export const TEST_SENDER_PRIVATE_KEY = '01392cd1a09fc0f4857742f0f0daa3ebd5a0f44a7dab48c23ccd331717b97b10';    // aab6
 export const TEST_SENDER_ADDR = new Wallet(TEST_SENDER_PRIVATE_KEY).address;
 export const TEST_RELAYER_ADDR = '0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3';
 

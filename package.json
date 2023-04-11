@@ -16,9 +16,11 @@
     "test:relay": "mocha src/__tests__/relay.test.ts",
     "test:shouldRelay": "mocha src/__tests__/shouldRelay.test.ts",
     "test:shouldRoute": "mocha src/__tests__/shouldRoute.test.ts",
+    "test:route": "mocha src/__tests__/route.test.ts",
     "relay": "ts-node src/scripts/manual-relay.ts"
   },
   "devDependencies": {
+    "@polkadot/api": "^9.0.0",
     "@typechain/ethers-v5": "^7.0.1",
     "@types/chai": "^4.3.0",
     "@types/express": "^4.17.17",
@@ -39,7 +41,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@acala-network/eth-providers": "~2.6.2",
+    "@acala-network/eth-providers": "2.5.9",
     "@certusone/wormhole-sdk": "~0.2.1",
     "@improbable-eng/grpc-web": "^0.14.0",
     "@improbable-eng/grpc-web-node-http-transport": "^0.15.0",

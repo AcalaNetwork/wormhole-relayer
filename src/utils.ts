@@ -104,22 +104,28 @@ export const relayEVM = async (
     hexToUint8Array(signedVAA),
   );
 
-  await (signer.provider as EvmRpcProvider).disconnect();
+  try {
+    await (signer.provider as EvmRpcProvider).disconnect();
+  } catch (error) {
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+    console.log(error);
+  }
 
   return receipt;
 };
 
-export const getSigner = async (
-  { nodeUrl, walletPrivateKey }:
-  { nodeUrl: string, walletPrivateKey: string }
-): Promise<Signer> => {
+export const getSigner = async ({
+  nodeUrl,
+  walletPrivateKey,
+}: {
+  nodeUrl: string,
+  walletPrivateKey: string,
+}): Promise<Signer> => {
   const provider = EvmRpcProvider.from(nodeUrl);
   await provider.isReady();
 
   return new ethers.Wallet(walletPrivateKey, provider);
 };
-
-type acalaOrKarura = typeof CHAIN_ID_ACALA | typeof CHAIN_ID_KARURA;
 
 export const getRouterChainTokenAddr = async (originAddr: string, chainInfo: ChainConfigInfo): Promise<string> => {
   const signer = await getSigner(chainInfo);
