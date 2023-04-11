@@ -93,9 +93,9 @@ checks if the relayer can relay and route this request
 ```
 GET /shouldRouteXcm
 params: {
-  destParaId: string,     // destination parachain id
-  dest: string,           // xcm encoded dest
-  originAsset: string,    // original address without padding 0s
+  destParaId: string,     // destination parachain id in number
+  dest: string,           // xcm encoded dest in hex
+  originAsset: string,    // original address without padding 0s in hex
   routerChainId: string,  // 10 (acala) or 11 (karura)
 }
 ```
