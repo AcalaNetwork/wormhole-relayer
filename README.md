@@ -172,6 +172,8 @@ POST /routeXcm
 ```
 
 ## Tests
+first start a relayer: `yarn dev`
+
 ```
 yarn test:shouldRelay
 yarn test:relay
