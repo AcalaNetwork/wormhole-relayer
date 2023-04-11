@@ -79,7 +79,7 @@ describe('/routeXcm', () => {
 const encodeXcmDest = (data: any) => {
   // TODO: use api to encode
   return '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
-}
+};
 
 describe.only('/relayAndRoute', () => {
   const shouldRouteXcm = (params: any) => axios.get(SHOULD_ROUTE_XCM_URL, { params });
