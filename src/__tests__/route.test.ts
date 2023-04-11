@@ -76,11 +76,27 @@ describe('/routeXcm', () => {
   // describe.skip('when should not route', () => {})
 });
 
+const encodeXcmDest = (data: any) => {
+  // TODO: use api to encode
+  return '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
+}
+
 describe.only('/relayAndRoute', () => {
   const shouldRouteXcm = (params: any) => axios.get(SHOULD_ROUTE_XCM_URL, { params });
   const relayAndRoute = (params: RelayAndRouteParams) => axios.post(RELAY_AND_ROUTE_URL, params);
 
-  const dest = '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
+  const destAddr = 'bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak';
+  const dest = encodeXcmDest({
+    V3: {
+      parents: 1,
+      interior: {
+        X2: [
+          { parachain: 2090 },
+          { accountId32: destAddr },
+        ],
+      },
+    },
+  });
 
   const provider = new EvmRpcProvider(KARURA_NODE_URL);
   const api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
@@ -111,7 +127,7 @@ describe.only('/relayAndRoute', () => {
       originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
     };
 
-    const curBalUser = await getUsdcBalance('bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak');
+    const curBalUser = await getUsdcBalance(destAddr);
     const curBalRelayer = (await usdc.balanceOf(TEST_RELAYER_ADDR)).toBigInt();
     console.log({ curBalUser, curBalRelayer });
 
@@ -140,7 +156,7 @@ describe.only('/relayAndRoute', () => {
     console.log('waiting for token to arrive at basilisk ...');
     await sleep(25000);
 
-    const afterBalUser = await getUsdcBalance('bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak');
+    const afterBalUser = await getUsdcBalance(destAddr);
     const afterBalRelayer = (await usdc.balanceOf(TEST_RELAYER_ADDR)).toBigInt();
     console.log({ afterBalUser, afterBalRelayer });
 
