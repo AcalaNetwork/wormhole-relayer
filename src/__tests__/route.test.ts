@@ -147,6 +147,10 @@ describe.only('/relayAndRoute', () => {
     expect(afterBalRelayer - curBalRelayer).to.eq(200n);
     expect(afterBalUser - curBalUser).to.eq(9800n);  // 10000 - 200
     expect((await usdc.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
+
+    // router should be destroyed
+    const routerCode = await provider.getCode(routerAddr);
+    expect(routerCode).to.eq('0x');
   });
 
   // describe.skip('when should not route', () => {});

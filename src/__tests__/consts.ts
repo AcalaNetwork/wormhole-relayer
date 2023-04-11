@@ -1,12 +1,11 @@
 import { Wallet } from 'ethers';
 
-// export const ETH_RPC_BSC = 'https://bsc-testnet.public.blastapi.io';
 export const ETH_RPC_BSC = 'https://endpoints.omniatech.io/v1/bsc/testnet/public';
-export const ETH_RPC_GOERLI = 'https://goerli.optimism.io/';
+export const ETH_RPC_GOERLI = 'https://rpc.ankr.com/eth_goerli';
 export const BASILISK_TESTNET_NODE_URL = 'wss://karura-testnet.aca-staging.network/rpc/basilisk/ws';
 
-export const TEST_SENDER_PRIVATE_KEY = '01392cd1a09fc0f4857742f0f0daa3ebd5a0f44a7dab48c23ccd331717b97b10';    // aab6
-export const TEST_SENDER_ADDR = new Wallet(TEST_SENDER_PRIVATE_KEY).address;
+export const TEST_SENDER_PRIVATE_KEY = '01392cd1a09fc0f4857742f0f0daa3ebd5a0f44a7dab48c23ccd331717b97b10';
+export const TEST_SENDER_ADDR = new Wallet(TEST_SENDER_PRIVATE_KEY).address;  // 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
 export const TEST_RELAYER_ADDR = '0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3';
 
 export const BSC_CORE_BRIDGE_ADDRESS = '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D';
@@ -23,8 +22,7 @@ export const GOERLI_USDC_ADDRESS = '0x07865c6E87B9F70255377e024ace6630C1Eaa37F';
 export const NOT_SUPPORTED_ADDRESS = '';
 
 const RELAYER_URL = 'http://localhost:3111';
-// export const RELAYER_URL = 'http://103.253.145.222:3111';
-// export const RELAYER_URL = 'https://karura-dev.aca-dev.network/eth/relayer';
+export const RELAYER_URL_TESTNET = 'https://karura-dev.aca-dev.network/eth/relayer';
 
 export const RELAY_URL = `${RELAYER_URL}/relay`;
 export const SHOULD_RELAY_URL = `${RELAYER_URL}/shouldRelay`;

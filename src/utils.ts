@@ -104,12 +104,7 @@ export const relayEVM = async (
     hexToUint8Array(signedVAA),
   );
 
-  try {
-    await (signer.provider as EvmRpcProvider).disconnect();
-  } catch (error) {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-    console.log(error);
-  }
+  await (signer.provider as EvmRpcProvider).disconnect();
 
   return receipt;
 };
@@ -155,7 +150,7 @@ export const bridgeToken = async (
   }
   const vaaCompatibleAddr = hexToUint8Array(hexString);
 
-  console.log('sending tx...');
+  console.log('sending bridging tx...');
   const receipt = await transferFromEth(
     tokenBridgeAddr,
     signer,
