@@ -96,7 +96,7 @@ params: {
   destParaId: string,     // destination parachain id
   dest: string,           // xcm encoded dest
   originAsset: string,    // original address without padding 0s
-  routerChainId: string,  // acala or karura
+  routerChainId: string,  // 10 (acala) or 11 (karura)
 }
 ```
 
