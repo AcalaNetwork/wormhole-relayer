@@ -1,4 +1,4 @@
-import { CHAIN_ID_ETH, nativeToHexString } from '@certusone/wormhole-sdk';
+import { ChainId, CHAIN_ID_ETH, nativeToHexString } from '@certusone/wormhole-sdk';
 import { Request, Response } from 'express';
 import { ContractReceipt, Overrides, Signer } from 'ethers';
 import { Factory__factory } from '@acala-network/asset-router';
@@ -6,25 +6,24 @@ import { WormholeInstructionsStruct, XcmInstructionsStruct } from '@acala-networ
 import { getChainConfigInfo, ChainConfigInfo } from './configureEnv';
 import { getRouterChainTokenAddr, getSigner, relayEVM } from './utils';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
-import { ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from './consts';
+import { RouterChainIdByDestParaId, ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from './consts';
 
 interface RouteParamsBase {
-  routerChainId: string,  // acala or karura
   originAddr: string;     // origin token address
 }
 
 export interface RouteParamsWormhole extends RouteParamsBase {
   targetChainId: string;
-  destAddr: string,       // recepient address
+  destAddr: string;       // recepient address
 }
 
 export interface RouteParamsXcm extends RouteParamsBase {
   destParaId: string;  // TODO: maybe can decode from dest
-  dest: string,           // xcm encoded dest
+  dest: string;           // xcm encoded dest
 }
 
 export interface RelayAndRouteParams extends RouteParamsXcm {
-  signedVAA: string,
+  signedVAA: string;
 }
 
 interface RouteProps {
@@ -32,10 +31,11 @@ interface RouteProps {
   chainConfigInfo: ChainConfigInfo;
   signer: Signer;
   gasOverride: Overrides;
+  routerChainId: ChainId;
 }
 
-const _prepareRoute = async (routerChainId: string) => {
-  const chainConfigInfo = getChainConfigInfo(Number(routerChainId));
+const _prepareRoute = async (routerChainId: ChainId) => {
+  const chainConfigInfo = getChainConfigInfo(routerChainId);
   if (!chainConfigInfo) {
     throw new Error(`unsupported routerChainId: ${routerChainId}`);
   }
@@ -53,15 +53,9 @@ const _prepareRoute = async (routerChainId: string) => {
 const prepareRouteXcm = async ({
   dest,
   destParaId,
-  routerChainId,
   originAddr,
 }: RouteParamsXcm): Promise<RouteProps> => {
-  const configByRouterChain = ROUTE_SUPPORTED_CHAINS_AND_ASSETS[routerChainId];
-  if (!configByRouterChain) {
-    throw new Error(`unsupported router chainId: ${routerChainId}`);
-  }
-
-  const supportedTokens = configByRouterChain[destParaId];
+  const supportedTokens = ROUTE_SUPPORTED_CHAINS_AND_ASSETS[destParaId];
   if (!supportedTokens) {
     throw new Error(`unsupported dest parachain: ${destParaId}`);
   }
@@ -70,6 +64,7 @@ const prepareRouteXcm = async ({
     throw new Error(`unsupported token on dest parachin ${destParaId}. Token origin address: ${originAddr}`);
   }
 
+  const routerChainId = RouterChainIdByDestParaId[destParaId] as ChainId;
   const {
     chainConfigInfo,
     signer,
@@ -87,6 +82,7 @@ const prepareRouteXcm = async ({
     chainConfigInfo,
     signer,
     gasOverride,
+    routerChainId,
   };
 };
 
@@ -139,7 +135,7 @@ const prepareRouteXcm = async ({
 // };
 
 const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<ContractReceipt> => {
-  console.log('routeXcm', routeParamsXcm);
+  console.log('routeXcm:', routeParamsXcm);
   const { chainConfigInfo, signer, gasOverride } = await prepareRouteXcm(routeParamsXcm);
 
   const xcmInstruction: XcmInstructionsStruct = {
@@ -148,7 +144,7 @@ const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<ContractReceipt
   };
   const factory = Factory__factory.connect(chainConfigInfo.factoryAddr, signer);
   const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfigInfo);
-  console.log({ routerChainTokenAddr });
+
   const tx = await factory.connect(signer).deployXcmRouterAndRoute(
     chainConfigInfo.feeAddr,
     xcmInstruction,
@@ -159,13 +155,15 @@ const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<ContractReceipt
   return tx.wait();
 };
 
-const relayAndRoute = async (params: RelayAndRouteParams): Promise<ContractReceipt> => {
-  const { chainConfigInfo } = await _prepareRoute(params.routerChainId);
+const relayAndRoute = async (params: RelayAndRouteParams): Promise<[ContractReceipt, ContractReceipt]> => {
+  const routerChainId = RouterChainIdByDestParaId[params.destParaId] as ChainId;
+  const { chainConfigInfo } = await _prepareRoute(routerChainId);
 
-  const receipt = await relayEVM(chainConfigInfo, params.signedVAA);
-  console.log(`relay finished: ${receipt.transactionHash}`);
+  const wormholeReceipt = await relayEVM(chainConfigInfo, params.signedVAA);
+  console.log(`relay finished: ${wormholeReceipt.transactionHash}`);
 
-  return routeXcm(params);
+  const xcmReceipt = await routeXcm(params);
+  return [wormholeReceipt, xcmReceipt];
 };
 
 // const routeWormhole = async (routeParamsWormhole: RouteParamsWormhole): Promise<ContractReceipt> => {
@@ -196,18 +194,21 @@ export const shouldRouteXcm = async (request: Request<any, any, any, RouteParams
   const res = {
     shouldRoute: true,
     routerAddr: '0x',
+    routerChainId: -1,
     msg: '',
   };
 
   try {
-    res.routerAddr = (await prepareRouteXcm(request.query)).routerAddr;
+    const shouldRouteRes = await prepareRouteXcm(request.query);
+    res.routerAddr = shouldRouteRes.routerAddr;
+    res.routerChainId = shouldRouteRes.routerChainId;
   } catch (error) {
     console.log(error);
     res.msg = error.message;
     res.shouldRoute = false;
   }
 
-  console.log(`shouldRouteXcm: ${JSON.stringify({ ...request.query, ...res })}`);
+  console.log(`shouldRouteXcm: ${JSON.stringify({ ...request.query, res })}`);
   response.status(200).json(res);
 };
 
@@ -238,11 +239,11 @@ export const handleRouteXcm = async (request: any, response: any): Promise<void>
 };
 
 export const handleRelayAndRoute = async (request: Request<any, any, RelayAndRouteParams, any>, response: any): Promise<void> =>  {
-  const receipt = await relayAndRoute(request.body);
-  const txHash = receipt.transactionHash;
+  const receipts = await relayAndRoute(request.body);
+  const txHashes = receipts.map(r => r.transactionHash);
 
-  console.log(`handleRelayAndRoute: ${JSON.stringify({ ...request.query, txHash })}`);
-  response.status(200).json(txHash);
+  console.log(`handleRelayAndRoute: ${JSON.stringify({ ...request.query, txHashes })}`);
+  response.status(200).json(txHashes);
 };
 
 // export const handleRouteWormhole = async (request: any, response: any): Promise<void> =>  {

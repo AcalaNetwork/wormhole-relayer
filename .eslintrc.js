@@ -2,6 +2,7 @@ module.exports = {
   env: {
     browser: false,
     es2021: true,
+    node: true,
   },
   extends: [
     'eslint:recommended',
@@ -29,6 +30,7 @@ module.exports = {
       exports: 'always-multiline',
       functions: 'only-multiline',
     }],
+    '@typescript-eslint/member-delimiter-style': 2,
 
     /* ---------- turn off ---------- */
     '@typescript-eslint/no-extra-semi': 0,

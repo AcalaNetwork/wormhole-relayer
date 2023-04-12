@@ -95,23 +95,24 @@ export const HYDRA_PARA_ID = '';
 export const BASILISK_PARA_ID = '2090';
 
 export interface RouterConfigs {
-  [routerChainId: string]: {
-    [destChainName: string]: string[];
-  }
+  [destChainName: string]: string[];
 }
 
+export const ETH_USDC = '0x07865c6e87b9f70255377e024ace6630c1eaa37f';
+
 const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV: RouterConfigs = {
-  // [CHAIN_ID_ACALA]: {
   //   [HYDRA_PARA_ID]: [
-  //     '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
+  //     ETH_USDC,
   //   ],
-  // },
-  [CHAIN_ID_KARURA]: {
-    [BASILISK_PARA_ID]: [
-      '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
-    ],
-  },
+  [BASILISK_PARA_ID]: [
+    ETH_USDC,
+  ],
 };
+
+export const RouterChainIdByDestParaId = {
+  [BASILISK_PARA_ID]: CHAIN_ID_KARURA,
+  [HYDRA_PARA_ID]: CHAIN_ID_ACALA,
+} as const;
 
 const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD: RouterConfigs = {};
 

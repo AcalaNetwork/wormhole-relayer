@@ -6,7 +6,6 @@ import { relay, checkShouldRelay, getVersion } from './relay';
 import { TESTNET_MODE_WARNING, VERSION } from './consts';
 import { handleRelayAndRoute, handleRouteXcm, shouldRouteXcm } from './route';
 import { validateRelayAndRouteArgs, validateRouteXcmArgs, validateshouldRouteXcmArgs } from './middlewares/validate';
-import { Wallet } from 'ethers';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
