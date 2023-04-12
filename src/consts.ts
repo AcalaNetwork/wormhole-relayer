@@ -3,10 +3,11 @@ import {
   CHAIN_ID_ACALA,
 } from '@certusone/wormhole-sdk';
 import dotenv from 'dotenv';
+import { XTOKENS } from '@acala-network/contracts/utils/Predeploy';
 
 dotenv.config({ path: '.env' });
 
-const isTestnet = Number(process.env.TESTNET_MODE);
+const isTestnet = Number(process.env.TESTNET_MODE ?? 1);
 
 // thredhold amount is defined as "amount that will show on VAA"
 // address should be **lower case** address to be consistent
@@ -60,6 +61,64 @@ export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = isTestnet
   ? RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV
   : RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD;
 
+// https://book.wormhole.com/reference/contracts.html#token-bridge
+// TODO: import these from newer version of wormhole sdk, and asset router pkg
+
+export const ADDRESSES = {
+  karuraTestnet: {
+    tokenBridgeAddr: '0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37',
+    factoryAddr: '0xed9ae45a067cadc843e26d377c9cd8e963b299f1',
+    feeAddr: '0x8dA2DebebFE5cCe133a80e7114621192780765BB',
+    xtokensAddr: XTOKENS,
+  },
+  acalaTestnet: {
+    tokenBridgeAddr: '0xebA00cbe08992EdD08ed7793E07ad6063c807004',
+    factoryAddr: '',
+    feeAddr: '',
+    xtokensAddr: '0x',
+  },
+  karura: {
+    tokenBridgeAddr: '0xae9d7fe007b3327AA64A32824Aaac52C42a6E624',
+    factoryAddr: '',
+    feeAddr: '',
+    xtokensAddr: '0x',
+  },
+  acala: {
+    tokenBridgeAddr: '0xae9d7fe007b3327AA64A32824Aaac52C42a6E624',
+    factoryAddr: '',
+    feeAddr: '',
+    xtokensAddr: '0x',
+  },
+} as const;
+
+export const HYDRA_PARA_ID = '';
+export const BASILISK_PARA_ID = '2090';
+
+export interface RouterConfigs {
+  [routerChainId: string]: {
+    [destChainName: string]: string[];
+  }
+}
+
+const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV: RouterConfigs = {
+  // [CHAIN_ID_ACALA]: {
+  //   [HYDRA_PARA_ID]: [
+  //     '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
+  //   ],
+  // },
+  [CHAIN_ID_KARURA]: {
+    [BASILISK_PARA_ID]: [
+      '0x07865c6e87b9f70255377e024ace6630c1eaa37f',     // USDC
+    ],
+  },
+};
+
+const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD: RouterConfigs = {};
+
+export const ROUTE_SUPPORTED_CHAINS_AND_ASSETS = isTestnet
+  ? ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV
+  : ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD;
+
 export const TESTNET_MODE_WARNING = `
   ----------------------------
   🔨 running in testnet mode
@@ -67,4 +126,4 @@ export const TESTNET_MODE_WARNING = `
   ----------------------------
 `;
 
-export const VERSION = '1.2.0';
+export const VERSION = '1.3.0';

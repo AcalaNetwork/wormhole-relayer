@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { expect } from 'chai';
-import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../relay/consts';
+import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../consts';
 import { SHOULD_RELAY_URL } from './consts';
 
 describe('/shouldRelay', () => {
@@ -45,14 +45,14 @@ describe('/shouldRelay', () => {
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('missing targetChain');
-  
+
       res = await checkShouldRelay({
         targetChain: 11,
         amount: '10000',
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('missing originAsset');
-  
+
       res = await checkShouldRelay({
         targetChain: 11,
         originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
@@ -69,7 +69,7 @@ describe('/shouldRelay', () => {
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('target chain not supported');
-  
+
       res = await checkShouldRelay({
         targetChain: 11,
         originAsset: '0x111111111191d46ee29420539fc25f0000000000',
@@ -77,7 +77,7 @@ describe('/shouldRelay', () => {
       });
       expect(res.data.shouldRelay).to.equal(false);
       expect(res.data.msg).to.equal('token not supported');
-      
+
       const targetChain = 11;
       const originAsset = USDT_BSC;
       res = await checkShouldRelay({

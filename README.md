@@ -88,5 +88,99 @@ POST /relay
 }
 ```
 
+### `/shouldRouteXcm`
+checks if the relayer can relay and route this request
+```
+GET /shouldRouteXcm
+params: {
+  destParaId: string,     // destination parachain id in number
+  dest: string,           // xcm encoded dest in hex
+  originAsset: string,    // original address without padding 0s in hex
+  routerChainId: string,  // 10 (acala) or 11 (karura)
+}
+```
+
+example
+```
+# ---------- when should route ---------- #
+GET /shouldRouteXcm?dest=0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d&routerChainId=11&destParaId=2090&originAddr=0x07865c6e87b9f70255377e024ace6630c1eaa37f
+=> {"shouldRoute":true,"routerAddr":"0x8341Cd8b7bd360461fe3ce01422fE3E24628262F","msg":""}
+
+# ---------- when should not route ---------- #
+GET /shouldRouteXcm?dest=0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d&routerChainId=9&destParaId=2090&originAddr=0x07865c6e87b9f70255377e024ace6630c1eaa37f
+=> {"shouldRoute":false,"routerAddr":"0x","msg":"unsupported router chainId: 9"}
+
+GET /shouldRouteXcm?dest=0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d&routerChainId=11&destParaId=1111&originAddr=0x07865c6e87b9f70255377e024ace6630c1eaa37f
+=> {"shouldRoute":false,"routerAddr":"0x","msg":"unsupported dest parachain: 1111"}
+
+GET /shouldRouteXcm?dest=0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d&routerChainId=11&destParaId=2090&originAddr=0x07865c6e87b9f70255377e024ace6630c1eaaaaa
+=> {"shouldRoute":false,"routerAddr":"0x","msg":"unsupported token on dest parachin 2090. Token origin address: 0x07865c6e87b9f70255377e024ace6630c1eaaaaa"}
+```
+
+### `/routeXcm`
+route this request, returns the transaction receipt
+```
+POST /routeXcm
+data: {
+  destParaId: string,     // destination parachain id
+  dest: string,           // xcm encoded dest
+  originAsset: string,    // original address without padding 0s
+  routerChainId: string,  // acala (10) or karura (11)
+}
+```
+
+example
+```
+POST /routeXcm
+{
+  destParaId: "2090",
+  dest: "0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
+  originAsset: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
+  routerChainId: "11",
+}
+
+=> tx hash
+0xb292b872fb7ddd33de25b0a7ee66e65bac918ec1ab0a6d93446f3dde7435955b
+```
+
+### `/relayAndRoute`
+relay from wormhole, and route token to target chain, and returns the transaction receipt for the \*route\* (not relay)
+```
+POST /relayAndRoute
+data: {
+  destParaId: string,     // destination parachain id
+  dest: string,           // xcm encoded dest
+  originAsset: string,    // original address without padding 0s
+  routerChainId: string,  // acala (10) or karura (11)
+  signedVAA: string,      // hex encoded string
+}
+```
+
+example
+```
+POST /routeXcm
+{
+  destParaId: "2090",
+  dest: "0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
+  originAsset: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
+  routerChainId: "11",
+  signedVAA: 010000000001007b98257f6bf142c480a0b63ee571374fff5fe4dcd3127977af6860ce516b58084b137c40f913f8d7ca450d5413d619ba85104fbcb0a8a44e4db509faa4ef06d601622af226fd4d000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09000000000000011e0f0100000000000000000000000000000000000000000000000000000000000f4240000000000000000000000000337610d27c682e347c9cd60bd4b3b107c9d34ddd0004000000000000000000000000e3234f433914d4cfcf846491ec5a7831ab9f0bb3000b0000000000000000000000000000000000000000000000000000000000000000
+}
+
+=> tx hash
+0xd3b5cbdbc0b8026e7de085b80f0923cf0c92c96f788d702635383c26b8c070c9
+```
+
+## Tests
+first start a relayer: `yarn dev`
+
+```
+yarn test:shouldRelay
+yarn test:relay
+
+yarn test:shouldRoute
+yarn test:route
+```
+
 ## Production Config
 modify `.env` to use real private keys for relayers, also set `TESTNET_MODE=0`

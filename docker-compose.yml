@@ -8,13 +8,13 @@ services:
       - 3111:3111
       # - 3112:3112
     environment:
-      - KARURA_ETH_RPC_URL=https://eth-rpc-karura-testnet.aca-staging.network
-      - KARURA_SUBSTRATE_NODE_URL=wss://karura-dev.aca-dev.network/rpc/ws
+      - KARURA_ETH_RPC=https://eth-rpc-karura-testnet.aca-staging.network
+      - KARURA_NODE_URL=wss://karura-dev.aca-dev.network/rpc/ws
       - KARURA_PRIVATE_KEY=efb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044
       - KARURA_TOKEN_BRIDGE_ADDRESS=0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37
 
-      - KARURA_ETH_RPC_URL=https://eth-rpc-acala-testnet.aca-staging.network
-      - ACALA_SUBSTRATE_NODE_URL=wss://acala-dev.aca-dev.network/rpc/ws
+      - KARURA_ETH_RPC=https://eth-rpc-acala-testnet.aca-staging.network
+      - ACALA_NODE_URL=wss://acala-dev.aca-dev.network/rpc/ws
       - ACALA_PRIVATE_KEY=efb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044
       - ACALA_TOKEN_BRIDGE_ADDRESS=0xebA00cbe08992EdD08ed7793E07ad6063c807004
 

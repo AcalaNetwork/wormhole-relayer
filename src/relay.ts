@@ -1,18 +1,11 @@
 import {
-  ChainId,
   hexToUint8Array,
 } from '@certusone/wormhole-sdk';
-import { RelayerEnvironment, validateEnvironment } from '../configureEnv';
+import { getChainConfigInfo } from './configureEnv';
 import { VERSION } from './consts';
 import { relayEVM, shouldRelay, parseVaa, shouldRelayVaa } from './utils';
 
-const env: RelayerEnvironment = validateEnvironment();
-
-const getChainConfigInfo = (chainId: ChainId) => {
-  return env.supportedChains.find((x) => x.chainId === chainId);
-};
-
-const validateRequest = async (request: any, response: any) => {
+const validateRelayRequest = async (request: any, response: any) => {
   const chainId = request.body?.targetChain;
   const chainConfigInfo = getChainConfigInfo(chainId);
 
@@ -51,7 +44,7 @@ export const relay = async (request: any, response: any): Promise<void> =>  {
     chainConfigInfo,
     chainId,
     signedVAA,
-  } = await validateRequest(request, response);
+  } = await validateRelayRequest(request, response);
 
   if (!chainConfigInfo) return;
 
@@ -60,7 +53,7 @@ export const relay = async (request: any, response: any): Promise<void> =>  {
 
   try {
     const receipt = await relayEVM(chainConfigInfo, signedVAA);
-    
+
     console.log(`Relay Succeed 🎉🎉: ${relayInfo}, txHash: ${receipt.transactionHash}`);
     response.status(200).json(receipt);
   } catch (e) {
