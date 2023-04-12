@@ -86,6 +86,6 @@ function configAcala(): ChainConfigInfo {
 
 const env: RelayerEnvironment = validateEnvironment();
 
-export const getChainConfigInfo = (chainId: number): ChainConfigInfo | undefined => (
+export const getChainConfigInfo = (chainId: ChainId): ChainConfigInfo | undefined => (
   env.supportedChains.find((x) => x.chainId === chainId)
 );

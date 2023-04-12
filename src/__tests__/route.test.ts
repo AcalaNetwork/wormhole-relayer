@@ -23,6 +23,11 @@ import { BASILISK_PARA_ID } from '../consts';
 const KARURA_NODE_URL = 'wss://karura-testnet.aca-staging.network/rpc/karura/ws';
 const TEST_KEY = 'efb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044';
 
+const encodeXcmDest = (data: any) => {
+  // TODO: use api to encode
+  return '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
+};
+
 const mockXcmToRouter = async (routerAddr: string, signer: Wallet) => {
   const usdc = new ERC20__factory(signer).attach(KARURA_USDC_ADDRESS);
 
@@ -39,7 +44,18 @@ describe('/routeXcm', () => {
   const shouldRouteXcm = (params: any) => axios.get(SHOULD_ROUTE_XCM_URL, { params });
   const routeXcm = (params: RouteParamsXcm) => axios.post(ROUTE_XCM_URL, params);
 
-  const dest = '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
+  const destAddr = 'bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak';
+  const dest = encodeXcmDest({
+    V3: {
+      parents: 1,
+      interior: {
+        X2: [
+          { parachain: 2090 },
+          { accountId32: destAddr },
+        ],
+      },
+    },
+  });
 
   const provider = new EvmRpcProvider(KARURA_NODE_URL);
 
@@ -54,7 +70,6 @@ describe('/routeXcm', () => {
   it('when should route', async () => {
     const routeArgs = {
       dest,
-      routerChainId: '11',
       destParaId: BASILISK_PARA_ID,
       originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
     };
@@ -69,17 +84,10 @@ describe('/routeXcm', () => {
     console.log('routing ...');
     const routeRes = await routeXcm(routeArgs);
     console.log(`route finished! txHash: ${routeRes.data}`);
-
-    await provider.disconnect();
   });
 
   // describe.skip('when should not route', () => {})
 });
-
-const encodeXcmDest = (data: any) => {
-  // TODO: use api to encode
-  return '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
-};
 
 describe.only('/relayAndRoute', () => {
   const shouldRouteXcm = (params: any) => axios.get(SHOULD_ROUTE_XCM_URL, { params });
@@ -122,7 +130,6 @@ describe.only('/relayAndRoute', () => {
   it('when should route', async () => {
     const routeArgs = {
       dest,
-      routerChainId: '11',
       destParaId: BASILISK_PARA_ID,
       originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
     };

@@ -113,8 +113,8 @@ export const getSigner = async ({
   nodeUrl,
   walletPrivateKey,
 }: {
-  nodeUrl: string,
-  walletPrivateKey: string,
+  nodeUrl: string;
+  walletPrivateKey: string;
 }): Promise<Signer> => {
   const provider = EvmRpcProvider.from(nodeUrl);
   await provider.isReady();
@@ -141,8 +141,8 @@ export const bridgeToken = async (
   targetChain: ChainId,
   amount: BigNumberish,
 ): Promise<{
-  receipt: ContractReceipt,
-  sequence: string,
+  receipt: ContractReceipt;
+  sequence: string;
 }> => {
   const hexString = nativeToHexString(recipientAddr, targetChain);
   if (!hexString) {

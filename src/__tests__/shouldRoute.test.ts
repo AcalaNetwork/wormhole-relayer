@@ -10,32 +10,34 @@ describe('/shouldRouteXcm', () => {
   const dest = '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
 
   it('when should route', async () => {
-    for (const [routerChainId, supportedChains] of Object.entries(ROUTE_SUPPORTED_CHAINS_AND_ASSETS)) {
-      for (const [destParaId, supportedTokens] of Object.entries(supportedChains)) {
-        for (const tokenAddr of supportedTokens) {
-          let res = await shouldRouteXcm({
-            dest,
-            routerChainId,
-            destParaId,
-            originAddr: tokenAddr,
-          });
+    for (const [destParaId, supportedTokens] of Object.entries(ROUTE_SUPPORTED_CHAINS_AND_ASSETS)) {
+      for (const tokenAddr of supportedTokens) {
+        let res = await shouldRouteXcm({
+          dest,
+          destParaId,
+          originAddr: tokenAddr,
+        });
 
-          expect(res.data.shouldRoute).to.equal(true);
-          expect(res.data.msg).to.equal('');
-          expect(res.data.routerAddr).to.equal('0x8341Cd8b7bd360461fe3ce01422fE3E24628262F');
+        expect(res.data).to.deep.eq({
+          shouldRoute: true,
+          routerAddr: '0x8341Cd8b7bd360461fe3ce01422fE3E24628262F',
+          routerChainId: 11,
+          msg: '',
+        });
 
-          // should be case insensitive
-          res = await shouldRouteXcm({
-            dest,
-            routerChainId: routerChainId,
-            destParaId,
-            originAddr: tokenAddr.toUpperCase(),
-          });
+        // should be case insensitive
+        res = await shouldRouteXcm({
+          dest,
+          destParaId,
+          originAddr: tokenAddr.toUpperCase(),
+        });
 
-          expect(res.data.shouldRoute).to.equal(true);
-          expect(res.data.msg).to.equal('');
-          expect(res.data.routerAddr).to.equal('0x8341Cd8b7bd360461fe3ce01422fE3E24628262F');
-        }
+        expect(res.data).to.deep.eq({
+          shouldRoute: true,
+          routerAddr: '0x8341Cd8b7bd360461fe3ce01422fE3E24628262F',
+          routerChainId: 11,
+          msg: '',
+        });
       }
     }
   });
@@ -43,7 +45,6 @@ describe('/shouldRouteXcm', () => {
   describe('when should not route', () => {
     it('when missing params', async () => {
       let res = await shouldRouteXcm({
-        routerChainId: 11,
         destParaId: BASILISK_PARA_ID,
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
       });
@@ -52,15 +53,6 @@ describe('/shouldRouteXcm', () => {
 
       res = await shouldRouteXcm({
         dest,
-        destParaId: BASILISK_PARA_ID,
-        originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('routerChainId is a required field');
-
-      res = await shouldRouteXcm({
-        dest,
-        routerChainId: 11,
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
       });
       expect(res.data.shouldRoute).to.equal(false);
@@ -68,7 +60,6 @@ describe('/shouldRouteXcm', () => {
 
       res = await shouldRouteXcm({
         dest,
-        routerChainId: 11,
         destParaId: BASILISK_PARA_ID,
       });
       expect(res.data.shouldRoute).to.equal(false);
@@ -78,19 +69,11 @@ describe('/shouldRouteXcm', () => {
     it('when wrong params', async () => {
       const validArgs = {
         dest,
-        routerChainId: 11,
         destParaId: BASILISK_PARA_ID,
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
       };
 
       let res = await shouldRouteXcm({
-        ...validArgs,
-        routerChainId: 8,
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('unsupported router chainId: 8');
-
-      res = await shouldRouteXcm({
         ...validArgs,
         destParaId: 1111,
       });
