@@ -95,7 +95,7 @@ GET /shouldRouteXcm
 params: {
   destParaId: string,     // destination parachain id in number
   dest: string,           // xcm encoded dest in hex
-  originAsset: string,    // original address without padding 0s in hex
+  originAsset: string,    // original token address in hex
 }
 ```
 
@@ -124,9 +124,9 @@ route this request, and returns the transaction hash
 ```
 POST /routeXcm
 data: {
-  destParaId: string,     // destination parachain id
-  dest: string,           // xcm encoded dest
-  originAsset: string,    // original address without padding 0s
+  destParaId: string,     // destination parachain id in number
+  dest: string,           // xcm encoded dest in hex
+  originAsset: string,    // original token address in hex
 }
 ```
 
@@ -148,9 +148,9 @@ relay from wormhole, and route token to target chain, and returns transaction ha
 ```
 POST /relayAndRoute
 data: {
-  destParaId: string,     // destination parachain id
-  dest: string,           // xcm encoded dest
-  originAsset: string,    // original address without padding 0s
+  destParaId: string,     // destination parachain id in number
+  dest: string,           // xcm encoded dest in hex
+  originAsset: string,    // original token address in hex
   signedVAA: string,      // hex encoded string
 }
 ```
@@ -170,6 +170,73 @@ POST /routeXcm
   0xb292b872fb7ddd33de25b0a7ee66e65bac918ec1ab0a6d93446f3dde7435955b,   // relay
   0xd3b5cbdbc0b8026e7de085b80f0923cf0c92c96f788d702635383c26b8c070c9    // xcm
 ]
+```
+
+### `/shouldRouteWormhole`
+checks if the relayer can relay and route this request, returns router address
+```
+GET /shouldRouteWormhole
+params: {
+  originAddr: string;     // original token address in hex
+  targetChainId: string;  // dest wormhole chainId wormhole in number
+  destAddr: string;       // recepient address in hex
+  fromParaId: string;     // from parachain id in number
+}
+```
+
+example
+```
+# ---------- when should route ---------- #
+GET /shouldRouteWormhole?originAddr=0x07865c6e87b9f70255377e024ace6630c1eaa37f&targetChainId=2&destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&fromParaId=2090
+=>
+{
+  "shouldRoute":true,
+  "routerAddr":"0xC8a0596848966f61be4cd1875373d2728e162eE2",
+  "msg":""
+}
+
+# ---------- when should not route ---------- #
+GET /shouldRouteWormhole?originAddr=0x07865c6e87b9f70255377e024ace6630c1eaa37f&targetChainId=2&destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&fromParaId=2111
+=>
+{
+  "shouldRoute":false,
+  "routerAddr":"0x",
+  "msg":"unsupported origin parachain: 2111"
+}
+
+GET /shouldRouteWormhole?originAddr=0x07865c6e87b9f70255377e024ace6630c1e00000&targetChainId=2&destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&fromParaId=2090
+=>
+{
+  "shouldRoute":false,
+  "routerAddr":"0x",
+  "msg":"origin token 0x07865c6e87b9f70255377e024ace6630c1e00000 not supported on router chain 11"
+}
+```
+
+### `/routeWormhole`
+route the quest, and returns the wormhole deposit tx hash
+```
+POST /routeWormhole
+data: {
+  originAddr: string;     // original token address in hex
+  targetChainId: string;  // dest wormhole chainId wormhole in number
+  destAddr: string;       // recepient address in hex
+  fromParaId: string;     // from parachain id in number
+}
+```
+
+example
+```
+POST /routeWormhole
+data: {
+  originAddr: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
+  targetChainId: "2",
+  destAddr: "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
+  fromParaId: "2090"
+}
+
+=> tx hash
+0x677cd79963bb4b45c50009f213194397be3081cfb206e958da02b6357c44674e
 ```
 
 ## Tests

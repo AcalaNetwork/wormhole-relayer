@@ -7,19 +7,16 @@ import {
   hexToNativeString,
   Bridge__factory,
   nativeToHexString,
-  CHAIN_ID_ACALA,
-  CHAIN_ID_KARURA,
   transferFromEth,
   parseSequenceFromLogEth,
   CHAIN_ID_ETH,
 } from '@certusone/wormhole-sdk';
-import { BigNumber, BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
+import { BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
 import { ChainConfigInfo } from './configureEnv';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
 import {
   RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS,
 } from './consts';
-import { parseUnits } from 'ethers/lib/utils';
 
 interface VaaInfo {
   amount: bigint;

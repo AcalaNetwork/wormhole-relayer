@@ -1,7 +1,7 @@
 import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk';
 import axios from 'axios';
 import { expect } from 'chai';
-import { BASILISK_PARA_ID, ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from '../consts';
+import { BASILISK_PARA_ID, ETH_USDC, ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from '../consts';
 import { SHOULD_ROUTE_WORMHOLE_URL, SHOULD_ROUTE_XCM_URL } from './consts';
 
 describe('/shouldRouteXcm', () => {
@@ -66,7 +66,7 @@ describe('/shouldRouteXcm', () => {
       expect(res.data.msg).to.contain('originAddr is a required field');
     });
 
-    it('when wrong params', async () => {
+    it('when bad params', async () => {
       const validArgs = {
         dest,
         destParaId: BASILISK_PARA_ID,
@@ -99,41 +99,101 @@ describe('/shouldRouteXcm', () => {
   });
 });
 
-describe.skip('/shouldRouteWormhole', () => {
-  const checkShouldRouteWormhole = (params: any) => axios.get(SHOULD_ROUTE_WORMHOLE_URL, { params });
+describe('/shouldRouteWormhole', () => {
+  const shouldRouteWormhole = (params: any) => axios.get(SHOULD_ROUTE_WORMHOLE_URL, { params });
 
   it('when should route', async () => {
-    for (const [routerChainId, supportedChains] of Object.entries(ROUTE_SUPPORTED_CHAINS_AND_ASSETS)) {
-      for (const [_, supportedTokens] of Object.entries(supportedChains)) {
+    for (const supportedTokens of Object.values(ROUTE_SUPPORTED_CHAINS_AND_ASSETS)) {
+      for (const tokenAddr of supportedTokens) {
+        let res = await shouldRouteWormhole({
+          originAddr: tokenAddr,
+          targetChainId: String(CHAIN_ID_ETH),
+          destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+          fromParaId: BASILISK_PARA_ID,
+        });
 
-        for (const tokenAddr of supportedTokens) {
-          const res = await checkShouldRouteWormhole({
-            destAddr: '0x75E480dB528101a381Ce68544611C169Ad7EB342',
-            routerChainId,
-            targetChainId: CHAIN_ID_ETH,
-            originAddr: tokenAddr,
-          });
+        expect(res.data).to.deep.eq({
+          shouldRoute: true,
+          routerAddr: '0xC8a0596848966f61be4cd1875373d2728e162eE2',
+          // routerChainId: 11,
+          msg: '',
+        });
 
-          console.log(res);
-          expect(res.data.shouldRoute).to.equal(true);
-          expect(res.data.msg).to.equal('');
-        }
+        // should be case insensitive
+        res = await shouldRouteWormhole({
+          originAddr: tokenAddr,
+          targetChainId: String(CHAIN_ID_ETH),
+          destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+          fromParaId: BASILISK_PARA_ID,
+        });
 
-        // if not lower case address
-        // for (const tokenAddr of supportedTokens) {
-        //   const res = await checkShouldRouteWormhole({
-        //     destAddr: '0x',
-        //     routerChainId: CHAIN_ID_KARURA,
-        //     targetChain: destChain,
-        //     originAddr: tokenAddr.toUpperCase(),
-        //   });
-
-      //   console.log(res);
-      //   expect(res.data.shouldRoute).to.equal(true);
-      //   expect(res.data.msg).to.equal('');
-      // }
+        expect(res.data).to.deep.eq({
+          shouldRoute: true,
+          routerAddr: '0xC8a0596848966f61be4cd1875373d2728e162eE2',
+          // routerChainId: 11,
+          msg: '',
+        });
       }
-
     }
+  });
+
+  describe('when should not route', () => {
+    it('when missing params', async () => {
+      let res = await shouldRouteWormhole({
+        targetChainId: String(CHAIN_ID_ETH),
+        destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+        fromParaId: BASILISK_PARA_ID,
+      });
+      expect(res.data.shouldRoute).to.equal(false);
+      expect(res.data.msg).to.contain('originAddr is a required field');
+
+      res = await shouldRouteWormhole({
+        originAddr: ETH_USDC,
+        destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+        fromParaId: BASILISK_PARA_ID,
+      });
+      expect(res.data.shouldRoute).to.equal(false);
+      expect(res.data.msg).to.contain('targetChainId is a required field');
+
+      res = await shouldRouteWormhole({
+        originAddr: ETH_USDC,
+        targetChainId: String(CHAIN_ID_ETH),
+        fromParaId: BASILISK_PARA_ID,
+      });
+      expect(res.data.shouldRoute).to.equal(false);
+      expect(res.data.msg).to.contain('destAddr is a required field');
+
+      res = await shouldRouteWormhole({
+        originAddr: ETH_USDC,
+        targetChainId: String(CHAIN_ID_ETH),
+        destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+      });
+      expect(res.data.shouldRoute).to.equal(false);
+      expect(res.data.msg).to.contain('fromParaId is a required field');
+    });
+
+    it('when bad params', async () => {
+      const validArgs = {
+        originAddr: ETH_USDC,
+        targetChainId: String(CHAIN_ID_ETH),
+        destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+        fromParaId: BASILISK_PARA_ID,
+      };
+
+      let res = await shouldRouteWormhole({
+        ...validArgs,
+        fromParaId: 1111,
+      });
+      expect(res.data.shouldRoute).to.equal(false);
+      expect(res.data.msg).to.contain('unsupported origin parachain: 1111');
+
+      const unsupportedToken = '0x07865c6e87b9f70255377e024ace6630c1e00000';
+      res = await shouldRouteWormhole({
+        ...validArgs,
+        originAddr: '0x07865c6e87b9f70255377e024ace6630c1e00000',
+      });
+      expect(res.data.shouldRoute).to.equal(false);
+      expect(res.data.msg).to.contain(`origin token ${unsupportedToken} not supported on router chain 11`);
+    });
   });
 });
