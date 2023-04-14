@@ -227,7 +227,7 @@ describe('/routeWormhole', () => {
     await providerKarura.disconnect();
   });
 
-  it.only('when should route', async () => {
+  it('when should route', async () => {
     const routeArgs = {
       targetChainId: String(CHAIN_ID_BSC),
       destAddr: TEST_USER_ADDR,
