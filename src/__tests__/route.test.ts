@@ -49,6 +49,9 @@ const mockXcmToRouter = async (routerAddr: string, signer: Wallet) => {
 
   const ROUTE_AMOUNT = 0.01;
   const routeAmount = parseUnits(String(ROUTE_AMOUNT), 6);
+  if ((await usdc.balanceOf(signer.address)).lt(routeAmount)) {
+    throw new Error(`signer ${signer.address} has no enough usdc`);
+  }
   await (await usdc.transfer(routerAddr, routeAmount)).wait();
 
   expect((await usdc.balanceOf(routerAddr)).toBigInt()).to.eq(routeAmount.toBigInt());
