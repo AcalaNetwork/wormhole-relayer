@@ -2,21 +2,19 @@ import {
   hexToUint8Array,
   redeemOnEth,
   parseTransferPayload,
-  importCoreWasm,
   ChainId,
-  hexToNativeString,
-  Bridge__factory,
-  nativeToHexString,
+  tryNativeToHexString,
   transferFromEth,
   parseSequenceFromLogEth,
   CHAIN_ID_ETH,
+  tryHexToNativeString,
+  parseVaa,
 } from '@certusone/wormhole-sdk';
+import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
-import { ChainConfigInfo } from './configureEnv';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
-import {
-  RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS,
-} from './consts';
+import { ChainConfigInfo } from './configureEnv';
+import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from './consts';
 
 interface VaaInfo {
   amount: bigint;
@@ -30,12 +28,17 @@ interface ShouldRelayResult {
   msg: string;
 }
 
-export const parseVaa = async (bytes: Uint8Array): Promise<VaaInfo> => {
-  const { parse_vaa } = await importCoreWasm();
-  const parsedVaa = parse_vaa(bytes);
-  const buffered = Buffer.from(new Uint8Array(parsedVaa.payload));
+export const parseVaaPayload = async (bytes: Uint8Array): Promise<VaaInfo> => {
+  const parsedVaa = parseVaa(bytes);
+  const payload = parseTransferPayload(parsedVaa.payload);
 
-  return parseTransferPayload(buffered);
+  return {
+    amount: payload.amount,
+    originAddress: payload.originAddress,
+    originChain: payload.originChain as ChainId,
+    targetAddress: payload.targetAddress,
+    targetChain: payload.targetChain as ChainId,
+  };
 };
 
 export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
@@ -45,7 +48,7 @@ export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
     originChain,
     originAddress,
   } = vaaInfo;
-  const originAsset = hexToNativeString(originAddress, originChain) as string;  // TODO: update
+  const originAsset = tryHexToNativeString(originAddress, originChain);
 
   const res = shouldRelay({ targetChain, originAsset, amount });
 
@@ -125,7 +128,7 @@ export const getRouterChainTokenAddr = async (originAddr: string, chainInfo: Cha
 
   return tokenBridge.wrappedAsset(
     CHAIN_ID_ETH,
-    Buffer.from(nativeToHexString(originAddr, CHAIN_ID_ETH) as string, 'hex'),   // TODO: use tryNativeToHexString
+    Buffer.from(tryNativeToHexString(originAddr, CHAIN_ID_ETH), 'hex'),
   );
 };
 
@@ -141,7 +144,7 @@ export const bridgeToken = async (
   receipt: ContractReceipt;
   sequence: string;
 }> => {
-  const hexString = nativeToHexString(recipientAddr, targetChain);
+  const hexString = tryNativeToHexString(recipientAddr, targetChain);
   if (!hexString) {
     throw new Error('Invalid recipient');
   }
