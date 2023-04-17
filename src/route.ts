@@ -1,8 +1,8 @@
 import { ChainId, tryNativeToHexString } from '@certusone/wormhole-sdk';
 import { Request, Response } from 'express';
 import { ContractReceipt, Overrides, Signer } from 'ethers';
-import { Factory__factory } from '@acala-network/asset-router';
-import { WormholeInstructionsStruct, XcmInstructionsStruct } from '@acala-network/asset-router/dist/src/Factory';
+import { Factory__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { WormholeInstructionsStruct, XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
 import { getChainConfigInfo, ChainConfigInfo } from './configureEnv';
 import { getRouterChainTokenAddr, getSigner, relayEVM } from './utils';
 import { EvmRpcProvider } from '@acala-network/eth-providers';

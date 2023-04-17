@@ -1,10 +1,9 @@
 import {
   CHAIN_ID_KARURA,
   CHAIN_ID_ACALA,
-  CONTRACTS,
 } from '@certusone/wormhole-sdk';
 import dotenv from 'dotenv';
-import { XTOKENS } from '@acala-network/contracts/utils/Predeploy';
+export { ADDRESSES } from '@acala-network/asset-router/dist/consts';
 
 dotenv.config({ path: '.env' });
 
@@ -61,34 +60,6 @@ const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD = {
 export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = isTestnet
   ? RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV
   : RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD;
-
-// TODO: import factoryAddr and feeAddr from asset router pkg
-export const ADDRESSES = {
-  karuraTestnet: {
-    tokenBridgeAddr: CONTRACTS.TESTNET.karura.token_bridge,
-    factoryAddr: '0xed9ae45a067cadc843e26d377c9cd8e963b299f1',
-    feeAddr: '0x8dA2DebebFE5cCe133a80e7114621192780765BB',
-    xtokensAddr: XTOKENS,
-  },
-  acalaTestnet: {
-    tokenBridgeAddr: CONTRACTS.TESTNET.acala.token_bridge,
-    factoryAddr: '',
-    feeAddr: '',
-    xtokensAddr: '0x',
-  },
-  karura: {
-    tokenBridgeAddr: CONTRACTS.MAINNET.karura.token_bridge,
-    factoryAddr: '',
-    feeAddr: '',
-    xtokensAddr: '0x',
-  },
-  acala: {
-    tokenBridgeAddr: CONTRACTS.MAINNET.acala.token_bridge,
-    factoryAddr: '',
-    feeAddr: '',
-    xtokensAddr: '0x',
-  },
-} as const;
 
 export const HYDRA_PARA_ID = '';
 export const BASILISK_PARA_ID = '2090';
