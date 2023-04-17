@@ -24,10 +24,10 @@
     "@polkadot/api" "^9.9.1"
     "@polkadot/rpc-core" "^9.9.1"
 
-"@acala-network/asset-router@~1.0.2":
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/@acala-network/asset-router/-/asset-router-1.0.2.tgz#f420675ee9542caa6cb54616fabc5745d2a46224"
-  integrity sha512-hdUlA6uTQGyqu1Dqg2OC6jPm8ApHvBI/fS7wneLeae1I/KaKFEcArzo8ysV1hWuCw2uzuEi6/Kc7AFk0GwHtpg==
+"@acala-network/asset-router@~1.0.3":
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/@acala-network/asset-router/-/asset-router-1.0.3.tgz#b77f3379b08bf8833b52bf27a72228f1d3a17fa4"
+  integrity sha512-5xcb8ZDqeP0q7ybXZnv3cTqupcVvz3pknD1etYDNXhW/DM4hQ55BF+Jzjo8k5lOtK/dwUUsbHUyksyurL7GX2A==
   dependencies:
     "@acala-network/contracts" "^4.3.7"
     "@acala-network/eth-providers" "^2.6.2"
