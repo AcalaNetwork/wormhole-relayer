@@ -1,5 +1,4 @@
 import { ChainId, CHAIN_ID_KARURA, CHAIN_ID_ACALA } from '@certusone/wormhole-sdk';
-import { setDefaultWasm } from '@certusone/wormhole-sdk/lib/cjs/solana/wasm';
 import dotenv from 'dotenv';
 import { ADDRESSES } from './consts';
 
@@ -21,7 +20,6 @@ export type ChainConfigInfo = {
 const isTestnet = Number(process.env.TESTNET_MODE ?? 1);
 
 export function validateEnvironment(): RelayerEnvironment {
-  setDefaultWasm('node');
   dotenv.config({ path: '.env' });
   const supportedChains: ChainConfigInfo[] = [];
   supportedChains.push(configKarura());

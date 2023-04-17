@@ -1,7 +1,7 @@
 import { hexToUint8Array } from '@certusone/wormhole-sdk';
 import { getChainConfigInfo } from './configureEnv';
 import { VERSION } from './consts';
-import { relayEVM, shouldRelay, parseVaa, shouldRelayVaa } from './utils';
+import { parseVaaPayload, relayEVM, shouldRelay, shouldRelayVaa } from './utils';
 
 const validateRelayRequest = async (request: any, response: any) => {
   const chainId = request.body?.targetChain;
@@ -17,7 +17,7 @@ const validateRelayRequest = async (request: any, response: any) => {
   }
 
   // parse & validate VAA, make sure we want to relay this request
-  const vaaInfo = await parseVaa(hexToUint8Array(signedVAA));
+  const vaaInfo = await parseVaaPayload(hexToUint8Array(signedVAA));
   const vaaInfoString = JSON.stringify(vaaInfo, (key, value) =>
     typeof value === 'bigint' ? value.toString() : value
   );

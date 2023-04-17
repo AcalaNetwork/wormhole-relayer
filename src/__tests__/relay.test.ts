@@ -13,7 +13,7 @@ import { transferFromBSCToKarura } from './utils';
 
 describe('/relay', () => {
   describe('Send ERC20 from BSC to Karura', () => {
-    it.only('relay correctly when should relay', async () => {
+    it('relay correctly when should relay', async () => {
       const signedVAA = await transferFromBSCToKarura('0.1', BSC_USDT_ADDRESS, TEST_USER_ADDR);
       console.log({ signedVAA });
 
@@ -32,7 +32,7 @@ describe('/relay', () => {
       });
     });
 
-    it('throw correct error when transfer amount too small', async () => {
+    it.skip('throw correct error when transfer amount too small', async () => {
       const signedVAA = await transferFromBSCToKarura('0.01', BSC_USDT_ADDRESS, TEST_USER_ADDR);
       console.log({ signedVAA });
 
@@ -51,7 +51,7 @@ describe('/relay', () => {
       expect(failed).to.equal(true);
     });
 
-    it('throw correct error when token not supported', async () => {
+    it.skip('throw correct error when token not supported', async () => {
       const signedVAA = await transferFromBSCToKarura('10', NOT_SUPPORTED_ADDRESS, TEST_USER_ADDR);
       console.log({ signedVAA });
 

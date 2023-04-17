@@ -1,4 +1,4 @@
-import { ChainId, nativeToHexString } from '@certusone/wormhole-sdk';
+import { ChainId, tryNativeToHexString } from '@certusone/wormhole-sdk';
 import { Request, Response } from 'express';
 import { ContractReceipt, Overrides, Signer } from 'ethers';
 import { Factory__factory } from '@acala-network/asset-router';
@@ -117,7 +117,7 @@ const prepareRouteWormhole = async ({
     throw new Error(`origin token ${originAddr} not supported on router chain ${routerChainId}`);
   }
 
-  const recipient = Buffer.from(nativeToHexString(destAddr, chainConfigInfo.chainId) as string, 'hex');
+  const recipient = Buffer.from(tryNativeToHexString(destAddr, chainConfigInfo.chainId) as string, 'hex');
   const wormholeInstructions: WormholeInstructionsStruct = {
     recipientChain: targetChainId,
     recipient,

@@ -1,5 +1,5 @@
 import { EvmRpcProvider, sleep } from '@acala-network/eth-providers';
-import { CHAIN_ID_BSC, CHAIN_ID_KARURA, ERC20__factory, hexToUint8Array, parseSequenceFromLogEth, redeemOnEth, ERC20 } from '@certusone/wormhole-sdk';
+import { CHAIN_ID_BSC, CHAIN_ID_KARURA, hexToUint8Array, parseSequenceFromLogEth, redeemOnEth } from '@certusone/wormhole-sdk';
 import axios from 'axios';
 import { expect } from 'chai';
 import { ContractReceipt, Wallet } from 'ethers';
@@ -7,6 +7,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import { parseUnits } from 'ethers/lib/utils';
 import { after, before } from 'mocha';
 import { ApiPromise, WsProvider } from '@polkadot/api';
+import { ERC20, ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import {
   ROUTE_XCM_URL,
   SHOULD_ROUTE_XCM_URL,
@@ -42,7 +43,7 @@ const getBasiliskUsdcBalance = async (api: ApiPromise, addr: string) => {
 };
 
 const mockXcmToRouter = async (routerAddr: string, signer: Wallet) => {
-  const usdc = new ERC20__factory(signer).attach(KARURA_USDC_ADDRESS);
+  const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, signer);
 
   expect((await usdc.balanceOf(routerAddr)).toNumber()).to.eq(0);
 
