@@ -1,6 +1,4 @@
-import {
-  hexToUint8Array,
-} from '@certusone/wormhole-sdk';
+import { hexToUint8Array } from '@certusone/wormhole-sdk';
 import { getChainConfigInfo } from './configureEnv';
 import { VERSION } from './consts';
 import { relayEVM, shouldRelay, parseVaa, shouldRelayVaa } from './utils';

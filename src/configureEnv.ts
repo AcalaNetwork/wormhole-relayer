@@ -10,7 +10,7 @@ export type RelayerEnvironment = {
 export type ChainConfigInfo = {
   chainId: ChainId;
   ethRpc: string;
-  nodeUrl: string,
+  nodeUrl: string;
   walletPrivateKey: string;
   tokenBridgeAddr: string;
   feeAddr: string;

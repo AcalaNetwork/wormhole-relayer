@@ -4,8 +4,8 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { relay, checkShouldRelay, getVersion } from './relay';
 import { TESTNET_MODE_WARNING, VERSION } from './consts';
-import { handleRelayAndRoute, handleRouteXcm, shouldRouteXcm } from './route';
-import { validateRelayAndRouteArgs, validateRouteXcmArgs, validateshouldRouteXcmArgs } from './middlewares/validate';
+import { handleRelayAndRoute, handleRouteWormhole, handleRouteXcm, shouldRouteWormhole, shouldRouteXcm } from './route';
+import { validateRelayAndRouteArgs, validateRouteWormholeArgs, validateRouteXcmArgs, validateShouldRouteWormholeArgs, validateShouldRouteXcmArgs } from './middlewares/validate';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
@@ -18,13 +18,13 @@ const startServer = async (): Promise<void> => {
   app.use(bodyParser.json());
 
   app.post('/relay', relay);
-  // app.post('/routeWormhole', handleRouteWormhole);
+  app.post('/routeWormhole', validateRouteWormholeArgs(), handleRouteWormhole);
   app.post('/routeXcm', validateRouteXcmArgs(), handleRouteXcm);
   app.post('/relayAndRoute', validateRelayAndRouteArgs(), handleRelayAndRoute);
 
   app.get('/shouldRelay', checkShouldRelay);
-  // app.get('/shouldRouteWormhole', shouldRouteWormhole);
-  app.get('/shouldRouteXcm', validateshouldRouteXcmArgs(), shouldRouteXcm);
+  app.get('/shouldRouteWormhole', validateShouldRouteWormholeArgs(), shouldRouteWormhole);
+  app.get('/shouldRouteXcm', validateShouldRouteXcmArgs(), shouldRouteXcm);
 
   app.get('/version', getVersion);
 

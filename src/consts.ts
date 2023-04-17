@@ -99,6 +99,7 @@ export interface RouterConfigs {
 }
 
 export const ETH_USDC = '0x07865c6e87b9f70255377e024ace6630c1eaa37f';
+export const ZERO_ADDR = '0x0000000000000000000000000000000000000000';
 
 const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV: RouterConfigs = {
   //   [HYDRA_PARA_ID]: [

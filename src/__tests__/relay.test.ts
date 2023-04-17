@@ -6,7 +6,7 @@ import {
   KARURA_TOKEN_BRIDGE_ADDRESS,
   BSC_USDT_ADDRESS,
   NOT_SUPPORTED_ADDRESS,
-  TEST_SENDER_ADDR,
+  TEST_USER_ADDR,
   TEST_RELAYER_ADDR,
 } from './consts';
 import { transferFromBSCToKarura } from './utils';
@@ -14,7 +14,7 @@ import { transferFromBSCToKarura } from './utils';
 describe('/relay', () => {
   describe('Send ERC20 from BSC to Karura', () => {
     it.only('relay correctly when should relay', async () => {
-      const signedVAA = await transferFromBSCToKarura('0.1', BSC_USDT_ADDRESS, TEST_SENDER_ADDR);
+      const signedVAA = await transferFromBSCToKarura('0.1', BSC_USDT_ADDRESS, TEST_USER_ADDR);
       console.log({ signedVAA });
 
       console.log(`relaying with ${RELAY_URL}`);
@@ -33,7 +33,7 @@ describe('/relay', () => {
     });
 
     it('throw correct error when transfer amount too small', async () => {
-      const signedVAA = await transferFromBSCToKarura('0.01', BSC_USDT_ADDRESS, TEST_SENDER_ADDR);
+      const signedVAA = await transferFromBSCToKarura('0.01', BSC_USDT_ADDRESS, TEST_USER_ADDR);
       console.log({ signedVAA });
 
       let failed = false;
@@ -52,7 +52,7 @@ describe('/relay', () => {
     });
 
     it('throw correct error when token not supported', async () => {
-      const signedVAA = await transferFromBSCToKarura('10', NOT_SUPPORTED_ADDRESS, TEST_SENDER_ADDR);
+      const signedVAA = await transferFromBSCToKarura('10', NOT_SUPPORTED_ADDRESS, TEST_USER_ADDR);
       console.log({ signedVAA });
 
       let failed = false;
