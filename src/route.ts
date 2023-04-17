@@ -117,7 +117,7 @@ const prepareRouteWormhole = async ({
     throw new Error(`origin token ${originAddr} not supported on router chain ${routerChainId}`);
   }
 
-  const recipient = Buffer.from(tryNativeToHexString(destAddr, chainConfigInfo.chainId) as string, 'hex');
+  const recipient = Buffer.from(tryNativeToHexString(destAddr, chainConfigInfo.chainId), 'hex');
   const wormholeInstructions: WormholeInstructionsStruct = {
     recipientChain: targetChainId,
     recipient,
