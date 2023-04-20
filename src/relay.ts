@@ -1,6 +1,7 @@
 import { hexToUint8Array } from '@certusone/wormhole-sdk';
 import { getChainConfigInfo } from './configureEnv';
 import { VERSION } from './consts';
+import { logger } from './logger';
 import { parseVaaPayload, relayEVM, shouldRelay, shouldRelayVaa } from './utils';
 
 const validateRelayRequest = async (request: any, response: any) => {
@@ -18,10 +19,7 @@ const validateRelayRequest = async (request: any, response: any) => {
 
   // parse & validate VAA, make sure we want to relay this request
   const vaaInfo = await parseVaaPayload(hexToUint8Array(signedVAA));
-  const vaaInfoString = JSON.stringify(vaaInfo, (key, value) =>
-    typeof value === 'bigint' ? value.toString() : value
-  );
-  console.log(`parsed VAA info: ${vaaInfoString}`);
+  logger.debug(vaaInfo, 'parsed VAA info');
 
   const { shouldRelay: _shouldRelay, msg } = shouldRelayVaa(vaaInfo);
   if (!_shouldRelay) {
@@ -46,25 +44,30 @@ export const relay = async (request: any, response: any): Promise<void> =>  {
 
   if (!chainConfigInfo) return;
 
-  const relayInfo = JSON.stringify({ chainId, signedVAA });
-  console.log(`relaying: ${relayInfo}`);
+  const relayInfo = { chainId, signedVAA };
+  logger.debug(relayInfo, 'relaying ...');
 
   try {
     const receipt = await relayEVM(chainConfigInfo, signedVAA);
+    logger.debug({ ...relayInfo, txHash: receipt.transactionHash }, 'Relay Succeed 🎉🎉');
 
-    console.log(`Relay Succeed 🎉🎉: ${relayInfo}, txHash: ${receipt.transactionHash}`);
-    response.status(200).json(receipt);
+    return response.status(200).json(receipt);
   } catch (e) {
-    console.log(`Relay Failed ❌: ${relayInfo}`);
-    console.error(e);
-    return response.status(500).json({ error: e, msg: 'Unable to relay this request.' });
+    logger.debug(relayInfo, 'Relay Failed ❌');
+    logger.error(e);
+
+    return response.status(200).json({
+      error: e,
+      msg: 'Unable to relay this request.',
+      params: relayInfo,
+    });
   }
 };
 
 export const checkShouldRelay = (request: any, response: any): void =>  {
   const res = shouldRelay(request.query);
 
-  console.log(`checkShouldRelay: ${JSON.stringify({ ...request.query, ...res })}`);
+  logger.debug({ ...request.query, res }, 'checkShouldRelay');
   response.status(200).json(res);
 };
 
