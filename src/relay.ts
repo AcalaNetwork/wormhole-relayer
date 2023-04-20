@@ -1,12 +1,12 @@
 import { hexToUint8Array } from '@certusone/wormhole-sdk';
-import { getChainConfigInfo } from './configureEnv';
+import { getChainConfig } from './configureEnv';
 import { VERSION } from './consts';
 import { logger } from './logger';
 import { parseVaaPayload, relayEVM, shouldRelay, shouldRelayVaa } from './utils';
 
 const validateRelayRequest = async (request: any, response: any) => {
   const chainId = request.body?.targetChain;
-  const chainConfigInfo = getChainConfigInfo(chainId);
+  const chainConfigInfo = getChainConfig(chainId);
 
   if (!chainConfigInfo) {
     return response.status(400).json({ error: 'Unsupported chainId', chainId });
