@@ -199,31 +199,32 @@ export const routeWormhole = async (routeParamsWormhole: RouteParamsWormhole): P
 };
 
 export const shouldRouteXcm = async (data: any) =>  {
-  const res = {} as any;
-
   try {
-    res.shouldRoute = true;
     const { routerAddr, routerChainId } = await prepareRouteXcm(data);
-    res.routerAddr = routerAddr;
-    res.routerChainId = routerChainId;
+    return {
+      shouldRoute: true,
+      routerAddr,
+      routerChainId,
+    };
   } catch (error) {
-    res.shouldRoute = false;
-    res.msg = error.message;
+    return {
+      shouldRoute: false,
+      msg: error.message,
+    };
   }
-
-  return res;
 };
 
 export const shouldRouteWormhole = async (data: any) =>  {
-  const res = {} as any;
-
   try {
-    res.shouldRoute = true;
-    res.routerAddr = (await prepareRouteWormhole(data)).routerAddr;
+    const { routerAddr } = await prepareRouteWormhole(data);
+    return {
+      shouldRoute: true,
+      routerAddr,
+    };
   } catch (error) {
-    res.shouldRoute = false;
-    res.msg = error.message;
+    return {
+      shouldRoute: false,
+      msg: error.message,
+    };
   }
-
-  return res;
 };

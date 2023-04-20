@@ -10,8 +10,8 @@ export class NoRouteError extends Error {
 
 /* --------------------
    we use a consistent 200 for all responses to mark a "successfull conversation"
-   so the request itself won't throw. Error details can be found by res.data.error
-                                                              -------------------- */
+   so the request itself won't throw. Error details can be found by res.error
+                                                             -------------------- */
 export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof ValidationError) {
     res.status(200).json({

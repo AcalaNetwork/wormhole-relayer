@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { logger } from '../logger';
 import {
-  routeParamsXcmSchema,
-  routeParamsWormholeSchema,
-  relayAndRouteParamsSchema,
+  routeXcmSchema,
+  routeWormholeSchema,
+  relayAndRouteSchema,
 } from '../validate';
 import {
   relayAndRoute,
@@ -27,26 +27,26 @@ const ROUTER_CONFIGS: {
 } = {
   GET: {
     '/shouldRouteWormhole': {
-      schema: routeParamsWormholeSchema,
+      schema: routeWormholeSchema,
       handler: shouldRouteWormhole,
     },
     '/shouldRouteXcm': {
-      schema: routeParamsXcmSchema,
+      schema: routeXcmSchema,
       handler: shouldRouteXcm,
     },
   },
 
   POST: {
     '/routeWormhole': {
-      schema: routeParamsWormholeSchema,
+      schema: routeWormholeSchema,
       handler: routeWormhole,
     },
     '/routeXcm': {
-      schema: routeParamsXcmSchema,
+      schema: routeXcmSchema,
       handler: routeXcm,
     },
     '/relayAndRoute': {
-      schema: relayAndRouteParamsSchema,
+      schema: relayAndRouteSchema,
       handler: relayAndRoute,
     },
   },
