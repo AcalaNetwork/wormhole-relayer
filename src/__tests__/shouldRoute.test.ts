@@ -46,32 +46,38 @@ describe('/shouldRouteXcm', () => {
 
   describe('when should not route', () => {
     it('when missing params', async () => {
-      let res = await shouldRouteXcm({
-        destParaId: BASILISK_PARA_ID,
-        originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
-      });
-      expect(res.data).to.deep.eq({
-        error: ['dest is a required field'],
-        msg: 'invalid request params!',
-      });
+      try {
+        await shouldRouteXcm({
+          destParaId: BASILISK_PARA_ID,
+          originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['dest is a required field']);
+      }
 
-      res = await shouldRouteXcm({
-        dest,
-        originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
-      });
-      expect(res.data).to.deep.eq({
-        error: ['destParaId is a required field'],
-        msg: 'invalid request params!',
-      });
+      try {
+        await shouldRouteXcm({
+          dest,
+          originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['destParaId is a required field']);
+      }
 
-      res = await shouldRouteXcm({
-        dest,
-        destParaId: BASILISK_PARA_ID,
-      });
-      expect(res.data).to.deep.eq({
-        error: ['originAddr is a required field'],
-        msg: 'invalid request params!',
-      });
+      try {
+        await shouldRouteXcm({
+          dest,
+          destParaId: BASILISK_PARA_ID,
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['originAddr is a required field']);
+      }
     });
 
     it('when bad params', async () => {
@@ -155,46 +161,53 @@ describe('/shouldRouteWormhole', () => {
 
   describe('when should not route', () => {
     it('when missing params', async () => {
-      let res = await shouldRouteWormhole({
-        targetChainId: String(CHAIN_ID_ETH),
-        destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-        fromParaId: BASILISK_PARA_ID,
-      });
-      expect(res.data).to.deep.eq({
-        error: ['originAddr is a required field'],
-        msg: 'invalid request params!',
-      });
+      try {
+        await shouldRouteWormhole({
+          targetChainId: String(CHAIN_ID_ETH),
+          destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+          fromParaId: BASILISK_PARA_ID,
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['originAddr is a required field']);
+      }
 
-      res = await shouldRouteWormhole({
-        originAddr: ETH_USDC,
-        destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-        fromParaId: BASILISK_PARA_ID,
-      });
-      expect(res.data).to.deep.eq({
-        error: ['targetChainId is a required field'],
-        msg: 'invalid request params!',
-      });
+      try {
+        await shouldRouteWormhole({
+          originAddr: ETH_USDC,
+          destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+          fromParaId: BASILISK_PARA_ID,
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['targetChainId is a required field']);
+      }
 
-      res = await shouldRouteWormhole({
-        originAddr: ETH_USDC,
-        targetChainId: String(CHAIN_ID_ETH),
-        fromParaId: BASILISK_PARA_ID,
-      });
-      expect(res.data).to.deep.eq({
-        error: ['destAddr is a required field'],
-        msg: 'invalid request params!',
-      });
+      try {
+        await shouldRouteWormhole({
+          originAddr: ETH_USDC,
+          targetChainId: String(CHAIN_ID_ETH),
+          fromParaId: BASILISK_PARA_ID,
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['destAddr is a required field']);
+      }
 
-      res = await shouldRouteWormhole({
-        originAddr: ETH_USDC,
-        targetChainId: String(CHAIN_ID_ETH),
-        destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-      });
-
-      expect(res.data).to.deep.eq({
-        error: ['fromParaId is a required field'],
-        msg: 'invalid request params!',
-      });
+      try {
+        await shouldRouteWormhole({
+          originAddr: ETH_USDC,
+          targetChainId: String(CHAIN_ID_ETH),
+          destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['fromParaId is a required field']);
+      }
     });
 
     it('when bad params', async () => {
