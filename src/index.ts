@@ -4,8 +4,8 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { relay, checkShouldRelay, getVersion } from './relay';
 import { TESTNET_MODE_WARNING, VERSION } from './consts';
-import { handleRelayAndRoute, handleRouteWormhole, handleRouteXcm, shouldRouteWormhole, shouldRouteXcm } from './route';
-import { validateRelayAndRouteArgs, validateRouteWormholeArgs, validateRouteXcmArgs, validateShouldRouteWormholeArgs, validateShouldRouteXcmArgs } from './middlewares/validate';
+import router from './middlewares/router';
+import { errorHandler } from './middlewares/error';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
@@ -18,15 +18,11 @@ const startServer = async (): Promise<void> => {
   app.use(bodyParser.json());
 
   app.post('/relay', relay);
-  app.post('/routeWormhole', validateRouteWormholeArgs(), handleRouteWormhole);
-  app.post('/routeXcm', validateRouteXcmArgs(), handleRouteXcm);
-  app.post('/relayAndRoute', validateRelayAndRouteArgs(), handleRelayAndRoute);
-
   app.get('/shouldRelay', checkShouldRelay);
-  app.get('/shouldRouteWormhole', validateShouldRouteWormholeArgs(), shouldRouteWormhole);
-  app.get('/shouldRouteXcm', validateShouldRouteXcmArgs(), shouldRouteXcm);
-
   app.get('/version', getVersion);
+
+  app.use(router);
+  app.use(errorHandler);
 
   app.listen(PORT, () => {
     console.log(`

@@ -89,7 +89,9 @@ POST /relay
 ```
 
 ### `/shouldRouteXcm`
-checks if the relayer can relay and route this request, returns router address and it's chainId
+checks if the relayer can relay and route this request, returns router address and it's chainId.
+- when request success: return data can be found in `res.data`
+- when request failed: error can be found in `res.error`
 ```
 GET /shouldRouteXcm
 params: {
@@ -105,22 +107,45 @@ example
 GET /shouldRouteXcm?dest=0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d&destParaId=2090&originAddr=0x07865c6e87b9f70255377e024ace6630c1eaa37f
 =>
 {
-  shouldRoute: true,
-  routerAddr: "0x8341Cd8b7bd360461fe3ce01422fE3E24628262F",
-  routerChainId: 11,
-  msg: "",
+  "data": {
+    "shouldRoute": true,
+    "routerAddr": "0x8341Cd8b7bd360461fe3ce01422fE3E24628262F",
+    "routerChainId": 11,
+  }
 }
 
 # ---------- when should not route ---------- #
 GET /shouldRouteXcm?dest=0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d&destParaId=1111&originAddr=0x07865c6e87b9f70255377e024ace6630c1eaa37f
-=> {"shouldRoute":false,"routerAddr":"0x","msg":"unsupported dest parachain: 1111"}
+=>
+{
+  "data": {
+    "shouldRoute":false,
+    "msg":"unsupported dest parachain: 1111",
+  }
+}
 
 GET /shouldRouteXcm?dest=0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d&destParaId=2090&originAddr=0x07865c6e87b9f70255377e024ace6630c1eaaaaa
-=> {"shouldRoute":false,"routerAddr":"0x","msg":"unsupported token on dest parachin 2090. Token origin address: 0x07865c6e87b9f70255377e024ace6630c1eaaaaa"}
+=>
+{
+  "data": {
+    "shouldRoute":false,
+    "msg":"unsupported token on dest parachin 2090. Token origin address: 0x07865c6e87b9f70255377e024ace6630c1eaaaaa"
+  }
+}
+
+# ---------- when error ---------- #
+GET /shouldRouteXcm?dest=0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d&originAddr=0x07865c6e87b9f70255377e024ace6630c1eaa37f
+=>
+{
+  "error":["destParaId is a required field"],
+  "msg":"invalid request params!"
+}
 ```
 
 ### `/routeXcm`
 route this request, and returns the transaction hash
+- when request success: transaction hash can be found in `res.data`
+- when request failed: error can be found in `res.error`
 ```
 POST /routeXcm
 data: {
@@ -132,6 +157,7 @@ data: {
 
 example
 ```
+/* ---------- when success ---------- */
 POST /routeXcm
 {
   destParaId: "2090",
@@ -140,11 +166,28 @@ POST /routeXcm
 }
 
 => tx hash
-0xb292b872fb7ddd33de25b0a7ee66e65bac918ec1ab0a6d93446f3dde7435955b
+{
+  data: 0xb292b872fb7ddd33de25b0a7ee66e65bac918ec1ab0a6d93446f3dde7435955b
+}
+
+/* ---------- when error ---------- */
+POST /routeXcm
+{
+  ...errorParams
+}
+
+=> error details
+{
+    "error": "VM Exception while processing transaction: execution revert: TRANSFER_FAILED 0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000f5452414e534645525f4641494c45440000000000000000000000000000000000",
+    "msg": "internal server error: Error"
+}
 ```
 
 ### `/relayAndRoute`
 relay from wormhole, and route token to target chain, and returns transaction hashes
+- when request success: return data can be found in `res.data`
+- when request failed: error can be found in `res.error`
+
 ```
 POST /relayAndRoute
 data: {
@@ -166,10 +209,15 @@ POST /routeXcm
 }
 
 => tx hashes
-[
-  0xb292b872fb7ddd33de25b0a7ee66e65bac918ec1ab0a6d93446f3dde7435955b,   // relay
-  0xd3b5cbdbc0b8026e7de085b80f0923cf0c92c96f788d702635383c26b8c070c9    // xcm
-]
+{
+  data: [
+    0xb292b872fb7ddd33de25b0a7ee66e65bac918ec1ab0a6d93446f3dde7435955b,   // relay
+    0xd3b5cbdbc0b8026e7de085b80f0923cf0c92c96f788d702635383c26b8c070c9    // xcm
+  ]
+}
+
+/* ---------- when error ---------- */
+// similar to /routeXcm
 ```
 
 ### `/shouldRouteWormhole`
@@ -190,26 +238,37 @@ example
 GET /shouldRouteWormhole?originAddr=0x07865c6e87b9f70255377e024ace6630c1eaa37f&targetChainId=2&destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&fromParaId=2090
 =>
 {
-  "shouldRoute":true,
-  "routerAddr":"0xC8a0596848966f61be4cd1875373d2728e162eE2",
-  "msg":""
+  "data": {
+    "shouldRoute":true,
+    "routerAddr":"0xC8a0596848966f61be4cd1875373d2728e162eE2",
+  }
 }
 
 # ---------- when should not route ---------- #
 GET /shouldRouteWormhole?originAddr=0x07865c6e87b9f70255377e024ace6630c1eaa37f&targetChainId=2&destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&fromParaId=2111
 =>
 {
-  "shouldRoute":false,
-  "routerAddr":"0x",
-  "msg":"unsupported origin parachain: 2111"
+  "data": {
+    "shouldRoute":false,
+    "msg":"unsupported origin parachain: 2111"
+  }
 }
 
 GET /shouldRouteWormhole?originAddr=0x07865c6e87b9f70255377e024ace6630c1e00000&targetChainId=2&destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&fromParaId=2090
 =>
 {
-  "shouldRoute":false,
-  "routerAddr":"0x",
-  "msg":"origin token 0x07865c6e87b9f70255377e024ace6630c1e00000 not supported on router chain 11"
+  "data": {
+    "shouldRoute":false,
+    "msg":"origin token 0x07865c6e87b9f70255377e024ace6630c1e00000 not supported on router chain 11"
+  }
+}
+
+# ---------- when error ---------- #
+GET /shouldRouteWormhole?originAddr=0x07865c6e87b9f70255377e024ace6630c1e00000&targetChainId=2&destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
+=> 
+{
+  "error": ["fromParaId is a required field"],
+  "msg": "invalid request params!"
 }
 ```
 
@@ -237,6 +296,9 @@ data: {
 
 => tx hash
 0x677cd79963bb4b45c50009f213194397be3081cfb206e958da02b6357c44674e
+
+/* ---------- when error ---------- */
+// similar to /routeXcm
 ```
 
 ## Tests

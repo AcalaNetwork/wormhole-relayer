@@ -31,6 +31,7 @@ module.exports = {
       functions: 'only-multiline',
     }],
     '@typescript-eslint/member-delimiter-style': 2,
+    'multiline-ternary': [2, 'always'],
 
     /* ---------- turn off ---------- */
     '@typescript-eslint/no-extra-semi': 0,

@@ -19,10 +19,11 @@ describe('/shouldRouteXcm', () => {
         });
 
         expect(res.data).to.deep.eq({
-          shouldRoute: true,
-          routerAddr: '0x8341Cd8b7bd360461fe3ce01422fE3E24628262F',
-          routerChainId: 11,
-          msg: '',
+          data: {
+            shouldRoute: true,
+            routerAddr: '0x8341Cd8b7bd360461fe3ce01422fE3E24628262F',
+            routerChainId: 11,
+          },
         });
 
         // should be case insensitive
@@ -33,10 +34,11 @@ describe('/shouldRouteXcm', () => {
         });
 
         expect(res.data).to.deep.eq({
-          shouldRoute: true,
-          routerAddr: '0x8341Cd8b7bd360461fe3ce01422fE3E24628262F',
-          routerChainId: 11,
-          msg: '',
+          data: {
+            shouldRoute: true,
+            routerAddr: '0x8341Cd8b7bd360461fe3ce01422fE3E24628262F',
+            routerChainId: 11,
+          },
         });
       }
     }
@@ -44,26 +46,38 @@ describe('/shouldRouteXcm', () => {
 
   describe('when should not route', () => {
     it('when missing params', async () => {
-      let res = await shouldRouteXcm({
-        destParaId: BASILISK_PARA_ID,
-        originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('dest is a required field');
+      try {
+        await shouldRouteXcm({
+          destParaId: BASILISK_PARA_ID,
+          originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['dest is a required field']);
+      }
 
-      res = await shouldRouteXcm({
-        dest,
-        originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('destParaId is a required field');
+      try {
+        await shouldRouteXcm({
+          dest,
+          originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['destParaId is a required field']);
+      }
 
-      res = await shouldRouteXcm({
-        dest,
-        destParaId: BASILISK_PARA_ID,
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('originAddr is a required field');
+      try {
+        await shouldRouteXcm({
+          dest,
+          destParaId: BASILISK_PARA_ID,
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['originAddr is a required field']);
+      }
     });
 
     it('when bad params', async () => {
@@ -77,24 +91,32 @@ describe('/shouldRouteXcm', () => {
         ...validArgs,
         destParaId: 1111,
       });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('unsupported dest parachain: 1111');
+      expect(res.data).to.deep.eq({
+        data: {
+          shouldRoute: false,
+          msg: 'unsupported dest parachain: 1111',
+        },
+      });
 
       const unsupportedToken = '0x07865c6e87b9f70255377e024ace6630c1e00000';
       res = await shouldRouteXcm({
         ...validArgs,
         originAddr: unsupportedToken,
       });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain(`unsupported token on dest parachin 2090. Token origin address: ${unsupportedToken}`);
+      expect(res.data).to.deep.eq({
+        data: {
+          shouldRoute: false,
+          msg: `unsupported token on dest parachin 2090. Token origin address: ${unsupportedToken}`,
+        },
+      });
 
       // TODO: need to validate dest?
       // res = await shouldRouteXcm({
       //   ...validArgs,
       //   dest: '0xabcd'
       // });
-      // expect(res.data.shouldRoute).to.equal(false);
-      // expect(res.data.msg).to.contain('unsupported router chainId: 8');
+      // expect(res.data.data.shouldRoute).to.equal(false);
+      // expect(res.data.data.msg).to.contain('unsupported router chainId: 8');
     });
   });
 });
@@ -113,10 +135,10 @@ describe('/shouldRouteWormhole', () => {
         });
 
         expect(res.data).to.deep.eq({
-          shouldRoute: true,
-          routerAddr: '0xC8a0596848966f61be4cd1875373d2728e162eE2',
-          // routerChainId: 11,
-          msg: '',
+          data: {
+            shouldRoute: true,
+            routerAddr: '0xC8a0596848966f61be4cd1875373d2728e162eE2',
+          },
         });
 
         // should be case insensitive
@@ -128,10 +150,10 @@ describe('/shouldRouteWormhole', () => {
         });
 
         expect(res.data).to.deep.eq({
-          shouldRoute: true,
-          routerAddr: '0xC8a0596848966f61be4cd1875373d2728e162eE2',
-          // routerChainId: 11,
-          msg: '',
+          data: {
+            shouldRoute: true,
+            routerAddr: '0xC8a0596848966f61be4cd1875373d2728e162eE2',
+          },
         });
       }
     }
@@ -139,37 +161,53 @@ describe('/shouldRouteWormhole', () => {
 
   describe('when should not route', () => {
     it('when missing params', async () => {
-      let res = await shouldRouteWormhole({
-        targetChainId: String(CHAIN_ID_ETH),
-        destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-        fromParaId: BASILISK_PARA_ID,
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('originAddr is a required field');
+      try {
+        await shouldRouteWormhole({
+          targetChainId: String(CHAIN_ID_ETH),
+          destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+          fromParaId: BASILISK_PARA_ID,
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['originAddr is a required field']);
+      }
 
-      res = await shouldRouteWormhole({
-        originAddr: ETH_USDC,
-        destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-        fromParaId: BASILISK_PARA_ID,
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('targetChainId is a required field');
+      try {
+        await shouldRouteWormhole({
+          originAddr: ETH_USDC,
+          destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+          fromParaId: BASILISK_PARA_ID,
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['targetChainId is a required field']);
+      }
 
-      res = await shouldRouteWormhole({
-        originAddr: ETH_USDC,
-        targetChainId: String(CHAIN_ID_ETH),
-        fromParaId: BASILISK_PARA_ID,
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('destAddr is a required field');
+      try {
+        await shouldRouteWormhole({
+          originAddr: ETH_USDC,
+          targetChainId: String(CHAIN_ID_ETH),
+          fromParaId: BASILISK_PARA_ID,
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['destAddr is a required field']);
+      }
 
-      res = await shouldRouteWormhole({
-        originAddr: ETH_USDC,
-        targetChainId: String(CHAIN_ID_ETH),
-        destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-      });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('fromParaId is a required field');
+      try {
+        await shouldRouteWormhole({
+          originAddr: ETH_USDC,
+          targetChainId: String(CHAIN_ID_ETH),
+          destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
+        });
+        expect.fail('did not throw an error');
+      } catch (error) {
+        expect(error.response.status).to.equal(400);
+        expect(error.response.data.error).to.deep.equal(['fromParaId is a required field']);
+      }
     });
 
     it('when bad params', async () => {
@@ -184,16 +222,24 @@ describe('/shouldRouteWormhole', () => {
         ...validArgs,
         fromParaId: 1111,
       });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain('unsupported origin parachain: 1111');
+      expect(res.data).to.deep.eq({
+        data: {
+          shouldRoute: false,
+          msg: 'unsupported origin parachain: 1111',
+        },
+      });
 
       const unsupportedToken = '0x07865c6e87b9f70255377e024ace6630c1e00000';
       res = await shouldRouteWormhole({
         ...validArgs,
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1e00000',
       });
-      expect(res.data.shouldRoute).to.equal(false);
-      expect(res.data.msg).to.contain(`origin token ${unsupportedToken} not supported on router chain 11`);
+      expect(res.data).to.deep.eq({
+        data: {
+          shouldRoute: false,
+          msg: `origin token ${unsupportedToken} not supported on router chain 11`,
+        },
+      });
     });
   });
 });

@@ -3,10 +3,10 @@ import dotenv from 'dotenv';
 import { ADDRESSES } from './consts';
 
 export type RelayerEnvironment = {
-  supportedChains: ChainConfigInfo[];
+  supportedChains: ChainConfig[];
 };
 
-export type ChainConfigInfo = {
+export type ChainConfig = {
   chainId: ChainId;
   ethRpc: string;
   nodeUrl: string;
@@ -21,14 +21,14 @@ const isTestnet = Number(process.env.TESTNET_MODE ?? 1);
 
 export function validateEnvironment(): RelayerEnvironment {
   dotenv.config({ path: '.env' });
-  const supportedChains: ChainConfigInfo[] = [];
+  const supportedChains: ChainConfig[] = [];
   supportedChains.push(configKarura());
   supportedChains.push(configAcala());
 
   return { supportedChains };
 }
 
-function configKarura(): ChainConfigInfo {
+function configKarura(): ChainConfig {
   const requiredEnvVars = [
     'KARURA_ETH_RPC',
     'KARURA_NODE_URL',
@@ -55,7 +55,7 @@ function configKarura(): ChainConfigInfo {
   };
 }
 
-function configAcala(): ChainConfigInfo {
+function configAcala(): ChainConfig {
   const requiredEnvVars = [
     'ACALA_ETH_RPC',
     'ACALA_NODE_URL',
@@ -84,6 +84,6 @@ function configAcala(): ChainConfigInfo {
 
 const env: RelayerEnvironment = validateEnvironment();
 
-export const getChainConfigInfo = (chainId: ChainId): ChainConfigInfo | undefined => (
+export const getChainConfig = (chainId: ChainId): ChainConfig | undefined => (
   env.supportedChains.find((x) => x.chainId === chainId)
 );

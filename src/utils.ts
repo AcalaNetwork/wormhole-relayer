@@ -13,8 +13,9 @@ import {
 import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
 import { EvmRpcProvider } from '@acala-network/eth-providers';
-import { ChainConfigInfo } from './configureEnv';
+import { ChainConfig } from './configureEnv';
 import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from './consts';
+import { logger } from './logger';
 
 interface VaaInfo {
   amount: bigint;
@@ -52,10 +53,7 @@ export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
 
   const res = shouldRelay({ targetChain, originAsset, amount });
 
-  const info = JSON.stringify({ targetChain, originAsset, amount, res }, (key, value) =>
-    typeof value === 'bigint' ? value.toString() : value,
-  );
-  console.log(`check should relay VAA: ${info}`);
+  logger.debug({ targetChain, originAsset, amount, res }, 'check should relay VAA');
 
   return res;
 };
@@ -93,13 +91,13 @@ export const shouldRelay = ({
 };
 
 export const relayEVM = async (
-  chainConfigInfo: ChainConfigInfo,
+  chainConfig: ChainConfig,
   signedVAA: string,
 ): Promise<ContractReceipt> => {
-  const signer = await getSigner(chainConfigInfo);
+  const signer = await getSigner(chainConfig);
 
   const receipt = await redeemOnEth(
-    chainConfigInfo.tokenBridgeAddr,
+    chainConfig.tokenBridgeAddr,
     signer,
     hexToUint8Array(signedVAA),
   );
@@ -122,7 +120,7 @@ export const getSigner = async ({
   return new ethers.Wallet(walletPrivateKey, provider);
 };
 
-export const getRouterChainTokenAddr = async (originAddr: string, chainInfo: ChainConfigInfo): Promise<string> => {
+export const getRouterChainTokenAddr = async (originAddr: string, chainInfo: ChainConfig): Promise<string> => {
   const signer = await getSigner(chainInfo);
   const tokenBridge = Bridge__factory.connect(chainInfo.tokenBridgeAddr, signer);
 

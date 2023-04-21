@@ -98,7 +98,7 @@ describe('/routeXcm', () => {
     };
 
     const res = await shouldRouteXcm(routeArgs);
-    const { routerAddr } = res.data;
+    const { routerAddr } = res.data.data;
 
     console.log('xcming to router ...');
     const relayerSigner = new Wallet(RELAYER_TEST_KEY, provider);
@@ -109,7 +109,7 @@ describe('/routeXcm', () => {
 
     console.log('routing ...');
     const routeRes = await routeXcm(routeArgs);
-    console.log(`route finished! txHash: ${routeRes.data}`);
+    console.log(`route finished! txHash: ${routeRes.data.data}`);
 
     console.log('waiting for token to arrive at basilisk ...');
     await sleep(25000);
@@ -170,7 +170,7 @@ describe('/relayAndRoute', () => {
     const curBalRelayer = (await usdc.balanceOf(TEST_RELAYER_ADDR)).toBigInt();
     console.log({ curBalUser, curBalRelayer });
 
-    const { routerAddr } = (await shouldRouteXcm(routeArgs)).data;
+    const { routerAddr } = (await shouldRouteXcm(routeArgs)).data.data;
     console.log({ routerAddr });
 
     const signedVAA = await transferFromBSCToKarura('0.01', BSC_USDC_ADDRESS, routerAddr);
@@ -190,7 +190,7 @@ describe('/relayAndRoute', () => {
     }, wormholeWithdrawFilter);
 
     const res = await relayAndRoute(relayAndRouteArgs);
-    console.log(`route finished! txHash: ${res.data}`);
+    console.log(`route finished! txHash: ${res.data.data}`);
 
     console.log('waiting for token to arrive at basilisk ...');
     await sleep(25000);
@@ -240,7 +240,7 @@ describe('/routeWormhole', () => {
     };
 
     const res = await shouldRouteWormhole(routeArgs);
-    const { routerAddr } = res.data;
+    const { routerAddr } = res.data.data;
 
     console.log('xcming to router ...');
     const relayerSigner = new Wallet(RELAYER_TEST_KEY, providerKarura);
@@ -252,7 +252,7 @@ describe('/routeWormhole', () => {
 
     console.log('routing ...');
     const routeRes = await routeWormhole(routeArgs);
-    const txHash = routeRes.data;
+    const txHash = routeRes.data.data;
     console.log(`route finished! txHash: ${txHash}`);
 
     // router should be destroyed
