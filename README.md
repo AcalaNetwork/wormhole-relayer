@@ -97,7 +97,7 @@ GET /shouldRouteXcm
 params: {
   destParaId: string,     // destination parachain id in number
   dest: string,           // xcm encoded dest in hex
-  originAsset: string,    // original token address in hex
+  originAddr: string,    // original token address in hex
 }
 ```
 
@@ -151,7 +151,7 @@ POST /routeXcm
 data: {
   destParaId: string,     // destination parachain id in number
   dest: string,           // xcm encoded dest in hex
-  originAsset: string,    // original token address in hex
+  originAddr: string,    // original token address in hex
 }
 ```
 
@@ -162,7 +162,7 @@ POST /routeXcm
 {
   destParaId: "2090",
   dest: "0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
-  originAsset: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
+  originAddr: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
 }
 
 => tx hash
@@ -193,7 +193,7 @@ POST /relayAndRoute
 data: {
   destParaId: string,     // destination parachain id in number
   dest: string,           // xcm encoded dest in hex
-  originAsset: string,    // original token address in hex
+  originAddr: string,    // original token address in hex
   signedVAA: string,      // hex encoded string
 }
 ```
@@ -204,7 +204,7 @@ POST /routeXcm
 {
   destParaId: "2090",
   dest: "0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
-  originAsset: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
+  originAddr: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
   signedVAA: 010000000001007b98257f6bf142c480a0b63ee571374fff5fe4dcd3127977af6860ce516b58084b137c40f913f8d7ca450d5413d619ba85104fbcb0a8a44e4db509faa4ef06d601622af226fd4d000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09000000000000011e0f0100000000000000000000000000000000000000000000000000000000000f4240000000000000000000000000337610d27c682e347c9cd60bd4b3b107c9d34ddd0004000000000000000000000000e3234f433914d4cfcf846491ec5a7831ab9f0bb3000b0000000000000000000000000000000000000000000000000000000000000000
 }
 
