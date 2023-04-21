@@ -56,7 +56,7 @@ export const relay = async (request: any, response: any): Promise<void> =>  {
     logger.debug(relayInfo, 'Relay Failed ❌');
     logger.error(e);
 
-    return response.status(200).json({
+    return response.status(500).json({
       error: e,
       msg: 'Unable to relay this request.',
       params: relayInfo,
