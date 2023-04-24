@@ -67,7 +67,7 @@ const handleRoute = async (req: Request, res: Response) => {
     ? req.body
     : req.query;
 
-  logger.info(args, `==> ${reqPath}`);
+  logger.info({ args }, `==> ${reqPath}`);
 
   const config = ROUTER_CONFIGS[method]?.[path];
   if (!config) {
