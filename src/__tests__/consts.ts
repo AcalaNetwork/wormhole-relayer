@@ -1,6 +1,7 @@
 import { Wallet } from 'ethers';
 
 export const ETH_RPC_BSC = 'https://endpoints.omniatech.io/v1/bsc/testnet/public';
+// export const ETH_RPC_BSC = 'https://bsc-testnet.public.blastapi.io';
 export const ETH_RPC_GOERLI = 'https://rpc.ankr.com/eth_goerli';
 export const BASILISK_TESTNET_NODE_URL = 'wss://karura-testnet.aca-staging.network/rpc/basilisk/ws';
 
@@ -23,6 +24,7 @@ export const GOERLI_USDC_ADDRESS = '0x07865c6E87B9F70255377e024ace6630C1Eaa37F';
 export const NOT_SUPPORTED_ADDRESS = '';
 
 const RELAYER_URL = 'http://localhost:3111';
+// const RELAYER_URL = 'https://relayer.aca-dev.network';
 export const RELAYER_URL_TESTNET = 'https://karura-dev.aca-dev.network/eth/relayer';
 
 export const RELAY_URL = `${RELAYER_URL}/relay`;

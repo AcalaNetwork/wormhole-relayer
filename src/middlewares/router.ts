@@ -56,6 +56,7 @@ const router = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await handleRoute(req, res);
   } catch (err) {
+    logger.error(err);
     next(err);
   }
 };

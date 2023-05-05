@@ -1,4 +1,4 @@
-import { EvmRpcProvider, sleep } from '@acala-network/eth-providers';
+import { AcalaJsonRpcProvider, sleep } from '@acala-network/eth-providers';
 import { CHAIN_ID_BSC, CHAIN_ID_KARURA, hexToUint8Array, parseSequenceFromLogEth, redeemOnEth } from '@certusone/wormhole-sdk';
 import axios from 'axios';
 import { expect } from 'chai';
@@ -28,7 +28,7 @@ import { ETH_USDC, BASILISK_PARA_ID } from '../consts';
 import { getSignedVAAFromSequence, transferFromBSCToKarura } from './utils';
 import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from '../route';
 
-const KARURA_NODE_URL = 'wss://karura-testnet.aca-staging.network/rpc/karura/ws';
+const KARURA_ETH_RPC = 'https://eth-rpc-karura-testnet.aca-staging.network';
 // 0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3
 const RELAYER_TEST_KEY = 'efb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044';
 
@@ -74,19 +74,17 @@ describe('/routeXcm', () => {
     },
   });
 
-  let provider: EvmRpcProvider;
+  let provider: AcalaJsonRpcProvider;
   let api: ApiPromise;
 
   before(async () => {
-    provider = new EvmRpcProvider(KARURA_NODE_URL);
+    provider = new AcalaJsonRpcProvider(KARURA_ETH_RPC);
     api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
 
-    await provider.isReady();
     await api.isReady;
   });
 
   after(async () => {
-    await provider.disconnect();
     await api.disconnect();
   });
 
@@ -140,22 +138,16 @@ describe('/relayAndRoute', () => {
     },
   });
 
-  let provider: EvmRpcProvider;
-  let api: ApiPromise;
-  let usdc: ERC20;
+  const provider = new AcalaJsonRpcProvider(KARURA_ETH_RPC);
+  const api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
+  const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, provider);
 
   before(async () => {
-    provider = new EvmRpcProvider(KARURA_NODE_URL);
-    api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
-    usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, provider);
-
-    await provider.isReady();
     await api.isReady;
   });
 
   after(async () => {
     console.log('disconnecting ...');
-    await provider.disconnect();
     await api.disconnect();
   });
 
@@ -185,9 +177,9 @@ describe('/relayAndRoute', () => {
       '0x0000000000000000000000000000000000000000',
       routerAddr,
     );
-    provider.addEventListener('logs', data => {
-      console.log(`relay finished! txHash: ${data.result.transactionHash}`);
-    }, wormholeWithdrawFilter);
+    usdc.once(wormholeWithdrawFilter, (from, to, value, event) => {
+      console.log(`relay finished! txHash: ${event.transactionHash}`);
+    });
 
     const res = await relayAndRoute(relayAndRouteArgs);
     console.log(`route finished! txHash: ${res.data.data}`);
@@ -215,21 +207,9 @@ describe('/routeWormhole', () => {
   const shouldRouteWormhole = (params: any) => axios.get(SHOULD_ROUTE_WORMHOLE_URL, { params });
   const routeWormhole = (params: RouteParamsWormhole) => axios.post(ROUTE_WORMHOLE_URL, params);
 
-  let providerKarura: EvmRpcProvider;
-  let usdcK: ERC20;
-  let usdcB: ERC20;
-
-  before(async () => {
-    providerKarura = new EvmRpcProvider(KARURA_NODE_URL);
-    await providerKarura.isReady();
-
-    usdcK = ERC20__factory.connect(KARURA_USDC_ADDRESS, providerKarura);
-    usdcB = ERC20__factory.connect(BSC_USDC_ADDRESS, new JsonRpcProvider(ETH_RPC_BSC));
-  });
-
-  after(async () => {
-    await providerKarura.disconnect();
-  });
+  const providerKarura = new AcalaJsonRpcProvider(KARURA_ETH_RPC);
+  const usdcK = ERC20__factory.connect(KARURA_USDC_ADDRESS, providerKarura);
+  const usdcB = ERC20__factory.connect(BSC_USDC_ADDRESS, new JsonRpcProvider(ETH_RPC_BSC));
 
   it('when should route', async () => {
     const routeArgs = {
@@ -261,7 +241,7 @@ describe('/routeWormhole', () => {
     expect(routerCode).to.eq('0x');
 
     /*  ---------- should be able to redeem from eth ----------  */
-    const depositReceipt = await providerKarura.getTXReceiptByHash(txHash);
+    const depositReceipt = await providerKarura.getTransactionReceipt(txHash);
     const sequence = parseSequenceFromLogEth(depositReceipt as ContractReceipt, KARURA_CORE_BRIDGE_ADDRESS);
     console.log('route to wormhole complete', { sequence }, 'waiting for VAA...');
 

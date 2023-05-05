@@ -9,7 +9,6 @@ export type RelayerEnvironment = {
 export type ChainConfig = {
   chainId: ChainId;
   ethRpc: string;
-  nodeUrl: string;
   walletPrivateKey: string;
   tokenBridgeAddr: string;
   feeAddr: string;
@@ -31,7 +30,6 @@ export function validateEnvironment(): RelayerEnvironment {
 function configKarura(): ChainConfig {
   const requiredEnvVars = [
     'KARURA_ETH_RPC',
-    'KARURA_NODE_URL',
     'KARURA_PRIVATE_KEY',
   ];
 
@@ -49,7 +47,6 @@ function configKarura(): ChainConfig {
   return {
     chainId: CHAIN_ID_KARURA,
     ethRpc: process.env.KARURA_ETH_RPC!,
-    nodeUrl: process.env.KARURA_NODE_URL!,
     walletPrivateKey: process.env.KARURA_PRIVATE_KEY!,
     ...addresses,
   };
@@ -58,7 +55,6 @@ function configKarura(): ChainConfig {
 function configAcala(): ChainConfig {
   const requiredEnvVars = [
     'ACALA_ETH_RPC',
-    'ACALA_NODE_URL',
     'ACALA_PRIVATE_KEY',
   ];
 
@@ -76,7 +72,6 @@ function configAcala(): ChainConfig {
   return {
     chainId: CHAIN_ID_ACALA,
     ethRpc: process.env.ACALA_ETH_RPC!,
-    nodeUrl: process.env.ACALA_NODE_URL!,
     walletPrivateKey: process.env.ACALA_PRIVATE_KEY!,
     ...addresses,
   };
