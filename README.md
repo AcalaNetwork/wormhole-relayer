@@ -301,6 +301,20 @@ data: {
 // similar to /routeXcm
 ```
 
+## Routing Process
+A complete working flow can be found in [routing e2e tests](./src/__tests__/route.test.ts).
+### evm => parachain
+- first call [/shouldRouteXcm](#shouldroutexcm) and get the router address on karura
+- bridge with wormhole to karura router address
+- fetch VAA
+- call [/relayAndRoute](#relayandroute) with the VAA, this will relay the token to karura router address, and perfomr routing, which xcm token to the target parachain
+
+### parachain => evm
+- first call [/shouldRouteWormhole](#shouldroutewormhole) and get the router address on karura
+- xcm to the router address to karura
+- call [/routewormhole](#routewormhole), this will send the tokens to wormhole
+- fetch VAA and redeem on the target evm chain
+
 ## Tests
 first start a relayer: `yarn dev`
 
