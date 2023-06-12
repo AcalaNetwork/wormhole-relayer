@@ -1,6 +1,6 @@
 import { ChainId, hexToUint8Array, tryNativeToHexString } from '@certusone/wormhole-sdk';
-import { Signer } from 'ethers';
-import { Factory__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { BigNumber, Signer } from 'ethers';
+import { ERC20__factory, Factory__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { WormholeInstructionsStruct, XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
 import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 
@@ -158,6 +158,7 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
   return receipt.transactionHash;
 };
 
+const VAA_MIN_DECIMALS = 8;
 export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[string, string]> => {
   const routerChainId = RouterChainIdByDestParaId[params.destParaId] as ChainId;
   const { chainConfig, signer } = await _prepareRoute(routerChainId);
@@ -168,19 +169,27 @@ export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[strin
   const vaaInfo = await parseVaaPayload(hexToUint8Array(params.signedVAA));
   const {
     originAddress,
-    amount,
+    amount,     // min(originAssetDecimal, 8)
     originChain,
   } = vaaInfo;
 
-  const wrappedAddr = tokenBridge.wrappedAsset(
+  const wrappedAddr = await tokenBridge.wrappedAsset(
     originChain,
     Buffer.from(tryNativeToHexString(originAddress, originChain), 'hex'),
   );
 
   const fee = await feeRegistry.getFee(wrappedAddr);
   if (fee.eq(0)) {
-    throw new RelayError('unsupported token', vaaInfo);
-  } else if (fee.gt(amount)) {
+    throw new RelayError('unsupported token', { ...vaaInfo });
+  }
+
+  const erc20 = ERC20__factory.connect(wrappedAddr, signer);
+  const decimals = await erc20.decimals();
+  const realAmount = decimals <= VAA_MIN_DECIMALS
+    ? amount
+    : BigNumber.from(amount).pow(decimals - VAA_MIN_DECIMALS);
+
+  if (fee.gt(realAmount)) {
     throw new RelayError('token amount too small to relay', vaaInfo);
   }
 
