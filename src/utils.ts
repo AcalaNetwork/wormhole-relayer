@@ -11,11 +11,14 @@ import {
   parseVaa,
 } from '@certusone/wormhole-sdk';
 import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-import { BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
+import { BigNumber, BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
 import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { ChainConfig } from './configureEnv';
 import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from './consts';
 import { logger } from './logger';
+import { RelayAndRouteParams } from './route';
+import { ERC20__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { RelayError } from './middlewares/error';
 
 interface VaaInfo {
   amount: bigint;
@@ -58,6 +61,7 @@ export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
   return res;
 };
 
+// for /relay endpoint
 export const shouldRelay = ({
   targetChain,
   originAsset,
@@ -88,6 +92,44 @@ export const shouldRelay = ({
   if (amount < BigInt(minTransfer)) return _noRelay(`transfer amount too small, expect at least ${minTransfer}`);
 
   return { shouldRelay: true, msg: '' };
+};
+
+// for /relayAndRoute endpoint
+const VAA_MIN_DECIMALS = 8;
+export const checkShouldRelayBeforeRouting = async (
+  params: RelayAndRouteParams,
+  chainConfig: ChainConfig,
+  signer: Signer,
+) => {
+  const tokenBridge = Bridge__factory.connect(chainConfig.tokenBridgeAddr, signer);
+  const feeRegistry = FeeRegistry__factory.connect(chainConfig.feeAddr, signer);
+
+  const vaaInfo = await parseVaaPayload(hexToUint8Array(params.signedVAA));
+  const {
+    originAddress,
+    amount,     // min(originAssetDecimal, 8)
+    originChain,
+  } = vaaInfo;
+
+  const wrappedAddr = await tokenBridge.wrappedAsset(
+    originChain,
+    Buffer.from(tryNativeToHexString('0x' + originAddress, originChain), 'hex'),
+  );
+
+  const fee = await feeRegistry.getFee(wrappedAddr);
+  if (fee.eq(0)) {
+    throw new RelayError('unsupported token', { ...vaaInfo, amount: BigNumber.from(amount) });
+  }
+
+  const erc20 = ERC20__factory.connect(wrappedAddr, signer);
+  const decimals = await erc20.decimals();
+  const realAmount = decimals <= VAA_MIN_DECIMALS
+    ? amount
+    : BigNumber.from(amount).pow(decimals - VAA_MIN_DECIMALS);
+
+  if (fee.gt(realAmount)) {
+    throw new RelayError('token amount too small to relay', { ...vaaInfo, amount: BigNumber.from(amount) });
+  }
 };
 
 export const relayEVM = async (
