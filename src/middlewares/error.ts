@@ -24,16 +24,16 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       msg: 'invalid request params!',
       error: err.errors,
     });
-  } else if (err instanceof RelayError) {
-    res.status(400).json({
-      msg: 'cannot relay this request!',
-      error: err.message,
-      params: err.params,
-    });
   } else if (err instanceof NoRouteError) {
     res.status(404).json({
       msg: 'no route found!',
       error: err.message,
+    });
+  } else if (err instanceof RelayError) {
+    res.status(500).json({
+      msg: 'cannot relay this request!',
+      error: err.message,
+      params: err.params,
     });
   } else if (err instanceof Error) {
     res.status(500).json({
