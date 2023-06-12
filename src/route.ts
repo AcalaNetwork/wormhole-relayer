@@ -159,10 +159,11 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
 };
 
 const VAA_MIN_DECIMALS = 8;
-export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[string, string]> => {
-  const routerChainId = RouterChainIdByDestParaId[params.destParaId] as ChainId;
-  const { chainConfig, signer } = await _prepareRoute(routerChainId);
-
+export const checkShouldRelay = async (
+  params: RelayAndRouteParams,
+  chainConfig: ChainConfig,
+  signer: Signer,
+) => {
   const tokenBridge = Bridge__factory.connect(chainConfig.tokenBridgeAddr, signer);
   const feeRegistry = FeeRegistry__factory.connect(chainConfig.feeAddr, signer);
 
@@ -192,6 +193,12 @@ export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[strin
   if (fee.gt(realAmount)) {
     throw new RelayError('token amount too small to relay', vaaInfo);
   }
+};
+
+export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[string, string]> => {
+  const routerChainId = RouterChainIdByDestParaId[params.destParaId] as ChainId;
+  const { chainConfig, signer } = await _prepareRoute(routerChainId);
+  await checkShouldRelay(params, chainConfig, signer);
 
   const wormholeReceipt = await relayEVM(chainConfig, params.signedVAA);
   logger.debug({ txHash: wormholeReceipt.transactionHash }, 'relay finished');
