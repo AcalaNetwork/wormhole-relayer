@@ -1,11 +1,14 @@
-import { ChainId, tryNativeToHexString } from '@certusone/wormhole-sdk';
+import { ChainId, hexToUint8Array, tryNativeToHexString } from '@certusone/wormhole-sdk';
 import { Signer } from 'ethers';
-import { Factory__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { Factory__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { WormholeInstructionsStruct, XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
+import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+
 import { getChainConfig, ChainConfig } from './configureEnv';
-import { getRouterChainTokenAddr, getSigner, relayEVM } from './utils';
+import { getRouterChainTokenAddr, getSigner, parseVaaPayload, relayEVM } from './utils';
 import { RouterChainIdByDestParaId, ROUTE_SUPPORTED_CHAINS_AND_ASSETS, ZERO_ADDR } from './consts';
 import { logger } from './logger';
+import { RelayError } from './middlewares/error';
 
 interface RouteParamsBase {
   originAddr: string;     // origin token address
@@ -157,7 +160,29 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
 
 export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[string, string]> => {
   const routerChainId = RouterChainIdByDestParaId[params.destParaId] as ChainId;
-  const { chainConfig } = await _prepareRoute(routerChainId);
+  const { chainConfig, signer } = await _prepareRoute(routerChainId);
+
+  const tokenBridge = Bridge__factory.connect(chainConfig.tokenBridgeAddr, signer);
+  const feeRegistry = FeeRegistry__factory.connect(chainConfig.feeAddr, signer);
+
+  const vaaInfo = await parseVaaPayload(hexToUint8Array(params.signedVAA));
+  const {
+    originAddress,
+    amount,
+    originChain,
+  } = vaaInfo;
+
+  const wrappedAddr = tokenBridge.wrappedAsset(
+    originChain,
+    Buffer.from(tryNativeToHexString(originAddress, originChain), 'hex'),
+  );
+
+  const fee = await feeRegistry.getFee(wrappedAddr);
+  if (fee.eq(0)) {
+    throw new RelayError('unsupported token', vaaInfo);
+  } else if (fee.gt(amount)) {
+    throw new RelayError('token amount too small to relay', vaaInfo);
+  }
 
   const wormholeReceipt = await relayEVM(chainConfig, params.signedVAA);
   logger.debug({ txHash: wormholeReceipt.transactionHash }, 'relay finished');
