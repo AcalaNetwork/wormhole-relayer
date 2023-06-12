@@ -12,7 +12,7 @@ import {
 } from '@certusone/wormhole-sdk';
 import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
-import { EvmRpcProvider } from '@acala-network/eth-providers';
+import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { ChainConfig } from './configureEnv';
 import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from './consts';
 import { logger } from './logger';
@@ -102,21 +102,17 @@ export const relayEVM = async (
     hexToUint8Array(signedVAA),
   );
 
-  await (signer.provider as EvmRpcProvider).disconnect();
-
   return receipt;
 };
 
 export const getSigner = async ({
-  nodeUrl,
+  ethRpc,
   walletPrivateKey,
 }: {
-  nodeUrl: string;
+  ethRpc: string;
   walletPrivateKey: string;
 }): Promise<Signer> => {
-  const provider = EvmRpcProvider.from(nodeUrl);
-  await provider.isReady();
-
+  const provider = new AcalaJsonRpcProvider(ethRpc);
   return new ethers.Wallet(walletPrivateKey, provider);
 };
 
