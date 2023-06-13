@@ -201,27 +201,41 @@ describe('/relayAndRoute', () => {
     expect(routerCode).to.eq('0x');
   });
 
-  it('when should not route (should not relay)', async () => {
+  it('when should not route', async () => {
     const routeArgs = {
       dest,
       destParaId: BASILISK_PARA_ID,
       originAddr: ETH_USDC,
     };
 
-    const relayAndRouteArgs = {
-      ...routeArgs,
-
-      // bridge 0.000001 USDC
-      signedVAA: '010000000001004ba23fa55bcb370773bdba954523ea305f96f814f51ce259fb327b57d985eec86a0f69bf46c4bb444d09b1d70e3b2aaa434639ec3ae93f5d0671b3e38055cf3501648726ae4d36000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a0900000000000012580f01000000000000000000000000000000000000000000000000000000000000000100000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b0000000000000000000000000000000000000000000000000000000000000000',
-    };
-
     try {
-      await relayAndRoute(relayAndRouteArgs);
+      await relayAndRoute({
+        ...routeArgs,
+
+        // bridge 0.000001 USDC
+        signedVAA: '010000000001004ba23fa55bcb370773bdba954523ea305f96f814f51ce259fb327b57d985eec86a0f69bf46c4bb444d09b1d70e3b2aaa434639ec3ae93f5d0671b3e38055cf3501648726ae4d36000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a0900000000000012580f01000000000000000000000000000000000000000000000000000000000000000100000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b0000000000000000000000000000000000000000000000000000000000000000',
+      });
 
       expect.fail('relayAndRoute did not throw when it should!');
     } catch (err) {
       expect((err as AxiosError).response?.data).to.deep.contain({
         error: 'token amount too small to relay',
+        msg: 'cannot relay this request!',
+      });
+    }
+
+    try {
+      await relayAndRoute({
+        ...routeArgs,
+
+        // bridge 10 TKN
+        signedVAA: '01000000000100689102e0be499c096acd1ac49a34216a32f8c19f1b053e0ff47e0a994ea302b50261b4c1feab4ae933fa8de83bd86efde12cc3b82da00b9b8ccc2d502e145ad2006487368e8f3a010000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09000000000000125c0f01000000000000000000000000000000000000000000000000000000003b9aca000000000000000000000000009c8bcccdb17545658c6b84591567c6ed9b4d55bb000b0000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b0000000000000000000000000000000000000000000000000000000000000000',
+      });
+
+      expect.fail('relayAndRoute did not throw when it should!');
+    } catch (err) {
+      expect((err as AxiosError).response?.data).to.deep.contain({
+        error: 'unsupported token',
         msg: 'cannot relay this request!',
       });
     }
