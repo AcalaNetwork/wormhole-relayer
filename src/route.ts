@@ -1,9 +1,10 @@
-import { ChainId, tryNativeToHexString } from '@certusone/wormhole-sdk';
+import { ChainId,  tryNativeToHexString } from '@certusone/wormhole-sdk';
 import { Signer } from 'ethers';
 import { Factory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { WormholeInstructionsStruct, XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
+
 import { getChainConfig, ChainConfig } from './configureEnv';
-import { getRouterChainTokenAddr, getSigner, relayEVM } from './utils';
+import { checkShouldRelayBeforeRouting, getRouterChainTokenAddr, getSigner, relayEVM } from './utils';
 import { RouterChainIdByDestParaId, ROUTE_SUPPORTED_CHAINS_AND_ASSETS, ZERO_ADDR } from './consts';
 import { logger } from './logger';
 
@@ -157,7 +158,8 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
 
 export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[string, string]> => {
   const routerChainId = RouterChainIdByDestParaId[params.destParaId] as ChainId;
-  const { chainConfig } = await _prepareRoute(routerChainId);
+  const { chainConfig, signer } = await _prepareRoute(routerChainId);
+  await checkShouldRelayBeforeRouting(params, chainConfig, signer);
 
   const wormholeReceipt = await relayEVM(chainConfig, params.signedVAA);
   logger.debug({ txHash: wormholeReceipt.transactionHash }, 'relay finished');
