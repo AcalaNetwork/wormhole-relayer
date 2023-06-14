@@ -1,6 +1,8 @@
 import { ChainId, CHAIN_ID_KARURA, CHAIN_ID_ACALA } from '@certusone/wormhole-sdk';
 import dotenv from 'dotenv';
-import { ADDRESSES } from './consts';
+import { ADDRESSES } from '@acala-network/asset-router/dist/consts';
+
+dotenv.config({ path: '.env' });
 
 export type RelayerEnvironment = {
   supportedChains: ChainConfig[];
@@ -19,7 +21,6 @@ export type ChainConfig = {
 const isTestnet = Number(process.env.TESTNET_MODE ?? 1);
 
 export function validateEnvironment(): RelayerEnvironment {
-  dotenv.config({ path: '.env' });
   const supportedChains: ChainConfig[] = [];
   supportedChains.push(configKarura());
   supportedChains.push(configAcala());
@@ -41,8 +42,8 @@ function configKarura(): ChainConfig {
   }
 
   const addresses = isTestnet
-    ? ADDRESSES.karuraTestnet
-    : ADDRESSES.karura;
+    ? ADDRESSES.KARURA_TESTNET
+    : ADDRESSES.KARURA;
 
   return {
     chainId: CHAIN_ID_KARURA,
@@ -66,8 +67,8 @@ function configAcala(): ChainConfig {
   }
 
   const addresses = isTestnet
-    ? ADDRESSES.acalaTestnet
-    : ADDRESSES.acala;
+    ? ADDRESSES.ACALA_TESTNET
+    : ADDRESSES.ACALA;
 
   return {
     chainId: CHAIN_ID_ACALA,

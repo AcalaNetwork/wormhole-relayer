@@ -66,7 +66,7 @@ const prepareRouteXcm = async ({
     throw new Error(`unsupported dest parachain: ${destParaId}`);
   }
 
-  if (!supportedTokens.includes(originAddr.toLowerCase())) {
+  if (!supportedTokens.map((t: string) => t.toLowerCase()).includes(originAddr.toLowerCase())) {
     throw new Error(`unsupported token on dest parachin ${destParaId}. Token origin address: ${originAddr}`);
   }
 

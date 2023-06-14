@@ -25,7 +25,7 @@ import {
   ETH_RPC_BSC,
   BSC_TOKEN_BRIDGE_ADDRESS,
 } from './consts';
-import { ETH_USDC, BASILISK_PARA_ID } from '../consts';
+import { GOERLI_USDC, PARA_ID } from '../consts';
 import { getSignedVAAFromSequence, transferFromBSCToKarura } from './utils';
 import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from '../route';
 
@@ -92,8 +92,8 @@ describe('/routeXcm', () => {
   it('when should route', async () => {
     const routeArgs = {
       dest,
-      destParaId: BASILISK_PARA_ID,
-      originAddr: ETH_USDC,
+      destParaId: PARA_ID.BASILISK,
+      originAddr: GOERLI_USDC,
     };
 
     const res = await shouldRouteXcm(routeArgs);
@@ -155,8 +155,8 @@ describe('/relayAndRoute', () => {
   it('when should route', async () => {
     const routeArgs = {
       dest,
-      destParaId: BASILISK_PARA_ID,
-      originAddr: ETH_USDC,
+      destParaId: PARA_ID.BASILISK,
+      originAddr: GOERLI_USDC,
     };
 
     const curBalUser = await getBasiliskUsdcBalance(api, destAddr);
@@ -204,8 +204,8 @@ describe('/relayAndRoute', () => {
   it('when should not route', async () => {
     const routeArgs = {
       dest,
-      destParaId: BASILISK_PARA_ID,
-      originAddr: ETH_USDC,
+      destParaId: PARA_ID.BASILISK,
+      originAddr: GOERLI_USDC,
     };
 
     try {
@@ -254,8 +254,8 @@ describe('/routeWormhole', () => {
     const routeArgs = {
       targetChainId: String(CHAIN_ID_BSC),
       destAddr: TEST_USER_ADDR,
-      fromParaId: BASILISK_PARA_ID,
-      originAddr: ETH_USDC,
+      fromParaId: PARA_ID.BASILISK,
+      originAddr: GOERLI_USDC,
     };
 
     const res = await shouldRouteWormhole(routeArgs);

@@ -1,9 +1,9 @@
+import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import {
   CHAIN_ID_KARURA,
   CHAIN_ID_ACALA,
 } from '@certusone/wormhole-sdk';
 import dotenv from 'dotenv';
-export { ADDRESSES } from '@acala-network/asset-router/dist/consts';
 
 dotenv.config({ path: '.env' });
 
@@ -61,35 +61,54 @@ export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = isTestnet
   ? RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV
   : RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD;
 
-export const HYDRA_PARA_ID = '';
-export const BASILISK_PARA_ID = '2090';
+export const enum PARA_ID {
+  BASILISK = '2090',
+  CALAMARI = '2084',
+  SHADOW = '2012',
 
-export interface RouterConfigs {
-  [destChainName: string]: string[];
+  HYDRA = '2034'
 }
 
-export const ETH_USDC = '0x07865c6e87b9f70255377e024ace6630c1eaa37f';
+// export interface RouterConfigs {
+//   [destChainName: string]: string[];
+// }
+
+export const GOERLI_USDC = '0x07865c6e87b9f70255377e024ace6630c1eaa37f';
 export const ZERO_ADDR = '0x0000000000000000000000000000000000000000';
 
-const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV: RouterConfigs = {
+const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV = {
   //   [HYDRA_PARA_ID]: [
-  //     ETH_USDC,
+  //     GOERLI_USDC,
   //   ],
-  [BASILISK_PARA_ID]: [
-    ETH_USDC,
+  [PARA_ID.BASILISK]: [
+    GOERLI_USDC,
   ],
-};
-
-export const RouterChainIdByDestParaId = {
-  [BASILISK_PARA_ID]: CHAIN_ID_KARURA,
-  [HYDRA_PARA_ID]: CHAIN_ID_ACALA,
 } as const;
 
-const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD: RouterConfigs = {};
+const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD = {
+  [PARA_ID.BASILISK]: [
+    ROUTER_TOKEN_INFO.KARURA.usdc.srcAddr,
+    ROUTER_TOKEN_INFO.KARURA.weth.srcAddr,
+    ROUTER_TOKEN_INFO.KARURA.wbtc.srcAddr,
+  ],
+  [PARA_ID.CALAMARI]: [
+  ],
+  [PARA_ID.SHADOW]: [
+    ROUTER_TOKEN_INFO.KARURA.csm.srcAddr,
+  ],
+} as const;
 
 export const ROUTE_SUPPORTED_CHAINS_AND_ASSETS = isTestnet
   ? ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV
   : ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD;
+
+export const RouterChainIdByDestParaId = {
+  [PARA_ID.BASILISK]: CHAIN_ID_KARURA,
+  [PARA_ID.CALAMARI]: CHAIN_ID_KARURA,
+  [PARA_ID.SHADOW]: CHAIN_ID_KARURA,
+
+  [PARA_ID.HYDRA]: CHAIN_ID_ACALA,
+} as const;
 
 export const TESTNET_MODE_WARNING = `
   ----------------------------
