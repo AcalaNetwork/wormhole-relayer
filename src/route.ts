@@ -5,7 +5,11 @@ import { WormholeInstructionsStruct, XcmInstructionsStruct } from '@acala-networ
 
 import { getChainConfig, ChainConfig } from './configureEnv';
 import { checkShouldRelayBeforeRouting, getRouterChainTokenAddr, getSigner, relayEVM } from './utils';
-import { RouterChainIdByDestParaId, ROUTE_SUPPORTED_CHAINS_AND_ASSETS, ZERO_ADDR } from './consts';
+import {
+  DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID,
+  ROUTE_SUPPORTED_CHAINS_AND_ASSETS,
+  ZERO_ADDR,
+} from './consts';
 import { logger } from './logger';
 
 interface RouteParamsBase {
@@ -70,7 +74,7 @@ const prepareRouteXcm = async ({
     throw new Error(`unsupported token on dest parachin ${destParaId}. Token origin address: ${originAddr}`);
   }
 
-  const routerChainId = RouterChainIdByDestParaId[destParaId] as ChainId;
+  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[destParaId] as ChainId;
   const {
     chainConfig,
     signer,
@@ -96,7 +100,7 @@ const prepareRouteWormhole = async ({
   fromParaId,
   targetChainId,
 }: RouteParamsWormhole): Promise<RoutePropsWormhole> => {
-  const routerChainId = RouterChainIdByDestParaId[fromParaId];
+  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[fromParaId];
   if (!routerChainId) {
     throw new Error(`unsupported origin parachain: ${fromParaId}`);
   }
@@ -157,7 +161,7 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
 };
 
 export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[string, string]> => {
-  const routerChainId = RouterChainIdByDestParaId[params.destParaId] as ChainId;
+  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId] as ChainId;
   const { chainConfig, signer } = await _prepareRoute(routerChainId);
   await checkShouldRelayBeforeRouting(params, chainConfig, signer);
 
