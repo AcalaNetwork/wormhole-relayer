@@ -25,6 +25,7 @@ export const NOT_SUPPORTED_ADDRESS = '';
 
 const RELAYER_URL = 'http://localhost:3111';
 // const RELAYER_URL = 'https://relayer.aca-dev.network';
+// const RELAYER_URL = 'https://relayer.aca-api.network';
 export const RELAYER_URL_TESTNET = 'https://karura-dev.aca-dev.network/eth/relayer';
 
 export const RELAY_URL = `${RELAYER_URL}/relay`;

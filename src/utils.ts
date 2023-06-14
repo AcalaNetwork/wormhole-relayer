@@ -163,7 +163,7 @@ export const getRouterChainTokenAddr = async (originAddr: string, chainInfo: Cha
   const tokenBridge = Bridge__factory.connect(chainInfo.tokenBridgeAddr, signer);
 
   return tokenBridge.wrappedAsset(
-    CHAIN_ID_ETH,
+    CHAIN_ID_ETH,   // TODO: from other chains
     Buffer.from(tryNativeToHexString(originAddr, CHAIN_ID_ETH), 'hex'),
   );
 };
