@@ -69,10 +69,6 @@ export const enum PARA_ID {
   HYDRA = '2034'
 }
 
-// export interface RouterConfigs {
-//   [destChainName: string]: string[];
-// }
-
 export const GOERLI_USDC = '0x07865c6e87b9f70255377e024ace6630c1eaa37f';
 export const ZERO_ADDR = '0x0000000000000000000000000000000000000000';
 
