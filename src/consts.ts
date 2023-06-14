@@ -113,4 +113,4 @@ export const TESTNET_MODE_WARNING = `
   ----------------------------
 `;
 
-export const VERSION = '1.3.3';
+export const VERSION = '1.3.4';
