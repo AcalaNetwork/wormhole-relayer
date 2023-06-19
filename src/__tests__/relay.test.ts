@@ -1,9 +1,8 @@
-import { CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
+import { CHAIN_ID_KARURA, CONTRACTS } from '@certusone/wormhole-sdk';
 import axios from 'axios';
 import { expect } from 'chai';
 import {
   RELAY_URL,
-  KARURA_TOKEN_BRIDGE_ADDRESS,
   BSC_USDT_ADDRESS,
   NOT_SUPPORTED_ADDRESS,
   TEST_USER_ADDR,
@@ -27,7 +26,7 @@ describe('/relay', () => {
 
       expect(result.data).to.includes({
         from: TEST_RELAYER_ADDR,
-        to: KARURA_TOKEN_BRIDGE_ADDRESS,
+        to: CONTRACTS.TESTNET.karura.token_bridge,
         status: 1,
       });
     });

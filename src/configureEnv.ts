@@ -15,7 +15,6 @@ export type ChainConfig = {
   tokenBridgeAddr: string;
   feeAddr: string;
   factoryAddr: string;
-  xtokensAddr: string;
 };
 
 const isTestnet = Number(process.env.TESTNET_MODE ?? 1);

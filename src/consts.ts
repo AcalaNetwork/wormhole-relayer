@@ -83,14 +83,14 @@ const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV = {
 
 const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD = {
   [PARA_ID.BASILISK]: [
-    ROUTER_TOKEN_INFO.KARURA.usdc.srcAddr,
-    ROUTER_TOKEN_INFO.KARURA.weth.srcAddr,
-    ROUTER_TOKEN_INFO.KARURA.wbtc.srcAddr,
+    ROUTER_TOKEN_INFO.KARURA.usdc.originAddr,
+    ROUTER_TOKEN_INFO.KARURA.weth.originAddr,
+    ROUTER_TOKEN_INFO.KARURA.wbtc.originAddr,
   ],
   [PARA_ID.CALAMARI]: [
   ],
   [PARA_ID.SHADOW]: [
-    ROUTER_TOKEN_INFO.KARURA.csm.srcAddr,
+    ROUTER_TOKEN_INFO.KARURA.csm.originAddr,
   ],
 } as const;
 

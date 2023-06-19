@@ -1,5 +1,5 @@
 import { AcalaJsonRpcProvider, sleep } from '@acala-network/eth-providers';
-import { CHAIN_ID_BSC, CHAIN_ID_KARURA, hexToUint8Array, parseSequenceFromLogEth, redeemOnEth } from '@certusone/wormhole-sdk';
+import { CHAIN_ID_BSC, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array, parseSequenceFromLogEth, redeemOnEth } from '@certusone/wormhole-sdk';
 import axios, { AxiosError } from 'axios';
 import { expect } from 'chai';
 import { ContractReceipt, Wallet } from 'ethers';
@@ -20,10 +20,7 @@ import {
   SHOULD_ROUTE_WORMHOLE_URL,
   TEST_USER_ADDR,
   ROUTE_WORMHOLE_URL,
-  KARURA_CORE_BRIDGE_ADDRESS,
-  KARURA_TOKEN_BRIDGE_ADDRESS,
   ETH_RPC_BSC,
-  BSC_TOKEN_BRIDGE_ADDRESS,
 } from './consts';
 import { GOERLI_USDC, PARA_ID } from '../consts';
 import { getSignedVAAFromSequence, transferFromBSCToKarura } from './utils';
@@ -33,7 +30,7 @@ const KARURA_ETH_RPC = 'https://eth-rpc-karura-testnet.aca-staging.network';
 // 0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3
 const RELAYER_TEST_KEY = 'efb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044';
 
-const encodeXcmDest = (data: any) => {
+const encodeXcmDest = (_data: any) => {
   // TODO: use api to encode
   return '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
 };
@@ -281,20 +278,20 @@ describe('/routeWormhole', () => {
 
     /*  ---------- should be able to redeem from eth ----------  */
     const depositReceipt = await providerKarura.getTransactionReceipt(txHash);
-    const sequence = parseSequenceFromLogEth(depositReceipt as ContractReceipt, KARURA_CORE_BRIDGE_ADDRESS);
+    const sequence = parseSequenceFromLogEth(depositReceipt as ContractReceipt, CONTRACTS.TESTNET.karura.core);
     console.log('route to wormhole complete', { sequence }, 'waiting for VAA...');
 
     const signedVAA = await getSignedVAAFromSequence(
       sequence,
       CHAIN_ID_KARURA,
-      KARURA_TOKEN_BRIDGE_ADDRESS,
+      CONTRACTS.TESTNET.karura.token_bridge,
     );
     console.log({ signedVAA });
 
     const providerBSC = new JsonRpcProvider(ETH_RPC_BSC);
     const relayerSignerBSC = new Wallet(RELAYER_TEST_KEY, providerBSC);
     const receipt = await redeemOnEth(
-      BSC_TOKEN_BRIDGE_ADDRESS,
+      CONTRACTS.TESTNET.bsc.token_bridge,
       relayerSignerBSC,
       hexToUint8Array(signedVAA),
     );
