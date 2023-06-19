@@ -64,11 +64,13 @@ export const transferFromBSCToKarura = async (
   const provider = new ethers.providers.JsonRpcProvider(ETH_RPC_BSC);
   const signer = wallet ?? new ethers.Wallet(TEST_USER_PRIVATE_KEY, provider);
 
+  const tokenBridgeAddr = CONTRACTS[isMainnet ? 'MAINNET' : 'TESTNET'].bsc.token_bridge;
+  const coreBridgeAddr = CONTRACTS[isMainnet ? 'MAINNET' : 'TESTNET'].bsc.core;
   const parsedAmount = await parseAmount(sourceAsset, amount, signer);
   const { sequence } = await bridgeToken(
     signer,
-    CONTRACTS[isMainnet ? 'MAINNET' : 'TESTNET'].bsc.token_bridge,
-    CONTRACTS[isMainnet ? 'MAINNET' : 'TESTNET'].bsc.core,
+    tokenBridgeAddr,
+    coreBridgeAddr,
     recipientAddr,
     sourceAsset,
     CHAIN_ID_KARURA,
@@ -79,6 +81,6 @@ export const transferFromBSCToKarura = async (
   return getSignedVAAFromSequence(
     sequence,
     CHAIN_ID_BSC,
-    CONTRACTS.TESTNET.bsc.token_bridge,
+    tokenBridgeAddr,
   );
 };

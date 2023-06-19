@@ -1,8 +1,9 @@
 import { Wallet } from 'ethers';
 import dotenv from 'dotenv';
-import { getErc20Balance, transferFromBSCToKarura } from '../__tests__/utils';
 import path from 'path';
 import { JsonRpcProvider } from '@ethersproject/providers';
+
+import { getErc20Balance, transferFromBSCToKarura } from '../__tests__/utils';
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 const key = process.env.KEY;
