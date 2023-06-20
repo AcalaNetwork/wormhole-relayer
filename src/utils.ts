@@ -6,19 +6,21 @@ import {
   tryNativeToHexString,
   transferFromEth,
   parseSequenceFromLogEth,
-  CHAIN_ID_ETH,
   tryHexToNativeString,
   parseVaa,
+  CHAIN_ID_KARURA,
 } from '@certusone/wormhole-sdk';
 import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+import { ERC20__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { CHAIN, CHAIN_NAME_TO_WORMHOLE_CHAIN_ID, ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import { BigNumber, BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
 import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
+
 import { ChainConfig } from './configureEnv';
 import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from './consts';
 import { logger } from './logger';
 import { RelayAndRouteParams } from './route';
-import { ERC20__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
-import { RelayError } from './middlewares/error';
+import { RelayError, RelayerError } from './middlewares/error';
 
 interface VaaInfo {
   amount: bigint;
@@ -162,9 +164,26 @@ export const getRouterChainTokenAddr = async (originAddr: string, chainInfo: Cha
   const signer = await getSigner(chainInfo);
   const tokenBridge = Bridge__factory.connect(chainInfo.tokenBridgeAddr, signer);
 
+  const routerChain = chainInfo.chainId === CHAIN_ID_KARURA
+    ? CHAIN.KARURA
+    : CHAIN.ACALA;
+
+  const originTokenInfo = Object.entries(ROUTER_TOKEN_INFO[routerChain])
+    .map(info => info[1])
+    .find(tokenInfo => tokenInfo.originAddr === originAddr);
+
+  if (!originTokenInfo) {
+    throw new RelayerError(
+      'cannot find originTokenInfo',
+      { originAddr, chainId: chainInfo.chainId },
+    );
+  }
+
+  const originChainId = CHAIN_NAME_TO_WORMHOLE_CHAIN_ID[originTokenInfo.originChain];
+
   return tokenBridge.wrappedAsset(
-    CHAIN_ID_ETH,   // TODO: from other chains
-    Buffer.from(tryNativeToHexString(originAddr, CHAIN_ID_ETH), 'hex'),
+    originChainId,
+    Buffer.from(tryNativeToHexString(originAddr, originChainId), 'hex'),
   );
 };
 
@@ -186,7 +205,7 @@ export const bridgeToken = async (
   }
   const vaaCompatibleAddr = hexToUint8Array(hexString);
 
-  console.log('sending bridging tx...');
+  console.log(`sending bridging tx with wallet ${signer.address} and amount ${amount} ...`);
   const receipt = await transferFromEth(
     tokenBridgeAddr,
     signer,

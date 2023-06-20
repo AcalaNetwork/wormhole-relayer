@@ -1,7 +1,5 @@
-import { CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
-import { ChainID } from '@certusone/wormhole-sdk/lib/cjs/proto/publicrpc/v1/publicrpc';
+import { CHAIN_ID_KARURA, ChainId } from '@certusone/wormhole-sdk';
 import axios from 'axios';
-import { ChainConfigInfo } from '../configureEnv';
 import { relayEVM } from '../utils';
 
 // const KARURA_ETH_RPC='https://eth-rpc-karura-testnet.aca-staging.network';
@@ -18,7 +16,7 @@ import { relayEVM } from '../utils';
 //   walletPrivateKey: '0xefb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044',
 // };
 
-const manualRelayVAA = async (relayerUrl: string, targetChain: ChainID, signedVAA: string) => {
+const manualRelayVAA = async (relayerUrl: string, targetChain: ChainId, signedVAA: string) => {
   console.log(`relaying with ${relayerUrl}`);
   try {
     const res = await axios.post(`${relayerUrl}/relay`, {

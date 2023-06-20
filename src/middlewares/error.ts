@@ -1,6 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { ValidationError } from 'yup';
 
+export class RelayerError extends Error {
+  params: any;
+
+  constructor(message: string, params?: any) {
+    super(message);
+    this.name = 'RelayerError';
+    this.params = params;
+  }
+}
+
 export class NoRouteError extends Error {
   constructor(message: string) {
     super(message);
@@ -8,17 +18,13 @@ export class NoRouteError extends Error {
   }
 }
 
-export class RelayError extends Error {
-  params: any;
-
+export class RelayError extends RelayerError {
   constructor(message: string, params?: any) {
-    super(message);
-    this.name = 'RelayError';
-    this.params = params;
+    super(message, params);
   }
 };
 
-export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: unknown, req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof ValidationError) {
     res.status(400).json({
       msg: 'invalid request params!',
