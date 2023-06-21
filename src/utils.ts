@@ -9,6 +9,7 @@ import {
   tryHexToNativeString,
   parseVaa,
   CHAIN_ID_KARURA,
+  CHAIN_ID_ETH,
 } from '@certusone/wormhole-sdk';
 import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { ERC20__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
@@ -168,18 +169,23 @@ export const getRouterChainTokenAddr = async (originAddr: string, chainInfo: Cha
     ? CHAIN.KARURA
     : CHAIN.ACALA;
 
-  const originTokenInfo = Object.entries(ROUTER_TOKEN_INFO[routerChain])
-    .map(info => info[1])
-    .find(tokenInfo => tokenInfo.originAddr === originAddr);
+  let originChainId: ChainId;
+  if (chainInfo.isTestnet) {
+    originChainId = CHAIN_ID_ETH;
+  } else {
+    const originTokenInfo = Object.entries(ROUTER_TOKEN_INFO[routerChain])
+      .map(info => info[1])
+      .find(tokenInfo => tokenInfo.originAddr === originAddr);
 
-  if (!originTokenInfo) {
-    throw new RelayerError(
-      'cannot find originTokenInfo',
-      { originAddr, chainId: chainInfo.chainId },
-    );
+    if (!originTokenInfo) {
+      throw new RelayerError(
+        'cannot find originTokenInfo',
+        { originAddr, chainId: chainInfo.chainId },
+      );
+    }
+
+    originChainId = CHAIN_NAME_TO_WORMHOLE_CHAIN_ID[originTokenInfo.originChain];
   }
-
-  const originChainId = CHAIN_NAME_TO_WORMHOLE_CHAIN_ID[originTokenInfo.originChain];
 
   return tokenBridge.wrappedAsset(
     originChainId,

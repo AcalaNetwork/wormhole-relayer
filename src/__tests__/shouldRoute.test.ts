@@ -1,7 +1,7 @@
 import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk';
 import axios from 'axios';
 import { expect } from 'chai';
-import { BASILISK_PARA_ID, ETH_USDC, ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from '../consts';
+import { GOERLI_USDC, PARA_ID, ROUTE_SUPPORTED_CHAINS_AND_ASSETS } from '../consts';
 import { SHOULD_ROUTE_WORMHOLE_URL, SHOULD_ROUTE_XCM_URL } from './consts';
 
 describe('/shouldRouteXcm', () => {
@@ -48,7 +48,7 @@ describe('/shouldRouteXcm', () => {
     it('when missing params', async () => {
       try {
         await shouldRouteXcm({
-          destParaId: BASILISK_PARA_ID,
+          destParaId: PARA_ID.BASILISK,
           originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
         });
         expect.fail('did not throw an error');
@@ -71,7 +71,7 @@ describe('/shouldRouteXcm', () => {
       try {
         await shouldRouteXcm({
           dest,
-          destParaId: BASILISK_PARA_ID,
+          destParaId: PARA_ID.BASILISK,
         });
         expect.fail('did not throw an error');
       } catch (error) {
@@ -83,7 +83,7 @@ describe('/shouldRouteXcm', () => {
     it('when bad params', async () => {
       const validArgs = {
         dest,
-        destParaId: BASILISK_PARA_ID,
+        destParaId: PARA_ID.BASILISK,
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
       };
 
@@ -131,7 +131,7 @@ describe('/shouldRouteWormhole', () => {
           originAddr: tokenAddr,
           targetChainId: String(CHAIN_ID_ETH),
           destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-          fromParaId: BASILISK_PARA_ID,
+          fromParaId: PARA_ID.BASILISK,
         });
 
         expect(res.data).to.deep.eq({
@@ -146,7 +146,7 @@ describe('/shouldRouteWormhole', () => {
           originAddr: tokenAddr,
           targetChainId: String(CHAIN_ID_ETH),
           destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-          fromParaId: BASILISK_PARA_ID,
+          fromParaId: PARA_ID.BASILISK,
         });
 
         expect(res.data).to.deep.eq({
@@ -165,7 +165,7 @@ describe('/shouldRouteWormhole', () => {
         await shouldRouteWormhole({
           targetChainId: String(CHAIN_ID_ETH),
           destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-          fromParaId: BASILISK_PARA_ID,
+          fromParaId: PARA_ID.BASILISK,
         });
         expect.fail('did not throw an error');
       } catch (error) {
@@ -175,9 +175,9 @@ describe('/shouldRouteWormhole', () => {
 
       try {
         await shouldRouteWormhole({
-          originAddr: ETH_USDC,
+          originAddr: GOERLI_USDC,
           destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-          fromParaId: BASILISK_PARA_ID,
+          fromParaId: PARA_ID.BASILISK,
         });
         expect.fail('did not throw an error');
       } catch (error) {
@@ -187,9 +187,9 @@ describe('/shouldRouteWormhole', () => {
 
       try {
         await shouldRouteWormhole({
-          originAddr: ETH_USDC,
+          originAddr: GOERLI_USDC,
           targetChainId: String(CHAIN_ID_ETH),
-          fromParaId: BASILISK_PARA_ID,
+          fromParaId: PARA_ID.BASILISK,
         });
         expect.fail('did not throw an error');
       } catch (error) {
@@ -199,7 +199,7 @@ describe('/shouldRouteWormhole', () => {
 
       try {
         await shouldRouteWormhole({
-          originAddr: ETH_USDC,
+          originAddr: GOERLI_USDC,
           targetChainId: String(CHAIN_ID_ETH),
           destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
         });
@@ -212,10 +212,10 @@ describe('/shouldRouteWormhole', () => {
 
     it('when bad params', async () => {
       const validArgs = {
-        originAddr: ETH_USDC,
+        originAddr: GOERLI_USDC,
         targetChainId: String(CHAIN_ID_ETH),
         destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
-        fromParaId: BASILISK_PARA_ID,
+        fromParaId: PARA_ID.BASILISK,
       };
 
       let res = await shouldRouteWormhole({
