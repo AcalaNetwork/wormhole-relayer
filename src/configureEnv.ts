@@ -15,9 +15,10 @@ export type ChainConfig = {
   tokenBridgeAddr: string;
   feeAddr: string;
   factoryAddr: string;
+  isTestnet: boolean;
 };
 
-const isTestnet = Number(process.env.TESTNET_MODE ?? 1);
+const isTestnet = Boolean(Number(process.env.TESTNET_MODE ?? 1));
 
 export function validateEnvironment(): RelayerEnvironment {
   const supportedChains: ChainConfig[] = [];
@@ -48,6 +49,7 @@ function configKarura(): ChainConfig {
     chainId: CHAIN_ID_KARURA,
     ethRpc: process.env.KARURA_ETH_RPC!,
     walletPrivateKey: process.env.KARURA_PRIVATE_KEY!,
+    isTestnet,
     ...addresses,
   };
 }
@@ -73,6 +75,7 @@ function configAcala(): ChainConfig {
     chainId: CHAIN_ID_ACALA,
     ethRpc: process.env.ACALA_ETH_RPC!,
     walletPrivateKey: process.env.ACALA_PRIVATE_KEY!,
+    isTestnet,
     ...addresses,
   };
 }
