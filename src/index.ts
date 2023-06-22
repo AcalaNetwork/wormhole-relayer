@@ -6,6 +6,7 @@ import { relay, checkShouldRelay, getVersion } from './relay';
 import { TESTNET_MODE_WARNING, VERSION } from './consts';
 import router from './middlewares/router';
 import { errorHandler } from './middlewares/error';
+import { testTimeout } from './utils';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
@@ -18,6 +19,7 @@ const startServer = async (): Promise<void> => {
   app.use(bodyParser.json());
 
   app.post('/relay', relay);
+  app.post('/testTimeout', testTimeout);
   app.get('/shouldRelay', checkShouldRelay);
   app.get('/version', getVersion);
 
