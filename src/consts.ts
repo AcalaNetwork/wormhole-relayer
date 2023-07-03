@@ -81,29 +81,32 @@ const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV = {
   ],
 } as const;
 
+const TOKEN_A = ROUTER_TOKEN_INFO.ACALA;
+const TOKEN_K = ROUTER_TOKEN_INFO.KARURA;
+
 const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD = {
   [PARA_ID.BASILISK]: [
-    ROUTER_TOKEN_INFO.KARURA.usdc.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.weth.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.wbtc.originAddr,
+    TOKEN_K.usdc.originAddr,
+    TOKEN_K.weth.originAddr,
+    TOKEN_K.wbtc.originAddr,
   ],
   [PARA_ID.CALAMARI]: [
-    ROUTER_TOKEN_INFO.KARURA.arb.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.ldo.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.shib.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.wmatic.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.wbnb.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.uni.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.busd.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.link.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.ape.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.wbtc.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.weth.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.usdc.originAddr,
-    ROUTER_TOKEN_INFO.KARURA.usdt.originAddr,
+    TOKEN_K.arb.originAddr,
+    TOKEN_K.ldo.originAddr,
+    TOKEN_K.shib.originAddr,
+    TOKEN_K.wmatic.originAddr,
+    TOKEN_K.wbnb.originAddr,
+    TOKEN_K.uni.originAddr,
+    TOKEN_K.busd.originAddr,
+    TOKEN_K.link.originAddr,
+    TOKEN_K.ape.originAddr,
+    TOKEN_K.wbtc.originAddr,
+    TOKEN_K.weth.originAddr,
+    TOKEN_K.usdc.originAddr,
+    TOKEN_K.usdt.originAddr,
   ],
   [PARA_ID.SHADOW]: [
-    ROUTER_TOKEN_INFO.KARURA.csm.originAddr,
+    TOKEN_K.csm.originAddr,
   ],
 } as const;
 
@@ -126,4 +129,4 @@ export const TESTNET_MODE_WARNING = `
   ----------------------------
 `;
 
-export const VERSION = '1.3.7';
+export const VERSION = '1.3.8';
