@@ -30,3 +30,4 @@ export const ROUTE_WORMHOLE_URL = `${RELAYER_URL}/routeWormhole`;
 export const RELAY_AND_ROUTE_URL = `${RELAYER_URL}/relayAndRoute`;
 
 export const WORMHOLE_GUARDIAN_RPC = ['https://wormhole-v2-testnet-api.certus.one'];
+export const WORMHOLE_GUARDIAN_RPC_MAINNET = ['https://wormhole-v2-mainnet-api.certus.one'];
