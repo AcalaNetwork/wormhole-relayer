@@ -14,6 +14,7 @@ import {
   WORMHOLE_GUARDIAN_RPC,
   ETH_RPC_BSC,
   TEST_USER_PRIVATE_KEY,
+  WORMHOLE_GUARDIAN_RPC_MAINNET,
 } from './consts';
 import { formatUnits, parseUnits } from '@ethersproject/units';
 
@@ -41,10 +42,11 @@ export const getSignedVAAFromSequence = async (
   sequence: string,
   chainId: ChainId,
   tokenBridgeAddr: string,
+  isMainnet = false,
 ) => {
   const emitterAddress = getEmitterAddressEth(tokenBridgeAddr);
   const { vaaBytes } = await getSignedVAAWithRetry(
-    WORMHOLE_GUARDIAN_RPC,
+    isMainnet ? WORMHOLE_GUARDIAN_RPC_MAINNET : WORMHOLE_GUARDIAN_RPC,
     chainId,
     emitterAddress,
     sequence,
@@ -82,5 +84,6 @@ export const transferFromBSCToKarura = async (
     sequence,
     CHAIN_ID_BSC,
     tokenBridgeAddr,
+    isMainnet,
   );
 };
