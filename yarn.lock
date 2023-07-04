@@ -18,10 +18,10 @@
     "@acala-network/types" "5.1.0-1"
     "@open-web3/orml-api-derive" "^2.0.1"
 
-"@acala-network/asset-router@~1.0.8":
-  version "1.0.8"
-  resolved "https://registry.npmjs.org/@acala-network/asset-router/-/asset-router-1.0.8.tgz#4e730f08fe6c03ed36fa437c900e302c31fbc6e8"
-  integrity sha512-oLFU9ygwBNG3oWfsgbJHzlT4vfHDN8fPc5bsvdiHom0p/LyHfKQh1KXRsoI7KPTDBJ/yAOlYhPlmLcqBygyfdw==
+"@acala-network/asset-router@~1.0.9":
+  version "1.0.9"
+  resolved "https://registry.npmjs.org/@acala-network/asset-router/-/asset-router-1.0.9.tgz#1f54f95dd7a550e947f2d29e6432f1af082ece4f"
+  integrity sha512-9mr8kN7SlcHN6szLESTGRGm7wW93wiuJOEuaOjMmTl59Fn+mhTEGvsFO6BjC4PTbswG/WAlCUM1g6GRC6iCQNg==
   dependencies:
     "@acala-network/contracts" "^4.3.9"
     "@acala-network/eth-providers" "^2.6.2"
