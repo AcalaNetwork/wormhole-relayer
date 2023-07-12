@@ -8,8 +8,10 @@ export type RelayerEnvironment = {
   supportedChains: ChainConfig[];
 };
 
+export type ROUTER_CHAIN_ID = typeof CHAIN_ID_KARURA | typeof CHAIN_ID_ACALA;
+
 export type ChainConfig = {
-  chainId: ChainId;
+  chainId: ROUTER_CHAIN_ID;
   ethRpc: string;
   walletPrivateKey: string;
   tokenBridgeAddr: string;
