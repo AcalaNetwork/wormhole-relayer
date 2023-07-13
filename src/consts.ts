@@ -66,7 +66,9 @@ export const enum PARA_ID {
   CALAMARI = '2084',
   SHADOW = '2012',
 
-  HYDRA = '2034'
+  HYDRA = '2034',
+  MANTA = '2104',
+  CRUST =  '2008',
 }
 
 export const GOERLI_USDC = '0x07865c6e87b9f70255377e024ace6630c1eaa37f';
@@ -81,32 +83,51 @@ const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_DEV = {
   ],
 } as const;
 
-const TOKEN_A = ROUTER_TOKEN_INFO.ACALA;
-const TOKEN_K = ROUTER_TOKEN_INFO.KARURA;
+const ASSETS_COMMON_HYDRA = [
+  ROUTER_TOKEN_INFO.weth.originAddr,
+  ROUTER_TOKEN_INFO.wbtc.originAddr,
+] as const;
 
-const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD = {
+const ASSETS_COMMON_MANTA = [
+  ROUTER_TOKEN_INFO.arb.originAddr,
+  ROUTER_TOKEN_INFO.ldo.originAddr,
+  ROUTER_TOKEN_INFO.shib.originAddr,
+  ROUTER_TOKEN_INFO.wmatic.originAddr,
+  ROUTER_TOKEN_INFO.wbnb.originAddr,
+  ROUTER_TOKEN_INFO.uni.originAddr,
+  ROUTER_TOKEN_INFO.busd.originAddr,
+  ROUTER_TOKEN_INFO.link.originAddr,
+  ROUTER_TOKEN_INFO.ape.originAddr,
+] as const;
+
+export const ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD = {
+  /* --------------- karura --------------- */
   [PARA_ID.BASILISK]: [
-    TOKEN_K.usdc.originAddr,
-    TOKEN_K.weth.originAddr,
-    TOKEN_K.wbtc.originAddr,
+    ...ASSETS_COMMON_HYDRA,
+    ROUTER_TOKEN_INFO.usdc.originAddr,
   ],
   [PARA_ID.CALAMARI]: [
-    TOKEN_K.arb.originAddr,
-    TOKEN_K.ldo.originAddr,
-    TOKEN_K.shib.originAddr,
-    TOKEN_K.wmatic.originAddr,
-    TOKEN_K.wbnb.originAddr,
-    TOKEN_K.uni.originAddr,
-    TOKEN_K.busd.originAddr,
-    TOKEN_K.link.originAddr,
-    TOKEN_K.ape.originAddr,
-    TOKEN_K.wbtc.originAddr,
-    TOKEN_K.weth.originAddr,
-    TOKEN_K.usdc.originAddr,
-    TOKEN_K.usdt.originAddr,
+    ...ASSETS_COMMON_MANTA,
+    ROUTER_TOKEN_INFO.wbtc.originAddr,
+    ROUTER_TOKEN_INFO.weth.originAddr,
+    ROUTER_TOKEN_INFO.usdc.originAddr,
+    ROUTER_TOKEN_INFO.usdt.originAddr,
   ],
   [PARA_ID.SHADOW]: [
-    TOKEN_K.csm.originAddr,
+    ROUTER_TOKEN_INFO.csm.originAddr,
+  ],
+
+  /* --------------- acala --------------- */
+  [PARA_ID.HYDRA]: [
+    ...ASSETS_COMMON_HYDRA,
+    ROUTER_TOKEN_INFO.dai.originAddr,
+    ROUTER_TOKEN_INFO.ape.originAddr,
+  ],
+  [PARA_ID.MANTA]: [
+    ...ASSETS_COMMON_MANTA,
+  ],
+  [PARA_ID.CRUST]: [
+    ROUTER_TOKEN_INFO.cru.originAddr,
   ],
 } as const;
 
@@ -120,6 +141,8 @@ export const DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID = {
   [PARA_ID.SHADOW]: CHAIN_ID_KARURA,
 
   [PARA_ID.HYDRA]: CHAIN_ID_ACALA,
+  [PARA_ID.MANTA]: CHAIN_ID_ACALA,
+  [PARA_ID.CRUST]: CHAIN_ID_ACALA,
 } as const;
 
 export const TESTNET_MODE_WARNING = `

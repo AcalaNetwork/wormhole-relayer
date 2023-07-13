@@ -1,0 +1,440 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/shouldRouteXcm > when should route (mainnet) 1`] = `
+[
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0xE0b40e0CeC44DAD0E1Dbf7968DF4CbdA67b9dDA4",
+      "routerChainId": 11,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+  {
+    "data": {
+      "routerAddr": "0x8D6F87eDdC3F3d393659A47351a6Bb9AdB48b244",
+      "routerChainId": 12,
+      "shouldRoute": true,
+    },
+  },
+]
+`;

@@ -1,6 +1,5 @@
 import { CHAIN_ID_KARURA, CONTRACTS } from '@certusone/wormhole-sdk';
 import axios from 'axios';
-import { expect } from 'chai';
 import {
   RELAY_URL,
   BSC_USDT_ADDRESS,
@@ -9,6 +8,7 @@ import {
   TEST_RELAYER_ADDR,
 } from './consts';
 import { transferFromBSCToKarura } from './utils';
+import { describe, expect, it } from 'vitest';
 
 describe('/relay', () => {
   describe('Send ERC20 from BSC to Karura', () => {

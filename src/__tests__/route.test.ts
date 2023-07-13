@@ -1,11 +1,10 @@
 import { AcalaJsonRpcProvider, sleep } from '@acala-network/eth-providers';
 import { CHAIN_ID_BSC, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array, parseSequenceFromLogEth, redeemOnEth } from '@certusone/wormhole-sdk';
 import axios, { AxiosError } from 'axios';
-import { expect } from 'chai';
 import { ContractReceipt, Wallet } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { parseUnits } from 'ethers/lib/utils';
-import { after, before } from 'mocha';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 
@@ -75,14 +74,14 @@ describe('/routeXcm', () => {
   let provider: AcalaJsonRpcProvider;
   let api: ApiPromise;
 
-  before(async () => {
+  beforeAll(async () => {
     provider = new AcalaJsonRpcProvider(KARURA_ETH_RPC);
     api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
 
     await api.isReady;
   });
 
-  after(async () => {
+  afterAll(async () => {
     await api.disconnect();
   });
 
@@ -140,11 +139,11 @@ describe('/relayAndRoute', () => {
   const api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
   const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, provider);
 
-  before(async () => {
+  beforeAll(async () => {
     await api.isReady;
   });
 
-  after(async () => {
+  afterAll(async () => {
     console.log('disconnecting ...');
     await api.disconnect();
   });

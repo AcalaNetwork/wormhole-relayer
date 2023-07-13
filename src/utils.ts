@@ -9,19 +9,18 @@ import {
   tryHexToNativeString,
   parseVaa,
   CHAIN_ID_KARURA,
-  CHAIN_ID_ETH,
 } from '@certusone/wormhole-sdk';
 import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { ERC20__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
-import { CHAIN, CHAIN_NAME_TO_WORMHOLE_CHAIN_ID, ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
+import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import { BigNumber, BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
 import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 
 import { ChainConfig } from './configureEnv';
-import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from './consts';
+import { GOERLI_USDC, RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS, ZERO_ADDR } from './consts';
 import { logger } from './logger';
 import { RelayAndRouteParams } from './route';
-import { RelayError, RelayerError } from './middlewares/error';
+import { RelayError } from './middlewares/error';
 
 interface VaaInfo {
   amount: bigint;
@@ -161,36 +160,29 @@ export const getSigner = async ({
   return new ethers.Wallet(walletPrivateKey, provider);
 };
 
-export const getRouterChainTokenAddr = async (originAddr: string, chainInfo: ChainConfig): Promise<string> => {
-  const signer = await getSigner(chainInfo);
-  const tokenBridge = Bridge__factory.connect(chainInfo.tokenBridgeAddr, signer);
-
-  const routerChain = chainInfo.chainId === CHAIN_ID_KARURA
-    ? CHAIN.KARURA
-    : CHAIN.ACALA;
-
-  let originChainId: ChainId;
-  if (chainInfo.isTestnet) {
-    originChainId = CHAIN_ID_ETH;
-  } else {
-    const originTokenInfo = Object.entries(ROUTER_TOKEN_INFO[routerChain])
-      .map(info => info[1])
-      .find(tokenInfo => tokenInfo.originAddr === originAddr);
-
-    if (!originTokenInfo) {
-      throw new RelayerError(
-        'cannot find originTokenInfo',
-        { originAddr, chainId: chainInfo.chainId },
-      );
-    }
-
-    originChainId = CHAIN_NAME_TO_WORMHOLE_CHAIN_ID[originTokenInfo.originChain];
+export const getRouterChainTokenAddr = async (
+  originAddr: string,
+  chainConfig: ChainConfig,
+): Promise<string> => {
+  if (chainConfig.isTestnet) {
+    return originAddr === GOERLI_USDC
+      ? '0xE5BA1e8E6BBbdC8BbC72A58d68E74B13FcD6e4c7'
+      : ZERO_ADDR;
   }
 
-  return tokenBridge.wrappedAsset(
-    originChainId,
-    Buffer.from(tryNativeToHexString(originAddr, originChainId), 'hex'),
-  );
+  const targetTokenInfo = Object.values(ROUTER_TOKEN_INFO)
+    .find((info) => info.originAddr === originAddr);
+
+  if (!targetTokenInfo) {
+    return ZERO_ADDR;
+  }
+
+  const routerChainTokenInfo = targetTokenInfo[chainConfig.chainId === CHAIN_ID_KARURA ? 'karuraAddr' : 'acalaAddr'];
+  if (!routerChainTokenInfo) {
+    return ZERO_ADDR;
+  }
+
+  return routerChainTokenInfo;
 };
 
 export const bridgeToken = async (
