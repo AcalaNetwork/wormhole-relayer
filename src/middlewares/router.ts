@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
-import { logger } from '../logger';
+import { logger } from '../utils/logger';
 import {
   routeXcmSchema,
   routeWormholeSchema,
   relayAndRouteSchema,
-} from '../validate';
+} from '../utils/validate';
 import {
   relayAndRoute,
   routeWormhole,
   routeXcm,
   shouldRouteWormhole,
   shouldRouteXcm,
-} from '../route';
+} from '../api/route';
 import { NoRouteError } from './error';
 import { Schema } from 'yup';
 

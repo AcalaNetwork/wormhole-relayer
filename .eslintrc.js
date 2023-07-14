@@ -7,14 +7,15 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:import/recommended',
+    'plugin:import/typescript',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 13,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'import', 'sort-imports-es6-autofix'],
   rules: {
     indent: [2, 2, { SwitchCase: 1 }],
     quotes: [2, 'single'],
@@ -36,6 +37,7 @@ module.exports = {
       varsIgnorePattern: '^_',
       caughtErrorsIgnorePattern: '^_',
     }],
+    'sort-imports-es6-autofix/sort-imports-es6': 1,
 
     /* ---------- turn off ---------- */
     '@typescript-eslint/no-extra-semi': 0,

@@ -1,6 +1,7 @@
 import { CHAIN_ID_KARURA, ChainId } from '@certusone/wormhole-sdk';
 import axios from 'axios';
-import { relayEVM } from '../utils';
+
+import { relayEVM } from '../src/utils/relay';
 
 // const KARURA_ETH_RPC='https://eth-rpc-karura-testnet.aca-staging.network';
 // const ACALA_ETH_RPC='https://eth-rpc-acala-testnet.aca-staging.network';

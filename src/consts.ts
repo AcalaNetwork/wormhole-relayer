@@ -1,16 +1,53 @@
-import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import {
-  CHAIN_ID_KARURA,
   CHAIN_ID_ACALA,
+  CHAIN_ID_KARURA,
 } from '@certusone/wormhole-sdk';
+import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env' });
 
 const isTestnet = Number(process.env.TESTNET_MODE ?? 1);
 
-// thredhold amount is defined as "amount that will show on VAA"
-// address should be **lower case** address to be consistent
+export const enum ETH_RPC {
+  BSC = 'https://endpoints.omniatech.io/v1/bsc/mainnet/public',
+  KARURA = 'https://eth-rpc-karura.aca-api.network',
+  ACALA = 'https://eth-rpc-acala.aca-api.network',
+
+  BSC_TESTNET = 'https://endpoints.omniatech.io/v1/bsc/testnet/public',
+  GOERLI = 'https://rpc.ankr.com/eth_goerli',
+};
+
+export const enum BSC_TOKEN {
+  USDC = '0xB04906e95AB5D797aDA81508115611fee694c2b3',
+  DAI = '0x3413a030EF81a3dD5a302F4B4D11d911e12ed337',
+  USDT = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
+};
+
+export const WORMHOLE_GUARDIAN_RPC = {
+  TESTNET: ['https://wormhole-v2-testnet-api.certus.one'],
+  MAINNET: ['https://wormhole-v2-mainnet-api.certus.one'],
+};
+
+const RELAYER_BASE_URL = 'http://localhost:3111';
+// const RELAYER_BASE_URL = 'https://relayer.aca-dev.network';
+// const RELAYER_BASE_URL = 'https://relayer.aca-api.network';
+export const RELAYER_URL = {
+  SHOULD_RELAY: `${RELAYER_BASE_URL}/shouldRelay`,
+  RELAY: `${RELAYER_BASE_URL}/relay`,
+
+  SHOULD_ROUTE_XCM: `${RELAYER_BASE_URL}/shouldRouteXcm`,
+  ROUTE_XCM: `${RELAYER_BASE_URL}/routeXcm`,
+
+  SHOULD_ROUTE_WORMHOLE: `${RELAYER_BASE_URL}/shouldRouteWormhole`,
+  ROUTE_WORMHOLE: `${RELAYER_BASE_URL}/routeWormhole`,
+  RELAY_AND_ROUTE: `${RELAYER_BASE_URL}/relayAndRoute`,
+} as const;
+
+/* ---------------
+   thredhold amount is defined as "amount that will show on VAA"
+   address should be **lower case** address to be consistent
+                                                --------------- */
 const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV = {
   [CHAIN_ID_KARURA]: {
     // 0.1 BSC USDT => karura WUSDT 0x478dEFc2Fc2be13a505dafBDF1e5400847E2efF6

@@ -1,51 +1,25 @@
 import {
   hexToUint8Array,
   redeemOnEth,
-  parseTransferPayload,
-  ChainId,
   tryNativeToHexString,
-  transferFromEth,
-  parseSequenceFromLogEth,
   tryHexToNativeString,
-  parseVaa,
-  CHAIN_ID_KARURA,
 } from '@certusone/wormhole-sdk';
 import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { ERC20__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
-import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
-import { BigNumber, BigNumberish, ContractReceipt, ethers, Signer, Wallet } from 'ethers';
-import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
+import { BigNumber, ContractReceipt, Signer } from 'ethers';
 
 import { ChainConfig } from './configureEnv';
-import { GOERLI_USDC, RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS, ZERO_ADDR } from './consts';
+import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../consts';
 import { logger } from './logger';
-import { RelayAndRouteParams } from './route';
-import { RelayError } from './middlewares/error';
+import { RelayAndRouteParams } from '../api/route';
+import { RelayError } from '../middlewares/error';
+import { VaaInfo, parseVaaPayload } from './wormhole';
+import { getSigner } from './utils';
 
-interface VaaInfo {
-  amount: bigint;
-  originAddress: string;
-  originChain: ChainId;
-  targetAddress: string;
-  targetChain: ChainId;
-}
 interface ShouldRelayResult {
   shouldRelay: boolean;
   msg: string;
 }
-
-export const parseVaaPayload = async (bytes: Uint8Array): Promise<VaaInfo> => {
-  const parsedVaa = parseVaa(bytes);
-  const payload = parseTransferPayload(parsedVaa.payload);
-
-  return {
-    amount: payload.amount,
-    originAddress: payload.originAddress,
-    originChain: payload.originChain as ChainId,
-    targetAddress: payload.targetAddress,
-    targetChain: payload.targetChain as ChainId,
-  };
-};
 
 export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
   const {
@@ -147,85 +121,4 @@ export const relayEVM = async (
   );
 
   return receipt;
-};
-
-export const getSigner = async ({
-  ethRpc,
-  walletPrivateKey,
-}: {
-  ethRpc: string;
-  walletPrivateKey: string;
-}): Promise<Signer> => {
-  const provider = new AcalaJsonRpcProvider(ethRpc);
-  return new ethers.Wallet(walletPrivateKey, provider);
-};
-
-export const getRouterChainTokenAddr = async (
-  originAddr: string,
-  chainConfig: ChainConfig,
-): Promise<string> => {
-  if (chainConfig.isTestnet) {
-    return originAddr === GOERLI_USDC
-      ? '0xE5BA1e8E6BBbdC8BbC72A58d68E74B13FcD6e4c7'
-      : ZERO_ADDR;
-  }
-
-  const targetTokenInfo = Object.values(ROUTER_TOKEN_INFO)
-    .find((info) => info.originAddr === originAddr);
-
-  if (!targetTokenInfo) {
-    return ZERO_ADDR;
-  }
-
-  const routerChainTokenInfo = targetTokenInfo[chainConfig.chainId === CHAIN_ID_KARURA ? 'karuraAddr' : 'acalaAddr'];
-  if (!routerChainTokenInfo) {
-    return ZERO_ADDR;
-  }
-
-  return routerChainTokenInfo;
-};
-
-export const bridgeToken = async (
-  signer: Wallet,
-  tokenBridgeAddr: string,
-  coreBridgeAddr: string,
-  recipientAddr: string,
-  sourceAssetAddr: string,
-  targetChain: ChainId,
-  amount: BigNumberish,
-): Promise<{
-  receipt: ContractReceipt;
-  sequence: string;
-}> => {
-  const hexString = tryNativeToHexString(recipientAddr, targetChain);
-  if (!hexString) {
-    throw new Error('Invalid recipient');
-  }
-  const vaaCompatibleAddr = hexToUint8Array(hexString);
-
-  console.log(`sending bridging tx with wallet ${signer.address} and amount ${amount} ...`);
-  const receipt = await transferFromEth(
-    tokenBridgeAddr,
-    signer,
-    sourceAssetAddr,
-    amount,
-    targetChain,
-    vaaCompatibleAddr,
-  );
-
-  const sequence = parseSequenceFromLogEth(receipt, coreBridgeAddr);
-
-  return {
-    receipt,
-    sequence,
-  };
-};
-
-export const testTimeout = async (request: any, response: any): Promise<void> => {
-  const timeout = request.body.timeout ?? 120000;
-  await new Promise(resolve => setTimeout(resolve, timeout));
-
-  return response.status(200).json({
-    msg: `${timeout} timeout ok`,
-  });
 };

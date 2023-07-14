@@ -11,5 +11,5 @@
     "esModuleInterop": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "**/__tests__/*", "dist", "src/scripts"]
+  "exclude": ["**/__tests__/*"]
 }

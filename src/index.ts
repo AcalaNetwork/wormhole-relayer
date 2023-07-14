@@ -1,12 +1,13 @@
-import cors from 'cors';
-import express from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import dotenv from 'dotenv';
-import { relay, checkShouldRelay, getVersion } from './relay';
+import express from 'express';
+
 import { TESTNET_MODE_WARNING, VERSION } from './consts';
-import router from './middlewares/router';
+import { checkShouldRelay, getVersion, relay } from './api/relay';
 import { errorHandler } from './middlewares/error';
-import { testTimeout } from './utils';
+import { testTimeout } from './utils/utils';
+import router from './middlewares/router';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;

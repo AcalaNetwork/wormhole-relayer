@@ -1,23 +1,23 @@
 import { CHAIN_ID_KARURA, CONTRACTS } from '@certusone/wormhole-sdk';
-import axios from 'axios';
-import {
-  RELAY_URL,
-  BSC_USDT_ADDRESS,
-  NOT_SUPPORTED_ADDRESS,
-  TEST_USER_ADDR,
-  TEST_RELAYER_ADDR,
-} from './consts';
-import { transferFromBSCToKarura } from './utils';
 import { describe, expect, it } from 'vitest';
+import axios from 'axios';
+
+import { BSC_TOKEN, RELAYER_URL } from '../consts';
+import {
+  NOT_SUPPORTED_ADDRESS,
+  TEST_RELAYER_ADDR,
+  TEST_USER_ADDR,
+} from './consts';
+import { transferFromBSCToKaruraTestnet } from './utils';
 
 describe('/relay', () => {
   describe('Send ERC20 from BSC to Karura', () => {
     it('relay correctly when should relay', async () => {
-      const signedVAA = await transferFromBSCToKarura('0.1', BSC_USDT_ADDRESS, TEST_USER_ADDR);
+      const signedVAA = await transferFromBSCToKaruraTestnet('0.1', BSC_TOKEN.USDT, TEST_USER_ADDR);
       console.log({ signedVAA });
 
-      console.log(`relaying with ${RELAY_URL}`);
-      const result = await axios.post(RELAY_URL, {
+      console.log(`relaying with ${RELAYER_URL.RELAY}`);
+      const result = await axios.post(RELAYER_URL.RELAY, {
         targetChain: CHAIN_ID_KARURA,
         signedVAA,
       });
@@ -32,12 +32,12 @@ describe('/relay', () => {
     });
 
     it.skip('throw correct error when transfer amount too small', async () => {
-      const signedVAA = await transferFromBSCToKarura('0.01', BSC_USDT_ADDRESS, TEST_USER_ADDR);
+      const signedVAA = await transferFromBSCToKaruraTestnet('0.01', BSC_TOKEN.USDT, TEST_USER_ADDR);
       console.log({ signedVAA });
 
       let failed = false;
       try {
-        await axios.post(RELAY_URL, {
+        await axios.post(RELAYER_URL.RELAY, {
           targetChain: CHAIN_ID_KARURA,
           signedVAA,
         });
@@ -51,12 +51,12 @@ describe('/relay', () => {
     });
 
     it.skip('throw correct error when token not supported', async () => {
-      const signedVAA = await transferFromBSCToKarura('10', NOT_SUPPORTED_ADDRESS, TEST_USER_ADDR);
+      const signedVAA = await transferFromBSCToKaruraTestnet('10', NOT_SUPPORTED_ADDRESS, TEST_USER_ADDR);
       console.log({ signedVAA });
 
       let failed = false;
       try {
-        await axios.post(RELAY_URL, {
+        await axios.post(RELAYER_URL.RELAY, {
           targetChain: CHAIN_ID_KARURA,
           signedVAA,
         });

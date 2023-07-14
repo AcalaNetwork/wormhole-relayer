@@ -1,33 +1,11 @@
 import { Wallet } from 'ethers';
 
-export const ETH_RPC_BSC = 'https://endpoints.omniatech.io/v1/bsc/testnet/public';
-// export const ETH_RPC_BSC = 'https://bsc-testnet.public.blastapi.io';
-export const ETH_RPC_GOERLI = 'https://rpc.ankr.com/eth_goerli';
 export const BASILISK_TESTNET_NODE_URL = 'wss://karura-testnet.aca-staging.network/rpc/basilisk/ws';
 
 export const TEST_USER_PRIVATE_KEY = '01392cd1a09fc0f4857742f0f0daa3ebd5a0f44a7dab48c23ccd331717b97b10';
 export const TEST_USER_ADDR = new Wallet(TEST_USER_PRIVATE_KEY).address;  // 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
 export const TEST_RELAYER_ADDR = '0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3';
 
-export const BSC_USDT_ADDRESS = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd';
-export const BSC_USDC_ADDRESS = '0x861B5C16A2EcED022241072A7beA9D530b99EB6f';
 export const KARURA_USDC_ADDRESS = '0xE5BA1e8E6BBbdC8BbC72A58d68E74B13FcD6e4c7';
 export const GOERLI_USDC_ADDRESS = '0x07865c6E87B9F70255377e024ace6630C1Eaa37F';
 export const NOT_SUPPORTED_ADDRESS = '';
-
-const RELAYER_URL = 'http://localhost:3111';
-// const RELAYER_URL = 'https://relayer.aca-dev.network';
-// const RELAYER_URL = 'https://relayer.aca-api.network';
-export const RELAYER_URL_TESTNET = 'https://karura-dev.aca-dev.network/eth/relayer';
-
-export const RELAY_URL = `${RELAYER_URL}/relay`;
-export const SHOULD_RELAY_URL = `${RELAYER_URL}/shouldRelay`;
-export const SHOULD_ROUTE_XCM_URL = `${RELAYER_URL}/shouldRouteXcm`;
-export const SHOULD_ROUTE_WORMHOLE_URL = `${RELAYER_URL}/shouldRouteWormhole`;
-
-export const ROUTE_XCM_URL = `${RELAYER_URL}/routeXcm`;
-export const ROUTE_WORMHOLE_URL = `${RELAYER_URL}/routeWormhole`;
-export const RELAY_AND_ROUTE_URL = `${RELAYER_URL}/relayAndRoute`;
-
-export const WORMHOLE_GUARDIAN_RPC = ['https://wormhole-v2-testnet-api.certus.one'];
-export const WORMHOLE_GUARDIAN_RPC_MAINNET = ['https://wormhole-v2-mainnet-api.certus.one'];
