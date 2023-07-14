@@ -17,7 +17,7 @@ import {
 import { BSC_TOKEN, ETH_RPC, GOERLI_USDC, PARA_ID, RELAYER_URL } from '../consts';
 import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from '../api/route';
 import { getSignedVAAFromSequence } from '../utils/wormhole';
-import { transferFromBSCToKaruraTestnet } from './utils';
+import { transferFromBSCToKaruraTestnet } from './testUtils';
 
 // const KARURA_ETH_RPC = 'https://eth-rpc-karura-testnet.aca-staging.network';
 const KARURA_ETH_RPC = 'http://localhost:8545';

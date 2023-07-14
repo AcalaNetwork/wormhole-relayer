@@ -8,7 +8,7 @@ import {
   TEST_RELAYER_ADDR,
   TEST_USER_ADDR,
 } from './consts';
-import { transferFromBSCToKaruraTestnet } from './utils';
+import { transferFromBSCToKaruraTestnet } from './testUtils';
 
 describe('/relay', () => {
   describe('Send ERC20 from BSC to Karura', () => {
