@@ -13,7 +13,7 @@ import {
   KARURA_USDC_ADDRESS,
   TEST_RELAYER_ADDR,
   TEST_USER_ADDR,
-} from './consts';
+} from './testConsts';
 import { BSC_TOKEN, ETH_RPC, GOERLI_USDC, PARA_ID, RELAYER_URL } from '../consts';
 import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from '../api/route';
 import { getSignedVAAFromSequence } from '../utils/wormhole';

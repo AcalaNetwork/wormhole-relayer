@@ -3,7 +3,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import { Wallet } from 'ethers';
 
 import { ETH_RPC } from '../consts';
-import { TEST_USER_PRIVATE_KEY } from './consts';
+import { TEST_USER_PRIVATE_KEY } from './testConsts';
 import { transferFromBSC } from '../utils/utils';
 
 export const transferFromBSCToKaruraTestnet = async (

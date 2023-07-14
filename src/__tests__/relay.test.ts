@@ -7,7 +7,7 @@ import {
   NOT_SUPPORTED_ADDRESS,
   TEST_RELAYER_ADDR,
   TEST_USER_ADDR,
-} from './consts';
+} from './testConsts';
 import { transferFromBSCToKaruraTestnet } from './testUtils';
 
 describe('/relay', () => {
