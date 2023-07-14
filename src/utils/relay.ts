@@ -1,20 +1,20 @@
+import { BigNumber, ContractReceipt, Signer } from 'ethers';
+import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+import { ERC20__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
 import {
   hexToUint8Array,
   redeemOnEth,
-  tryNativeToHexString,
   tryHexToNativeString,
+  tryNativeToHexString,
 } from '@certusone/wormhole-sdk';
-import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-import { ERC20__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
-import { BigNumber, ContractReceipt, Signer } from 'ethers';
 
 import { ChainConfig } from './configureEnv';
 import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../consts';
-import { logger } from './logger';
 import { RelayAndRouteParams } from '../api/route';
 import { RelayError } from '../middlewares/error';
 import { VaaInfo, parseVaaPayload } from './wormhole';
 import { getSigner } from './utils';
+import { logger } from './logger';
 
 interface ShouldRelayResult {
   shouldRelay: boolean;

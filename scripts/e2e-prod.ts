@@ -1,5 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Wallet } from 'ethers';
+import axios from 'axios';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -8,7 +9,6 @@ import { BSC_TOKEN, ETH_RPC , RELAYER_URL } from '../src/consts';
 import { CHAIN_ID_ACALA, CHAIN_ID_KARURA, CHAIN_ID_TO_NAME } from '@certusone/wormhole-sdk';
 import { ROUTER_CHAIN_ID, getErc20Balance, transferErc20, transferFromBSC } from '../src/utils/utils';
 import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
-import axios from 'axios';
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 const key = process.env.KEY;

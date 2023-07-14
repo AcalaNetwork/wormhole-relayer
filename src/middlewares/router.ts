@@ -1,10 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
+import { Schema } from 'yup';
+
+import { NoRouteError } from './error';
 import { logger } from '../utils/logger';
-import {
-  routeXcmSchema,
-  routeWormholeSchema,
-  relayAndRouteSchema,
-} from '../utils/validate';
 import {
   relayAndRoute,
   routeWormhole,
@@ -12,8 +10,11 @@ import {
   shouldRouteWormhole,
   shouldRouteXcm,
 } from '../api/route';
-import { NoRouteError } from './error';
-import { Schema } from 'yup';
+import {
+  relayAndRouteSchema,
+  routeWormholeSchema,
+  routeXcmSchema,
+} from '../utils/validate';
 
 interface RouterConfig {
   schema: Schema;
