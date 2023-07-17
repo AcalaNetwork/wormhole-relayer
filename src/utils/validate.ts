@@ -1,5 +1,5 @@
-import { string, object, ObjectSchema } from 'yup';
-import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from './route';
+import { ObjectSchema, object, string } from 'yup';
+import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from '../api/route';
 
 export const routeXcmSchema: ObjectSchema<RouteParamsXcm> = object({
   originAddr: string().required(),

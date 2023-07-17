@@ -1,11 +1,11 @@
 import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk';
+import { describe, expect, it } from 'vitest';
 import axios from 'axios';
-import { describe, it, expect } from 'vitest';
-import { GOERLI_USDC, PARA_ID, ROUTE_SUPPORTED_CHAINS_AND_ASSETS, ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD } from '../consts';
-import { SHOULD_ROUTE_WORMHOLE_URL, SHOULD_ROUTE_XCM_URL } from './consts';
+
+import { GOERLI_USDC, PARA_ID, RELAYER_URL, ROUTE_SUPPORTED_CHAINS_AND_ASSETS, ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD } from '../consts';
 
 describe.concurrent('/shouldRouteXcm', () => {
-  const shouldRouteXcm = (params: any) => axios.get(SHOULD_ROUTE_XCM_URL, { params });
+  const shouldRouteXcm = (params: any) => axios.get(RELAYER_URL.SHOULD_ROUTE_XCM, { params });
 
   const dest = '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
 
@@ -149,7 +149,7 @@ describe.concurrent('/shouldRouteXcm', () => {
 });
 
 describe.concurrent('/shouldRouteWormhole', () => {
-  const shouldRouteWormhole = (params: any) => axios.get(SHOULD_ROUTE_WORMHOLE_URL, { params });
+  const shouldRouteWormhole = (params: any) => axios.get(RELAYER_URL.SHOULD_ROUTE_WORMHOLE, { params });
 
   it('when should route (testnet)', async () => {
     for (const supportedTokens of Object.values(ROUTE_SUPPORTED_CHAINS_AND_ASSETS)) {

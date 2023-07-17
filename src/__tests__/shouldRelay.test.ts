@@ -1,10 +1,11 @@
-import axios from 'axios';
+import { describe, it } from 'vitest';
 import { expect } from 'chai';
-import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../consts';
-import { SHOULD_RELAY_URL } from './consts';
+import axios from 'axios';
+
+import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS, RELAYER_URL } from '../consts';
 
 describe('/shouldRelay', () => {
-  const checkShouldRelay = (params: any) => axios.get(SHOULD_RELAY_URL, { params });
+  const checkShouldRelay = (params: any) => axios.get(RELAYER_URL.SHOULD_RELAY, { params });
 
   it('when should relay', async () => {
     for (const targetChain in RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS) {

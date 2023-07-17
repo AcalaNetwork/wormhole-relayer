@@ -1,31 +1,26 @@
 import { AcalaJsonRpcProvider, sleep } from '@acala-network/eth-providers';
-import { CHAIN_ID_BSC, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array, parseSequenceFromLogEth, redeemOnEth } from '@certusone/wormhole-sdk';
-import axios, { AxiosError } from 'axios';
-import { ContractReceipt, Wallet } from 'ethers';
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { parseUnits } from 'ethers/lib/utils';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ApiPromise, WsProvider } from '@polkadot/api';
+import { CHAIN_ID_BSC, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array, parseSequenceFromLogEth, redeemOnEth } from '@certusone/wormhole-sdk';
+import { ContractReceipt, Wallet } from 'ethers';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+import { JsonRpcProvider } from '@ethersproject/providers';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { parseUnits } from 'ethers/lib/utils';
+import axios, { AxiosError } from 'axios';
 
 import {
-  ROUTE_XCM_URL,
-  SHOULD_ROUTE_XCM_URL,
-  KARURA_USDC_ADDRESS,
-  RELAY_AND_ROUTE_URL,
-  BSC_USDC_ADDRESS,
   BASILISK_TESTNET_NODE_URL,
+  KARURA_USDC_ADDRESS,
   TEST_RELAYER_ADDR,
-  SHOULD_ROUTE_WORMHOLE_URL,
   TEST_USER_ADDR,
-  ROUTE_WORMHOLE_URL,
-  ETH_RPC_BSC,
-} from './consts';
-import { GOERLI_USDC, PARA_ID } from '../consts';
-import { getSignedVAAFromSequence, transferFromBSCToKarura } from './utils';
-import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from '../route';
+} from './testConsts';
+import { BSC_TOKEN, ETH_RPC, GOERLI_USDC, PARA_ID, RELAYER_URL } from '../consts';
+import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from '../api/route';
+import { getSignedVAAFromSequence } from '../utils/wormhole';
+import { transferFromBSCToKaruraTestnet } from './testUtils';
 
-const KARURA_ETH_RPC = 'https://eth-rpc-karura-testnet.aca-staging.network';
+// const KARURA_ETH_RPC = 'https://eth-rpc-karura-testnet.aca-staging.network';
+const KARURA_ETH_RPC = 'http://localhost:8545';
 // 0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3
 const RELAYER_TEST_KEY = 'efb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044';
 
@@ -55,8 +50,8 @@ const mockXcmToRouter = async (routerAddr: string, signer: Wallet) => {
 };
 
 describe('/routeXcm', () => {
-  const shouldRouteXcm = (params: any) => axios.get(SHOULD_ROUTE_XCM_URL, { params });
-  const routeXcm = (params: RouteParamsXcm) => axios.post(ROUTE_XCM_URL, params);
+  const shouldRouteXcm = (params: any) => axios.get(RELAYER_URL.SHOULD_ROUTE_XCM, { params });
+  const routeXcm = (params: RouteParamsXcm) => axios.post(RELAYER_URL.ROUTE_XCM, params);
 
   const destAddr = 'bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak';
   const dest = encodeXcmDest({
@@ -119,8 +114,8 @@ describe('/routeXcm', () => {
 });
 
 describe('/relayAndRoute', () => {
-  const shouldRouteXcm = (params: any) => axios.get(SHOULD_ROUTE_XCM_URL, { params });
-  const relayAndRoute = (params: RelayAndRouteParams) => axios.post(RELAY_AND_ROUTE_URL, params);
+  const shouldRouteXcm = (params: any) => axios.get(RELAYER_URL.SHOULD_ROUTE_XCM, { params });
+  const relayAndRoute = (params: RelayAndRouteParams) => axios.post(RELAYER_URL.RELAY_AND_ROUTE, params);
 
   const destAddr = 'bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak';
   const dest = encodeXcmDest({
@@ -162,7 +157,7 @@ describe('/relayAndRoute', () => {
     const { routerAddr } = (await shouldRouteXcm(routeArgs)).data.data;
     console.log({ routerAddr });
 
-    const signedVAA = await transferFromBSCToKarura('0.01', BSC_USDC_ADDRESS, routerAddr);
+    const signedVAA = await transferFromBSCToKaruraTestnet('0.01', BSC_TOKEN.USDC, routerAddr);
     console.log({ signedVAA });
 
     const relayAndRouteArgs = {
@@ -239,12 +234,12 @@ describe('/relayAndRoute', () => {
 });
 
 describe('/routeWormhole', () => {
-  const shouldRouteWormhole = (params: any) => axios.get(SHOULD_ROUTE_WORMHOLE_URL, { params });
-  const routeWormhole = (params: RouteParamsWormhole) => axios.post(ROUTE_WORMHOLE_URL, params);
+  const shouldRouteWormhole = (params: any) => axios.get(RELAYER_URL.SHOULD_ROUTE_WORMHOLE, { params });
+  const routeWormhole = (params: RouteParamsWormhole) => axios.post(RELAYER_URL.ROUTE_WORMHOLE, params);
 
   const providerKarura = new AcalaJsonRpcProvider(KARURA_ETH_RPC);
   const usdcK = ERC20__factory.connect(KARURA_USDC_ADDRESS, providerKarura);
-  const usdcB = ERC20__factory.connect(BSC_USDC_ADDRESS, new JsonRpcProvider(ETH_RPC_BSC));
+  const usdcB = ERC20__factory.connect(BSC_TOKEN.USDC, new JsonRpcProvider(ETH_RPC.BSC));
 
   it('when should route', async () => {
     const routeArgs = {
@@ -287,7 +282,7 @@ describe('/routeWormhole', () => {
     );
     console.log({ signedVAA });
 
-    const providerBSC = new JsonRpcProvider(ETH_RPC_BSC);
+    const providerBSC = new JsonRpcProvider(ETH_RPC.BSC);
     const relayerSignerBSC = new Wallet(RELAYER_TEST_KEY, providerBSC);
     const receipt = await redeemOnEth(
       CONTRACTS.TESTNET.bsc.token_bridge,

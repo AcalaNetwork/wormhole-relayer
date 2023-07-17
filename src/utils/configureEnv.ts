@@ -1,14 +1,14 @@
-import { ChainId, CHAIN_ID_KARURA, CHAIN_ID_ACALA } from '@certusone/wormhole-sdk';
-import dotenv from 'dotenv';
 import { ADDRESSES } from '@acala-network/asset-router/dist/consts';
+import { CHAIN_ID_ACALA, CHAIN_ID_KARURA, ChainId } from '@certusone/wormhole-sdk';
+import dotenv from 'dotenv';
+
+import { ROUTER_CHAIN_ID } from './utils';
 
 dotenv.config({ path: '.env' });
 
 export type RelayerEnvironment = {
   supportedChains: ChainConfig[];
 };
-
-export type ROUTER_CHAIN_ID = typeof CHAIN_ID_KARURA | typeof CHAIN_ID_ACALA;
 
 export type ChainConfig = {
   chainId: ROUTER_CHAIN_ID;

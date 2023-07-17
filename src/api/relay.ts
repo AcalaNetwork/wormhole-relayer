@@ -1,8 +1,10 @@
 import { hexToUint8Array } from '@certusone/wormhole-sdk';
-import { getChainConfig } from './configureEnv';
-import { VERSION } from './consts';
-import { logger } from './logger';
-import { parseVaaPayload, relayEVM, shouldRelay, shouldRelayVaa } from './utils';
+
+import { VERSION } from '../consts';
+import { getChainConfig } from '../utils/configureEnv';
+import { logger } from '../utils/logger';
+import { parseVaaPayload } from '../utils/wormhole';
+import { relayEVM, shouldRelay, shouldRelayVaa } from '../utils/relay';
 
 const validateRelayRequest = async (request: any, response: any) => {
   const chainId = request.body?.targetChain;

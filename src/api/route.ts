@@ -1,16 +1,18 @@
 import { ChainId,  tryNativeToHexString } from '@certusone/wormhole-sdk';
-import { Signer } from 'ethers';
 import { Factory__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { Signer } from 'ethers';
 import { WormholeInstructionsStruct, XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
 
-import { getChainConfig, ChainConfig } from './configureEnv';
-import { checkShouldRelayBeforeRouting, getRouterChainTokenAddr, getSigner, relayEVM } from './utils';
+import { ChainConfig, getChainConfig } from '../utils/configureEnv';
 import {
   DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID,
   ROUTE_SUPPORTED_CHAINS_AND_ASSETS,
   ZERO_ADDR,
-} from './consts';
-import { logger } from './logger';
+} from '../consts';
+import { checkShouldRelayBeforeRouting, relayEVM } from '../utils/relay';
+import { getRouterChainTokenAddr } from '../utils/wormhole';
+import { getSigner } from '../utils/utils';
+import { logger } from '../utils/logger';
 
 interface RouteParamsBase {
   originAddr: string;     // origin token address
