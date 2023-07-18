@@ -1,31 +1,13 @@
-import bodyParser from 'body-parser';
-import cors from 'cors';
 import dotenv from 'dotenv';
-import express from 'express';
 
 import { TESTNET_MODE_WARNING, VERSION } from './consts';
-import { checkShouldRelay, getVersion, relay } from './api/relay';
-import { errorHandler } from './middlewares/error';
-import { testTimeout } from './utils/utils';
-import router from './middlewares/router';
+import { createApp } from './app';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
 
 const startServer = async (): Promise<void> => {
-  const app = express();
-
-  app.use(cors());
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(bodyParser.json());
-
-  app.post('/relay', relay);
-  app.post('/testTimeout', testTimeout);
-  app.get('/shouldRelay', checkShouldRelay);
-  app.get('/version', getVersion);
-
-  app.use(router);
-  app.use(errorHandler);
+  const app = createApp();
 
   app.listen(PORT, () => {
     console.log(`

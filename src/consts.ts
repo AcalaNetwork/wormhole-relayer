@@ -32,16 +32,29 @@ export const WORMHOLE_GUARDIAN_RPC = {
 const RELAYER_BASE_URL = 'http://localhost:3111';
 // const RELAYER_BASE_URL = 'https://relayer.aca-dev.network';
 // const RELAYER_BASE_URL = 'https://relayer.aca-api.network';
+
+export const RELAYER_API = {
+  SHOULD_RELAY: '/shouldRelay',
+  RELAY: '/relay',
+
+  SHOULD_ROUTE_XCM: '/shouldRouteXcm',
+  ROUTE_XCM: '/routeXcm',
+
+  SHOULD_ROUTE_WORMHOLE: '/shouldRouteWormhole',
+  ROUTE_WORMHOLE: '/routeWormhole',
+  RELAY_AND_ROUTE: '/relayAndRoute',
+} as const;
+
 export const RELAYER_URL = {
-  SHOULD_RELAY: `${RELAYER_BASE_URL}/shouldRelay`,
-  RELAY: `${RELAYER_BASE_URL}/relay`,
+  SHOULD_RELAY: `${RELAYER_BASE_URL}${RELAYER_API.SHOULD_RELAY}`,
+  RELAY: `${RELAYER_BASE_URL}${RELAYER_API.RELAY}`,
 
-  SHOULD_ROUTE_XCM: `${RELAYER_BASE_URL}/shouldRouteXcm`,
-  ROUTE_XCM: `${RELAYER_BASE_URL}/routeXcm`,
+  SHOULD_ROUTE_XCM: `${RELAYER_BASE_URL}${RELAYER_API.SHOULD_ROUTE_XCM}`,
+  ROUTE_XCM: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_XCM}`,
 
-  SHOULD_ROUTE_WORMHOLE: `${RELAYER_BASE_URL}/shouldRouteWormhole`,
-  ROUTE_WORMHOLE: `${RELAYER_BASE_URL}/routeWormhole`,
-  RELAY_AND_ROUTE: `${RELAYER_BASE_URL}/relayAndRoute`,
+  SHOULD_ROUTE_WORMHOLE: `${RELAYER_BASE_URL}${RELAYER_API.SHOULD_ROUTE_WORMHOLE}`,
+  ROUTE_WORMHOLE: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_WORMHOLE}`,
+  RELAY_AND_ROUTE: `${RELAYER_BASE_URL}${RELAYER_API.RELAY_AND_ROUTE}`,
 } as const;
 
 /* ---------------

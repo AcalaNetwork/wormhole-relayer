@@ -3,22 +3,22 @@ The relayer to pay gas fee and redeem token on Karura/Acala after user send toke
 
 ## Run Locally
 - install deps: `yarn`
-- start: `yarn start`
-- start dev server: `yarn dev`
-- test: `yarn test`
+- build: `yarn build`
+- start with dist code: `yarn start`
+- start with dev server: `yarn dev`
 
 ## Run with Docker
 docker-compose version: `docker-compose version 1.29.2, build 5becea4c`
 
 - start dev server with docker: `docker-compose up`
-- start dev server with docker in background: `docker-compose up -d --build`
+- start dev server with docker in background: `docker compose up -d --build`
 
 ## Endpoints
 ### `/version`
 get the relayer version
 ```
 GET /version
-1.0.0
+1.3.10
 ```
 
 ### `/shouldRelay`
@@ -319,6 +319,18 @@ A complete working flow can be found in [routing e2e tests](./src/__tests__/rout
 4) fetch VAA and redeem on the target evm chain
 
 ## Tests
+### with coverage report
+- run tests and generate coverage data
+```
+yarn test:coverage
+```
+
+show coverage report in GUI
+```
+yarn vite preview --outDir ./coverage/
+```
+
+### with separate relayer (no coverage report)
 first start a relayer: `yarn dev`
 
 ```
@@ -330,4 +342,4 @@ yarn test:route
 ```
 
 ## Production Config
-modify `.env` to use real private keys for relayers, also set `TESTNET_MODE=0`
+`cp .env.example .env` and replace the test keys with real private keys for relayers
