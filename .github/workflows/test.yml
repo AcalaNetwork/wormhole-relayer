@@ -21,6 +21,9 @@ jobs:
       - name: install deps
         run: yarn install --immutable
 
+      - name: setup test env
+        run: cp .env.example .env
+
       - name: run tests
         run: yarn test:coverage
 
