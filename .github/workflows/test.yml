@@ -22,7 +22,7 @@ jobs:
         run: yarn install --immutable
 
       - name: setup test env
-        run: cp .env.example .env
+        run: cp .env.test .env
 
       - name: run tests
         run: yarn test:coverage
