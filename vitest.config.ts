@@ -9,9 +9,9 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      all: true,
       reportsDirectory: './coverage',
-      enabled: false,
+      enabled: true,
+      exclude: ['**/__tests__'],
     },
   },
 });
