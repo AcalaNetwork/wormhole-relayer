@@ -16,7 +16,7 @@ import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport'
 import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 
 import { ChainConfig } from './configureEnv';
-import { GOERLI_USDC, WORMHOLE_GUARDIAN_RPC, ZERO_ADDR } from '../consts';
+import { ROUTER_TOKEN_INFO_TESTNET, WORMHOLE_GUARDIAN_RPC, ZERO_ADDR } from '../consts';
 
 export interface VaaInfo {
   amount: bigint;
@@ -79,13 +79,11 @@ export const getRouterChainTokenAddr = async (
   originAddr: string,
   chainConfig: ChainConfig,
 ): Promise<string> => {
-  if (chainConfig.isTestnet) {
-    return originAddr === GOERLI_USDC
-      ? '0xE5BA1e8E6BBbdC8BbC72A58d68E74B13FcD6e4c7'
-      : ZERO_ADDR;
-  }
+  const routerTokenInfo = chainConfig.isTestnet
+    ? ROUTER_TOKEN_INFO_TESTNET
+    : ROUTER_TOKEN_INFO;
 
-  const targetTokenInfo = Object.values(ROUTER_TOKEN_INFO)
+  const targetTokenInfo = Object.values(routerTokenInfo)
     .find((info) => info.originAddr === originAddr);
 
   if (!targetTokenInfo) {

@@ -15,13 +15,19 @@ export const enum ETH_RPC {
   ACALA = 'https://eth-rpc-acala.aca-api.network',
 
   BSC_TESTNET = 'https://endpoints.omniatech.io/v1/bsc/testnet/public',
+  FUJI = 'https://avalanche-fuji-c-chain.publicnode.com',
   GOERLI = 'https://rpc.ankr.com/eth_goerli',
+  KARURA_TESTNET = 'https://eth-rpc-karura-testnet.aca-staging.network',
 };
 
 export const enum BSC_TOKEN {
   USDC = '0xB04906e95AB5D797aDA81508115611fee694c2b3',
   DAI = '0x3413a030EF81a3dD5a302F4B4D11d911e12ed337',
   USDT = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd',
+};
+
+export const enum FUJI_TOKEN {
+  USDC = '0x63A30f239DC8d1c17Bf6653a68Fc6C2F83641E6d',
 };
 
 export const WORMHOLE_GUARDIAN_RPC = {
@@ -43,6 +49,10 @@ export const RELAYER_API = {
   SHOULD_ROUTE_WORMHOLE: '/shouldRouteWormhole',
   ROUTE_WORMHOLE: '/routeWormhole',
   RELAY_AND_ROUTE: '/relayAndRoute',
+
+  NO_ROUTE: '/noRoute',
+  VERSION: '/version',
+  TEST_TIMEOUT: '/testTimeout',
 } as const;
 
 export const RELAYER_URL = {
@@ -55,6 +65,10 @@ export const RELAYER_URL = {
   SHOULD_ROUTE_WORMHOLE: `${RELAYER_BASE_URL}${RELAYER_API.SHOULD_ROUTE_WORMHOLE}`,
   ROUTE_WORMHOLE: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_WORMHOLE}`,
   RELAY_AND_ROUTE: `${RELAYER_BASE_URL}${RELAYER_API.RELAY_AND_ROUTE}`,
+
+  NO_ROUTE: `${RELAYER_BASE_URL}${RELAYER_API.NO_ROUTE}`,
+  VERSION: `${RELAYER_BASE_URL}${RELAYER_API.VERSION}`,
+  TEST_TIMEOUT: `${RELAYER_BASE_URL}${RELAYER_API.TEST_TIMEOUT}`,
 } as const;
 
 /* ---------------
@@ -69,8 +83,8 @@ const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV = {
     // 0.02 BSC ETH => karura WETH ?
     '0xd66c6b4f0be8ce5b39d52e0fd1344c389929b378': '2000000',
 
-    // 0.05 Goerli USDC => karura WUSDC 0xE5BA1e8E6BBbdC8BbC72A58d68E74B13FcD6e4c7
-    '0x07865c6e87b9f70255377e024ace6630c1eaa37f': '50000',
+    // 0.001 Goerli USDC => karura WUSDC 0xE5BA1e8E6BBbdC8BbC72A58d68E74B13FcD6e4c7
+    '0x07865c6e87b9f70255377e024ace6630c1eaa37f': '1000',
   },
   [CHAIN_ID_ACALA]: {
     // 0.1 BSC USDT => Acala WUSDT 0xb54bA7F042DCAFba0A546e69F69E81b4F59B9C92
@@ -79,8 +93,8 @@ const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV = {
     // 0.02 BSC ETH => karura WETH ?
     '0xd66c6b4f0be8ce5b39d52e0fd1344c389929b378': '2000000',
 
-    // 0.05 Goerli USDC => karura WUSDC 0xE5BA1e8E6BBbdC8BbC72A58d68E74B13FcD6e4c7
-    '0x07865c6e87b9f70255377e024ace6630c1eaa37f': '50000',
+    // 0.01 Goerli USDC => karura WUSDC 0xE5BA1e8E6BBbdC8BbC72A58d68E74B13FcD6e4c7
+    '0x07865c6e87b9f70255377e024ace6630c1eaa37f': '10000',
   },
 };
 
@@ -193,6 +207,17 @@ export const DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID = {
   [PARA_ID.HYDRA]: CHAIN_ID_ACALA,
   [PARA_ID.MANTA]: CHAIN_ID_ACALA,
   [PARA_ID.CRUST]: CHAIN_ID_ACALA,
+} as const;
+
+export const ROUTER_TOKEN_INFO_TESTNET = {
+  usdc: {
+    originChain: 'ETH',
+    originAddr: GOERLI_USDC,
+    karuraAddr: '0xE5BA1e8E6BBbdC8BbC72A58d68E74B13FcD6e4c7',
+    acalaAddr: null,
+    decimals: 6,
+    fee: 0.04,
+  },
 } as const;
 
 export const TESTNET_MODE_WARNING = `

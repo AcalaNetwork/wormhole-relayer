@@ -71,7 +71,7 @@ export const shouldRelay = ({
 };
 
 // for /relayAndRoute endpoint
-const VAA_MIN_DECIMALS = 8;
+const VAA_MAX_DECIMALS = 8;
 export const checkShouldRelayBeforeRouting = async (
   params: RelayAndRouteParams,
   chainConfig: ChainConfig,
@@ -83,7 +83,7 @@ export const checkShouldRelayBeforeRouting = async (
   const vaaInfo = await parseVaaPayload(hexToUint8Array(params.signedVAA));
   const {
     originAddress,
-    amount,     // min(originAssetDecimal, 8)
+    amount: vaaAmount,     // min(originDecimal, VAA_MAX_DECIMALS)
     originChain,
   } = vaaInfo;
 
@@ -94,17 +94,17 @@ export const checkShouldRelayBeforeRouting = async (
 
   const fee = await feeRegistry.getFee(wrappedAddr);
   if (fee.eq(0)) {
-    throw new RelayError('unsupported token', { ...vaaInfo, amount: BigNumber.from(amount) });
+    throw new RelayError('unsupported token', { ...vaaInfo, amount: BigNumber.from(vaaAmount) });
   }
 
   const erc20 = ERC20__factory.connect(wrappedAddr, signer);
-  const decimals = await erc20.decimals();
-  const realAmount = decimals <= VAA_MIN_DECIMALS
-    ? amount
-    : BigNumber.from(amount).pow(decimals - VAA_MIN_DECIMALS);
+  const originDecimals = await erc20.decimals();
+  const realAmount = originDecimals <= VAA_MAX_DECIMALS
+    ? vaaAmount
+    : BigNumber.from(10).pow(originDecimals - VAA_MAX_DECIMALS).mul(vaaAmount);
 
   if (fee.gt(realAmount)) {
-    throw new RelayError('token amount too small to relay', { ...vaaInfo, amount: BigNumber.from(amount) });
+    throw new RelayError('token amount too small to relay', { ...vaaInfo, amount: BigNumber.from(vaaAmount) });
   }
 };
 

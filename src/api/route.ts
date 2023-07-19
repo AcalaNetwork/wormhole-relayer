@@ -9,10 +9,13 @@ import {
   ROUTE_SUPPORTED_CHAINS_AND_ASSETS,
   ZERO_ADDR,
 } from '../consts';
-import { checkShouldRelayBeforeRouting, relayEVM } from '../utils/relay';
-import { getRouterChainTokenAddr } from '../utils/wormhole';
-import { getSigner } from '../utils/utils';
-import { logger } from '../utils/logger';
+import {
+  checkShouldRelayBeforeRouting,
+  getRouterChainTokenAddr,
+  getSigner,
+  logger,
+  relayEVM,
+} from '../utils';
 
 interface RouteParamsBase {
   originAddr: string;     // origin token address
