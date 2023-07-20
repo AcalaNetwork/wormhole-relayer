@@ -12,12 +12,12 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "nodemon --watch \"*\" --ext \"js,ts,json\" --ignore \"src/**/*.{spec,test}.ts\" --exec \"ts-node src/index.ts\" | pino-pretty --singleLine --colorize --ignore time,hostname",
-    "test": "vitest src/__tests__/*.test.ts",
+    "test": "vitest src/__tests__/*.test.ts --singleThread",
     "test:relay": "vitest src/__tests__/relay.test.ts",
     "test:shouldRelay": "vitest src/__tests__/shouldRelay.test.ts",
     "test:shouldRoute": "vitest src/__tests__/shouldRoute.test.ts",
     "test:route": "vitest src/__tests__/route.test.ts",
-    "test:coverage": "COVERAGE=1 vitest src/__tests__/shouldRelay.test.ts src/__tests__/shouldRoute.test.ts --coverage",
+    "test:coverage": "COVERAGE=1 yarn test --coverage",
     "relay": "ts-node src/scripts/manual-relay.ts"
   },
   "dependencies": {
@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "@typechain/ethers-v5": "^7.0.1",
+    "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/long": "^4.0.1",
     "@types/node": "^16.6.1",

@@ -1,84 +1,54 @@
 import { AcalaJsonRpcProvider, sleep } from '@acala-network/eth-providers';
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { CHAIN_ID_BSC, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array, parseSequenceFromLogEth, redeemOnEth } from '@certusone/wormhole-sdk';
+import { CHAIN_ID_AVAX, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array, parseSequenceFromLogEth, redeemOnEth } from '@certusone/wormhole-sdk';
 import { ContractReceipt, Wallet } from 'ethers';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { parseUnits } from 'ethers/lib/utils';
-import axios, { AxiosError } from 'axios';
 
 import {
   BASILISK_TESTNET_NODE_URL,
   KARURA_USDC_ADDRESS,
-  TEST_RELAYER_ADDR,
-  TEST_USER_ADDR,
+  TEST_ADDR_RELAYER,
+  TEST_ADDR_USER,
+  TEST_KEY,
 } from './testConsts';
-import { BSC_TOKEN, ETH_RPC, GOERLI_USDC, PARA_ID, RELAYER_URL } from '../consts';
-import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from '../api/route';
-import { getSignedVAAFromSequence } from '../utils/wormhole';
-import { transferFromBSCToKaruraTestnet } from './testUtils';
+import { ETH_RPC, FUJI_TOKEN, GOERLI_USDC, PARA_ID } from '../consts';
+import {
+  encodeXcmDest,
+  expectError,
+  getBasiliskUsdcBalance,
+  mockXcmToRouter,
+  relayAndRoute,
+  routeWormhole,
+  routeXcm,
+  shouldRouteWormhole,
+  shouldRouteXcm,
+  transferFromFujiToKaruraTestnet,
+} from './testUtils';
+import { getSignedVAAFromSequence } from '../utils';
 
-// const KARURA_ETH_RPC = 'https://eth-rpc-karura-testnet.aca-staging.network';
-const KARURA_ETH_RPC = 'http://localhost:8545';
-// 0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3
-const RELAYER_TEST_KEY = 'efb03e3f4fd8b3d7f9b14de6c6fb95044e2321d6bcb9dfe287ba987920254044';
+const destAddr = 'bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak';
+const dest = encodeXcmDest({
+  V3: {
+    parents: 1,
+    interior: {
+      X2: [
+        { parachain: 2090 },
+        { accountId32: destAddr },
+      ],
+    },
+  },
+});
 
-const encodeXcmDest = (_data: any) => {
-  // TODO: use api to encode
-  return '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
-};
-
-const getBasiliskUsdcBalance = async (api: ApiPromise, addr: string) => {
-  const balance = await api.query.tokens.accounts(addr, 3);
-  return (balance as any).free.toBigInt();
-};
-
-const mockXcmToRouter = async (routerAddr: string, signer: Wallet) => {
-  const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, signer);
-
-  expect((await usdc.balanceOf(routerAddr)).toNumber()).to.eq(0);
-
-  const ROUTE_AMOUNT = 0.01;
-  const routeAmount = parseUnits(String(ROUTE_AMOUNT), 6);
-  if ((await usdc.balanceOf(signer.address)).lt(routeAmount)) {
-    throw new Error(`signer ${signer.address} has no enough usdc`);
-  }
-  await (await usdc.transfer(routerAddr, routeAmount)).wait();
-
-  expect((await usdc.balanceOf(routerAddr)).toBigInt()).to.eq(routeAmount.toBigInt());
-};
+const providerKarura = new AcalaJsonRpcProvider(ETH_RPC.KARURA_TESTNET);
+const relayerSigner = new Wallet(TEST_KEY.RELAYER, providerKarura);
 
 describe('/routeXcm', () => {
-  const shouldRouteXcm = (params: any) => axios.get(RELAYER_URL.SHOULD_ROUTE_XCM, { params });
-  const routeXcm = (params: RouteParamsXcm) => axios.post(RELAYER_URL.ROUTE_XCM, params);
+  const api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
 
-  const destAddr = 'bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak';
-  const dest = encodeXcmDest({
-    V3: {
-      parents: 1,
-      interior: {
-        X2: [
-          { parachain: 2090 },
-          { accountId32: destAddr },
-        ],
-      },
-    },
-  });
-
-  let provider: AcalaJsonRpcProvider;
-  let api: ApiPromise;
-
-  beforeAll(async () => {
-    provider = new AcalaJsonRpcProvider(KARURA_ETH_RPC);
-    api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
-
-    await api.isReady;
-  });
-
-  afterAll(async () => {
-    await api.disconnect();
-  });
+  beforeAll(async () => { await api.isReady; });
+  afterAll(async () => { await api.disconnect(); });
 
   it('when should route', async () => {
     const routeArgs = {
@@ -88,10 +58,9 @@ describe('/routeXcm', () => {
     };
 
     const res = await shouldRouteXcm(routeArgs);
-    const { routerAddr } = res.data.data;
+    const { routerAddr } = res.data;
 
     console.log('xcming to router ...');
-    const relayerSigner = new Wallet(RELAYER_TEST_KEY, provider);
     await mockXcmToRouter(routerAddr, relayerSigner);
 
     const curBalUser = await getBasiliskUsdcBalance(api, destAddr);
@@ -99,7 +68,7 @@ describe('/routeXcm', () => {
 
     console.log('routing ...');
     const routeRes = await routeXcm(routeArgs);
-    console.log(`route finished! txHash: ${routeRes.data.data}`);
+    console.log(`route finished! txHash: ${routeRes.data}`);
 
     console.log('waiting for token to arrive at basilisk ...');
     await sleep(25000);
@@ -107,41 +76,18 @@ describe('/routeXcm', () => {
     const afterBalUser = await getBasiliskUsdcBalance(api, destAddr);
     console.log({ afterBalUser });
 
-    expect(afterBalUser - curBalUser).to.eq(9800n);  // 10000 - 200
+    expect(afterBalUser - curBalUser).to.eq(800n);  // 1000 - 200
   });
 
   // describe.skip('when should not route', () => {})
 });
 
 describe('/relayAndRoute', () => {
-  const shouldRouteXcm = (params: any) => axios.get(RELAYER_URL.SHOULD_ROUTE_XCM, { params });
-  const relayAndRoute = (params: RelayAndRouteParams) => axios.post(RELAYER_URL.RELAY_AND_ROUTE, params);
-
-  const destAddr = 'bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak';
-  const dest = encodeXcmDest({
-    V3: {
-      parents: 1,
-      interior: {
-        X2: [
-          { parachain: 2090 },
-          { accountId32: destAddr },
-        ],
-      },
-    },
-  });
-
-  const provider = new AcalaJsonRpcProvider(KARURA_ETH_RPC);
   const api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
-  const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, provider);
+  const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, providerKarura);
 
-  beforeAll(async () => {
-    await api.isReady;
-  });
-
-  afterAll(async () => {
-    console.log('disconnecting ...');
-    await api.disconnect();
-  });
+  beforeAll(async () => { await api.isReady; });
+  afterAll(async () => { await api.disconnect(); });
 
   it('when should route', async () => {
     const routeArgs = {
@@ -151,13 +97,13 @@ describe('/relayAndRoute', () => {
     };
 
     const curBalUser = await getBasiliskUsdcBalance(api, destAddr);
-    const curBalRelayer = (await usdc.balanceOf(TEST_RELAYER_ADDR)).toBigInt();
+    const curBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
     console.log({ curBalUser, curBalRelayer });
 
-    const { routerAddr } = (await shouldRouteXcm(routeArgs)).data.data;
+    const { routerAddr } = (await shouldRouteXcm(routeArgs)).data;
     console.log({ routerAddr });
 
-    const signedVAA = await transferFromBSCToKaruraTestnet('0.01', BSC_TOKEN.USDC, routerAddr);
+    const signedVAA = await transferFromFujiToKaruraTestnet('0.001', FUJI_TOKEN.USDC, routerAddr);
     console.log({ signedVAA });
 
     const relayAndRouteArgs = {
@@ -169,26 +115,26 @@ describe('/relayAndRoute', () => {
       '0x0000000000000000000000000000000000000000',
       routerAddr,
     );
-    usdc.once(wormholeWithdrawFilter, (from, to, value, event) => {
+    usdc.once(wormholeWithdrawFilter, (_from, _to, _value, event) => {
       console.log(`relay finished! txHash: ${event.transactionHash}`);
     });
 
     const res = await relayAndRoute(relayAndRouteArgs);
-    console.log(`route finished! txHash: ${res.data.data}`);
+    console.log(`route finished! txHash: ${res.data}`);
 
     console.log('waiting for token to arrive at basilisk ...');
     await sleep(25000);
 
     const afterBalUser = await getBasiliskUsdcBalance(api, destAddr);
-    const afterBalRelayer = (await usdc.balanceOf(TEST_RELAYER_ADDR)).toBigInt();
+    const afterBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
     console.log({ afterBalUser, afterBalRelayer });
 
     expect(afterBalRelayer - curBalRelayer).to.eq(200n);
-    expect(afterBalUser - curBalUser).to.eq(9800n);  // 10000 - 200
+    expect(afterBalUser - curBalUser).to.eq(800n);  // 1000 - 200
     expect((await usdc.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
 
     // router should be destroyed
-    const routerCode = await provider.getCode(routerAddr);
+    const routerCode = await providerKarura.getCode(routerAddr);
     expect(routerCode).to.eq('0x');
   });
 
@@ -209,10 +155,7 @@ describe('/relayAndRoute', () => {
 
       expect.fail('relayAndRoute did not throw when it should!');
     } catch (err) {
-      expect((err as AxiosError).response?.data).to.deep.contain({
-        error: 'token amount too small to relay',
-        msg: 'cannot relay this request!',
-      });
+      expectError(err, 'token amount too small to relay', 500);
     }
 
     try {
@@ -225,44 +168,36 @@ describe('/relayAndRoute', () => {
 
       expect.fail('relayAndRoute did not throw when it should!');
     } catch (err) {
-      expect((err as AxiosError).response?.data).to.deep.contain({
-        error: 'unsupported token',
-        msg: 'cannot relay this request!',
-      });
+      expectError(err, 'unsupported token', 500);
     }
   });
 });
 
 describe('/routeWormhole', () => {
-  const shouldRouteWormhole = (params: any) => axios.get(RELAYER_URL.SHOULD_ROUTE_WORMHOLE, { params });
-  const routeWormhole = (params: RouteParamsWormhole) => axios.post(RELAYER_URL.ROUTE_WORMHOLE, params);
-
-  const providerKarura = new AcalaJsonRpcProvider(KARURA_ETH_RPC);
   const usdcK = ERC20__factory.connect(KARURA_USDC_ADDRESS, providerKarura);
-  const usdcB = ERC20__factory.connect(BSC_TOKEN.USDC, new JsonRpcProvider(ETH_RPC.BSC));
+  const usdcF = ERC20__factory.connect(FUJI_TOKEN.USDC, new JsonRpcProvider(ETH_RPC.FUJI));
 
   it('when should route', async () => {
     const routeArgs = {
-      targetChainId: String(CHAIN_ID_BSC),
-      destAddr: TEST_USER_ADDR,
+      targetChainId: String(CHAIN_ID_AVAX),
+      destAddr: TEST_ADDR_USER,
       fromParaId: PARA_ID.BASILISK,
       originAddr: GOERLI_USDC,
     };
 
     const res = await shouldRouteWormhole(routeArgs);
-    const { routerAddr } = res.data.data;
+    const { routerAddr } = res.data;
 
     console.log('xcming to router ...');
-    const relayerSigner = new Wallet(RELAYER_TEST_KEY, providerKarura);
     await mockXcmToRouter(routerAddr, relayerSigner);
 
-    const curBalUser = (await usdcB.balanceOf(TEST_USER_ADDR)).toBigInt();
-    const curBalRelayer = (await usdcK.balanceOf(TEST_RELAYER_ADDR)).toBigInt();
+    const curBalUser = (await usdcF.balanceOf(TEST_ADDR_USER)).toBigInt();
+    const curBalRelayer = (await usdcK.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
     console.log({ curBalUser, curBalRelayer });
 
     console.log('routing ...');
     const routeRes = await routeWormhole(routeArgs);
-    const txHash = routeRes.data.data;
+    const txHash = routeRes.data;
     console.log(`route finished! txHash: ${txHash}`);
 
     // router should be destroyed
@@ -282,21 +217,21 @@ describe('/routeWormhole', () => {
     );
     console.log({ signedVAA });
 
-    const providerBSC = new JsonRpcProvider(ETH_RPC.BSC);
-    const relayerSignerBSC = new Wallet(RELAYER_TEST_KEY, providerBSC);
+    const providerFuji = new JsonRpcProvider(ETH_RPC.FUJI);
+    const relayerSignerFuji = new Wallet(TEST_KEY.USER, providerFuji);
     const receipt = await redeemOnEth(
-      CONTRACTS.TESTNET.bsc.token_bridge,
-      relayerSignerBSC,
+      CONTRACTS.TESTNET.avalanche.token_bridge,
+      relayerSignerFuji,
       hexToUint8Array(signedVAA),
     );
     console.log(`redeem finished! txHash: ${receipt.transactionHash}`);
 
-    const afterBalUser = (await usdcB.balanceOf(TEST_USER_ADDR)).toBigInt();
-    const afterBalRelayer = (await usdcK.balanceOf(TEST_RELAYER_ADDR)).toBigInt();
+    const afterBalUser = (await usdcF.balanceOf(TEST_ADDR_USER)).toBigInt();
+    const afterBalRelayer = (await usdcK.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
     console.log({ afterBalUser, afterBalRelayer });
 
     expect(afterBalRelayer - curBalRelayer).to.eq(200n);
-    expect(afterBalUser - curBalUser).to.eq(9800n);  // 10000 - 200
+    expect(afterBalUser - curBalUser).to.eq(800n);  // 1000 - 200
   });
 
   // describe.skip('when should not route', () => {})

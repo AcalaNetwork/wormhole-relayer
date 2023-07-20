@@ -2,7 +2,12 @@ import { NextFunction, Request, Response } from 'express';
 import { Schema } from 'yup';
 
 import { NoRouteError } from './error';
-import { logger } from '../utils/logger';
+import {
+  logger,
+  relayAndRouteSchema,
+  routeWormholeSchema,
+  routeXcmSchema,
+} from '../utils';
 import {
   relayAndRoute,
   routeWormhole,
@@ -10,11 +15,6 @@ import {
   shouldRouteWormhole,
   shouldRouteXcm,
 } from '../api/route';
-import {
-  relayAndRouteSchema,
-  routeWormholeSchema,
-  routeXcmSchema,
-} from '../utils/validate';
 
 interface RouterConfig {
   schema: Schema;
@@ -53,15 +53,6 @@ const ROUTER_CONFIGS: {
   },
 };
 
-const router = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    await handleRoute(req, res);
-  } catch (err) {
-    logger.error(err);
-    next(err);
-  }
-};
-
 const handleRoute = async (req: Request, res: Response) => {
   const { method, path } = req;
   const reqPath = `${method} ${path}`;
@@ -83,4 +74,11 @@ const handleRoute = async (req: Request, res: Response) => {
   res.end(JSON.stringify({ data }));
 };
 
-export default router;
+export const router = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await handleRoute(req, res);
+  } catch (err) {
+    logger.error(err);
+    next(err);
+  }
+};

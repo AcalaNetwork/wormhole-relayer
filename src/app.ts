@@ -2,10 +2,13 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 
-import { checkShouldRelay, getVersion, relay } from './api/relay';
-import { errorHandler } from './middlewares/error';
-import { testTimeout } from './utils/utils';
-import router from './middlewares/router';
+import {
+  checkShouldRelay,
+  getVersion,
+  relay,
+  testTimeout,
+} from './api';
+import { errorHandler, router } from './middlewares';
 
 export const createApp = () => {
   const app = express();
@@ -14,8 +17,8 @@ export const createApp = () => {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
-  app.post('/relay', relay);
   app.post('/testTimeout', testTimeout);
+  app.post('/relay', relay);
   app.get('/shouldRelay', checkShouldRelay);
   app.get('/version', getVersion);
 

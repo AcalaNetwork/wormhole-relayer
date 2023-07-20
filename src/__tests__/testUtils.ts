@@ -1,24 +1,32 @@
+import { ApiPromise } from '@polkadot/api';
 import { CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
+import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Wallet } from 'ethers';
+import { expect } from 'vitest';
+import { parseEther, parseUnits } from 'ethers/lib/utils';
 import axios from 'axios';
 import request from 'supertest';
 
 import { ETH_RPC, RELAYER_API, RELAYER_URL } from '../consts';
-import { TEST_USER_PRIVATE_KEY } from './testConsts';
+import { KARURA_USDC_ADDRESS, TEST_KEY } from './testConsts';
 import { createApp } from '../app';
-import { expect } from 'vitest';
-import { transferFromBSC } from '../utils/utils';
+import { transferFromAvax } from '../utils';
 
-export const transferFromBSCToKaruraTestnet = async (
+export const transferFromFujiToKaruraTestnet = async (
   amount: string,
   sourceAsset: string,
   recipientAddr: string,
 ) => {
-  const provider = new JsonRpcProvider(ETH_RPC.BSC);
-  const wallet = new Wallet(TEST_USER_PRIVATE_KEY, provider);
+  const provider = new JsonRpcProvider(ETH_RPC.FUJI);
+  const wallet = new Wallet(TEST_KEY.USER, provider);
 
-  return await transferFromBSC(
+  const bal = await wallet.getBalance();
+  if (bal.lt(parseEther('0.03'))) {
+    throw new Error('insufficient balance on fuji!');
+  }
+
+  return await transferFromAvax(
     amount,
     sourceAsset,
     recipientAddr,
@@ -28,47 +36,30 @@ export const transferFromBSCToKaruraTestnet = async (
   );
 };
 
-const app = createApp();
-export const appReq = request(app);
+export const encodeXcmDest = (_data: any) => {
+  // TODO: use api to encode
+  return '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
+};
 
-export const shouldRouteXcm = process.env.COVERAGE
-  ? async (params: any) => {
-    const res = await appReq.get(RELAYER_API.SHOULD_ROUTE_XCM).query(params);
-    if (res.error) {
-      throw res.error;
-    };
-    return JSON.parse(res.text);
-  }
-  : async (params: any) => {
-    const res = await axios.get(RELAYER_URL.SHOULD_ROUTE_XCM, { params });
-    return res.data;
-  };
+export const getBasiliskUsdcBalance = async (api: ApiPromise, addr: string) => {
+  const balance = await api.query.tokens.accounts(addr, 3);
+  return (balance as any).free.toBigInt();
+};
 
-export const shouldRouteWormhole = process.env.COVERAGE
-  ? async (params: any) => {
-    const res = await appReq.get(RELAYER_API.SHOULD_ROUTE_WORMHOLE).query(params);
-    if (res.error) {
-      throw res.error;
-    };
-    return JSON.parse(res.text);
-  }
-  : async (params: any) => {
-    const res = await axios.get(RELAYER_URL.SHOULD_ROUTE_WORMHOLE, { params });
-    return res.data;
-  };
+export const mockXcmToRouter = async (routerAddr: string, signer: Wallet) => {
+  const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, signer);
 
-export const shouldRelay = process.env.COVERAGE
-  ? async (params: any) => {
-    const res = await appReq.get(RELAYER_API.SHOULD_RELAY).query(params);
-    if (res.error) {
-      throw res.error;
-    };
-    return JSON.parse(res.text);
+  expect((await usdc.balanceOf(routerAddr)).toNumber()).to.eq(0);
+
+  const ROUTE_AMOUNT = 0.001;
+  const routeAmount = parseUnits(String(ROUTE_AMOUNT), 6);
+  if ((await usdc.balanceOf(signer.address)).lt(routeAmount)) {
+    throw new Error(`signer ${signer.address} has no enough usdc`);
   }
-  : async (params: any) => {
-    const res = await axios.get(RELAYER_URL.SHOULD_RELAY, { params });
-    return res.data;
-  };
+  await (await usdc.transfer(routerAddr, routeAmount)).wait();
+
+  expect((await usdc.balanceOf(routerAddr)).toBigInt()).to.eq(routeAmount.toBigInt());
+};
 
 export const expectError = (err: any, msg: any, code: number) => {
   if (axios.isAxiosError(err)) {
@@ -79,3 +70,93 @@ export const expectError = (err: any, msg: any, code: number) => {
     expect(JSON.parse(err.text).error).to.deep.equal(msg);
   }
 };
+
+export const expectErrorContain = (err: any, msgObj: any, code: number) => {
+  if (axios.isAxiosError(err)) {
+    expect(err.response?.status).to.equal(code);
+    expect(err.response?.data.error).to.deep.contain(msgObj);
+  } else {    // HttpError from supertest
+    expect(err.status).to.equal(code);
+    expect(JSON.parse(err.text).error).to.deep.contain(msgObj);
+  }
+};
+
+/* ------------------------------------------------------------------ */
+/* ----------------------    test endpoints    ---------------------- */
+/* ------------------------------------------------------------------ */
+const app = createApp();
+const appReq = request(app);
+
+const _supertestGet = (endpoint: string) => async (params: any) => {
+  const res = await appReq.get(endpoint).query(params);
+  if (res.error) {
+    throw res.error;
+  };
+  try {
+    return JSON.parse(res.text);
+  } catch {
+    return res.text;
+  }
+};
+
+const _supertestPost = (endpoint: string) => async (params: any) => {
+  const res = await appReq.post(endpoint).send(params);
+  if (res.error) {
+    throw res.error;
+  };
+  try {
+    return JSON.parse(res.text);
+  } catch {
+    return res.text;
+  }
+};
+
+const _axiosGet = (url: string) => async (params: any) => {
+  const res = await axios.get(url, { params });
+  return res.data;
+};
+
+const _axiosPost = (url: string) => async (params: any) => {
+  const res = await axios.post(url, { ...params });
+  return res.data;
+};
+
+export const shouldRouteXcm = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.SHOULD_ROUTE_XCM)
+  : _axiosGet(RELAYER_URL.SHOULD_ROUTE_XCM);
+
+export const shouldRouteWormhole = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.SHOULD_ROUTE_WORMHOLE)
+  : _axiosGet(RELAYER_URL.SHOULD_ROUTE_WORMHOLE);
+
+export const shouldRelay = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.SHOULD_RELAY)
+  : _axiosGet(RELAYER_URL.SHOULD_RELAY);
+
+export const relay = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.RELAY)
+  : _axiosPost(RELAYER_URL.RELAY);
+
+export const routeXcm = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.ROUTE_XCM)
+  : _axiosPost(RELAYER_URL.ROUTE_XCM);
+
+export const relayAndRoute = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.RELAY_AND_ROUTE)
+  : _axiosPost(RELAYER_URL.RELAY_AND_ROUTE);
+
+export const routeWormhole = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.ROUTE_WORMHOLE)
+  : _axiosPost(RELAYER_URL.ROUTE_WORMHOLE);
+
+export const noRoute = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.NO_ROUTE)
+  : _axiosPost(RELAYER_URL.NO_ROUTE);
+
+export const version = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.VERSION)
+  : _axiosGet(RELAYER_URL.VERSION);
+
+export const testTimeout = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.TEST_TIMEOUT)
+  : _axiosPost(RELAYER_URL.TEST_TIMEOUT);
