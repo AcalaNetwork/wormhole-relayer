@@ -2,6 +2,8 @@ name: Run Tests and Show Coverage Report
 
 on:
   push:
+    paths-ignore:
+      - '**/README.md'
 
 jobs:
   test:
