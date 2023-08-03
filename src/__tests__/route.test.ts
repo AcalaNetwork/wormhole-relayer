@@ -222,7 +222,7 @@ describe('/relayAndRouteBatch', () => {
     expect(routerCode).to.eq('0x');
   });
 
-  it.only('when should not route', async () => {
+  it('when should not route', async () => {
     const routeArgs = {
       dest,
       destParaId: PARA_ID.BASILISK,
