@@ -143,7 +143,7 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
   const factory = Factory__factory.connect(chainConfig.factoryAddr, signer);
   const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfig);
 
-  const tx = await factory.connect(signer).deployXcmRouterAndRoute(
+  const tx = await factory.deployXcmRouterAndRoute(
     chainConfig.feeAddr,
     xcmInstruction,
     routerChainTokenAddr,
@@ -154,7 +154,7 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
   return receipt.transactionHash;
 };
 
-export const _getRelayTx = async (params: RelayAndRouteParams) => {
+export const _populateRelayTx = async (params: RelayAndRouteParams) => {
   const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId] as ChainId;
   const { chainConfig, signer } = await _prepareRoute(routerChainId);
   await checkShouldRelayBeforeRouting(params, chainConfig, signer);
@@ -163,7 +163,7 @@ export const _getRelayTx = async (params: RelayAndRouteParams) => {
   return await bridge.populateTransaction.completeTransfer(hexToUint8Array(params.signedVAA));
 };
 
-export const _getRouteTx = async (routeParamsXcm: RelayAndRouteParams) => {
+export const _populateRouteTx = async (routeParamsXcm: RelayAndRouteParams) => {
   const { chainConfig, signer } = await prepareRouteXcm(routeParamsXcm);
 
   const xcmInstruction: XcmInstructionsStruct = {
@@ -173,7 +173,7 @@ export const _getRouteTx = async (routeParamsXcm: RelayAndRouteParams) => {
   const factory = Factory__factory.connect(chainConfig.factoryAddr, signer);
   const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfig);
 
-  return await factory.connect(signer).populateTransaction.deployXcmRouterAndRoute(
+  return await factory.populateTransaction.deployXcmRouterAndRoute(
     chainConfig.feeAddr,
     xcmInstruction,
     routerChainTokenAddr,
@@ -182,31 +182,28 @@ export const _getRouteTx = async (routeParamsXcm: RelayAndRouteParams) => {
 
 export const relayAndRouteBatch = async (params: RelayAndRouteParams): Promise<string> => {
   const [relayTx, routeTx] = await Promise.all([
-    _getRelayTx(params),
-    _getRouteTx(params),
+    _populateRelayTx(params),
+    _populateRouteTx(params),
   ]);
-
-  logger.debug({ relayTx, routeTx });
 
   const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId] as ChainId;
   const { chainConfig } = await _prepareRoute(routerChainId);
 
-  const { addr, api } = await getApi(chainConfig);
-  const signer = await getSigner(chainConfig);
-  const provider = signer.provider! as JsonRpcProvider;
+  const [
+    { addr, api },
+    signer,
+  ] = await Promise.all([
+    getApi(chainConfig),
+    getSigner(chainConfig),
+  ]);
 
   const relayExtrinsic = getEthExtrinsic(api, relayTx);
   const routeExtrinsic = getEthExtrinsic(api, routeTx);
 
-  // await Promise.all([
-  //   relayExtrinsic.signAsync(addr),
-  //   routeExtrinsic.signAsync(addr),
-  // ]);
-
   const batchTx = api.tx.utility.batchAll([relayExtrinsic, routeExtrinsic]);
   await batchTx.signAsync(addr);
 
-  const txHash = await sendExtrinsic(batchTx, provider);
+  const txHash = await sendExtrinsic(batchTx, signer.provider! as JsonRpcProvider);
 
   return txHash;
 };

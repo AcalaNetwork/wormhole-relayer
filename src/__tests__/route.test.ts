@@ -204,7 +204,7 @@ describe('/relayAndRouteBatch', () => {
     };
 
     const res = await relayAndRouteBatch(relayAndRouteArgs);
-    console.log(`route finished! txHash: ${res.data}`);
+    console.log(`batch relay and route finished! txHash: ${res.data}`);
 
     console.log('waiting for token to arrive at basilisk ...');
     await sleep(25000);
