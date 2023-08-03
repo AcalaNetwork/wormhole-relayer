@@ -20,6 +20,7 @@ import {
   getBasiliskUsdcBalance,
   mockXcmToRouter,
   relayAndRoute,
+  relayAndRouteBatch,
   routeWormhole,
   routeXcm,
   shouldRouteWormhole,
@@ -167,6 +168,89 @@ describe('/relayAndRoute', () => {
       });
 
       expect.fail('relayAndRoute did not throw when it should!');
+    } catch (err) {
+      expectError(err, 'unsupported token', 500);
+    }
+  });
+});
+
+describe('/relayAndRouteBatch', () => {
+  const api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
+  const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, providerKarura);
+
+  beforeAll(async () => { await api.isReady; });
+  afterAll(async () => { await api.disconnect(); });
+
+  it('when should route', async () => {
+    const routeArgs = {
+      dest,
+      destParaId: PARA_ID.BASILISK,
+      originAddr: GOERLI_USDC,
+    };
+
+    const curBalUser = await getBasiliskUsdcBalance(api, destAddr);
+    const curBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
+    console.log({ curBalUser, curBalRelayer });
+
+    const { routerAddr } = (await shouldRouteXcm(routeArgs)).data;
+    console.log({ routerAddr });
+
+    const signedVAA = await transferFromFujiToKaruraTestnet('0.001', FUJI_TOKEN.USDC, routerAddr);
+    console.log({ signedVAA });
+
+    const relayAndRouteArgs = {
+      ...routeArgs,
+      signedVAA,
+    };
+
+    const res = await relayAndRouteBatch(relayAndRouteArgs);
+    console.log(`route finished! txHash: ${res.data}`);
+
+    console.log('waiting for token to arrive at basilisk ...');
+    await sleep(25000);
+
+    const afterBalUser = await getBasiliskUsdcBalance(api, destAddr);
+    const afterBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
+    console.log({ afterBalUser, afterBalRelayer });
+
+    expect(afterBalRelayer - curBalRelayer).to.eq(200n);
+    expect(afterBalUser - curBalUser).to.eq(800n);  // 1000 - 200
+    expect((await usdc.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
+
+    // router should be destroyed
+    const routerCode = await providerKarura.getCode(routerAddr);
+    expect(routerCode).to.eq('0x');
+  });
+
+  it.only('when should not route', async () => {
+    const routeArgs = {
+      dest,
+      destParaId: PARA_ID.BASILISK,
+      originAddr: GOERLI_USDC,
+    };
+
+    try {
+      await relayAndRouteBatch({
+        ...routeArgs,
+
+        // bridge 0.000001 USDC
+        signedVAA: '010000000001004ba23fa55bcb370773bdba954523ea305f96f814f51ce259fb327b57d985eec86a0f69bf46c4bb444d09b1d70e3b2aaa434639ec3ae93f5d0671b3e38055cf3501648726ae4d36000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a0900000000000012580f01000000000000000000000000000000000000000000000000000000000000000100000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b0000000000000000000000000000000000000000000000000000000000000000',
+      });
+
+      expect.fail('relayAndRouteBatch did not throw when it should!');
+    } catch (err) {
+      expectError(err, 'token amount too small to relay', 500);
+    }
+
+    try {
+      await relayAndRouteBatch({
+        ...routeArgs,
+
+        // bridge 10 TKN
+        signedVAA: '01000000000100689102e0be499c096acd1ac49a34216a32f8c19f1b053e0ff47e0a994ea302b50261b4c1feab4ae933fa8de83bd86efde12cc3b82da00b9b8ccc2d502e145ad2006487368e8f3a010000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09000000000000125c0f01000000000000000000000000000000000000000000000000000000003b9aca000000000000000000000000009c8bcccdb17545658c6b84591567c6ed9b4d55bb000b0000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b0000000000000000000000000000000000000000000000000000000000000000',
+      });
+
+      expect.fail('relayAndRouteBatch did not throw when it should!');
     } catch (err) {
       expectError(err, 'unsupported token', 500);
     }

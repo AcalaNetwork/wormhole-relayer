@@ -145,6 +145,10 @@ export const relayAndRoute = process.env.COVERAGE
   ? _supertestPost(RELAYER_API.RELAY_AND_ROUTE)
   : _axiosPost(RELAYER_URL.RELAY_AND_ROUTE);
 
+export const relayAndRouteBatch = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.RELAY_AND_ROUTE_BATCH)
+  : _axiosPost(RELAYER_URL.RELAY_AND_ROUTE_BATCH);
+
 export const routeWormhole = process.env.COVERAGE
   ? _supertestPost(RELAYER_API.ROUTE_WORMHOLE)
   : _axiosPost(RELAYER_URL.ROUTE_WORMHOLE);

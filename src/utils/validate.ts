@@ -1,5 +1,23 @@
 import { ObjectSchema, object, string } from 'yup';
-import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from '../api/route';
+
+interface RouteParamsBase {
+  originAddr: string;     // origin token address
+}
+
+export interface RouteParamsWormhole extends RouteParamsBase {
+  targetChainId: string;
+  destAddr: string;       // recepient address in hex
+  fromParaId: string;     // from parachain id in number
+}
+
+export interface RouteParamsXcm extends RouteParamsBase {
+  destParaId: string;  // TODO: maybe can decode from dest
+  dest: string;           // xcm encoded dest in hex
+}
+
+export interface RelayAndRouteParams extends RouteParamsXcm {
+  signedVAA: string;
+}
 
 export const routeXcmSchema: ObjectSchema<RouteParamsXcm> = object({
   originAddr: string().required(),
