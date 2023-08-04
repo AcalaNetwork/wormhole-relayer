@@ -15,7 +15,6 @@ export type ChainConfig = {
   ethRpc: string;
   nodeUrl: string;
   walletPrivateKey: string;
-  walletMnemonic: string;
   tokenBridgeAddr: string;
   feeAddr: string;
   factoryAddr: string;
@@ -36,7 +35,6 @@ function configKarura(): ChainConfig {
   const requiredEnvVars = [
     'KARURA_ETH_RPC',
     'KARURA_PRIVATE_KEY',
-    'KARURA_MNEMONIC',
     'KARURA_NODE_URL',
   ];
 
@@ -56,7 +54,6 @@ function configKarura(): ChainConfig {
     ethRpc: process.env.KARURA_ETH_RPC!,
     nodeUrl: process.env.KARURA_NODE_URL!,
     walletPrivateKey: process.env.KARURA_PRIVATE_KEY!,
-    walletMnemonic: process.env.KARURA_MNEMONIC!,
     isTestnet,
     ...addresses,
   };
@@ -66,7 +63,6 @@ function configAcala(): ChainConfig {
   const requiredEnvVars = [
     'ACALA_ETH_RPC',
     'ACALA_PRIVATE_KEY',
-    'ACALA_MNEMONIC',
     'ACALA_NODE_URL',
   ];
 
@@ -86,7 +82,6 @@ function configAcala(): ChainConfig {
     ethRpc: process.env.ACALA_ETH_RPC!,
     nodeUrl: process.env.ACALA_NODE_URL!,
     walletPrivateKey: process.env.ACALA_PRIVATE_KEY!,
-    walletMnemonic: process.env.ACALA_MNEMONIC!,
     isTestnet,
     ...addresses,
   };

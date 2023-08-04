@@ -1,7 +1,7 @@
 import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { BigNumber, Contract, PopulatedTransaction, Signer, Wallet, ethers } from 'ethers';
-import { CHAIN_ID_ACALA, CHAIN_ID_AVAX, CHAIN_ID_KARURA, CONTRACTS } from '@certusone/wormhole-sdk';
+import { CHAIN_ID_ACALA, CHAIN_ID_AVAX, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array } from '@certusone/wormhole-sdk';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { SubstrateSigner } from '@acala-network/bodhi';
@@ -23,7 +23,7 @@ export const getSigner = async (config: ChainConfig): Promise<Signer> => {
 // TODO: reuse api
 export const getApi = async (config: ChainConfig) => {
   const keyring = new Keyring({ type: 'sr25519' });
-  const keyPair = keyring.addFromUri(config.walletMnemonic);
+  const keyPair = keyring.addFromSeed(hexToUint8Array(config.walletPrivateKey));
   const addr = keyPair.address;
 
   const api = await ApiPromise.create(options({
