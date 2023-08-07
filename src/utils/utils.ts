@@ -132,8 +132,6 @@ export const sendExtrinsic = async (
 ) => {
   await dryRunExtrinsic(api, extrinsic);
 
-  return '0x';
-
   await extrinsic.send();
   const txHash = extrinsic.hash.toHex();
   console.log({ txHash });
@@ -160,9 +158,6 @@ export const getEthExtrinsic = async (
   } catch {
     // use default gas limit
   }
-
-  // const gasPrice = 100009999999n;
-  // const gasLimit = 109920n;
 
   return api.tx.evm.ethCallV2(
     { Call: tx.to },
