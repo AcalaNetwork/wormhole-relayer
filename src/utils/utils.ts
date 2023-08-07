@@ -6,10 +6,9 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { SubstrateSigner } from '@acala-network/bodhi';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { options } from '@acala-network/api';
 import { parseUnits } from 'ethers/lib/utils';
-// import { waitReady } from '@polkadot/wasm-crypto';
-import { cryptoWaitReady } from '@polkadot/util-crypto';
 
 import { RelayerError } from '../middlewares';
 import { bridgeToken, getSignedVAAFromSequence } from './wormhole';
@@ -103,7 +102,6 @@ export const dryRunExtrinsic = async (
   api: ApiPromise,
   extrinsic: SubmittableExtrinsic<'promise', ISubmittableResult>,
 ) => {
-  // const curBlockHash = (await api.rpc.chain.getBlockHash()).toHex();
   const res = await api.rpc.system.dryRun(extrinsic.toHex());
 
   if (res.isErr) {
@@ -138,7 +136,6 @@ export const sendExtrinsic = async (
 
   await extrinsic.send();
   const txHash = extrinsic.hash.toHex();
-  console.log({ txHash });
 
   const receipt = await provider.waitForTransaction(txHash, confirmations, timeout);
   if (receipt.status === 0) {
@@ -149,18 +146,19 @@ export const sendExtrinsic = async (
   return receipt.transactionHash;
 };
 
+const DEFAULT_GAS_LIMIT = 109920n;
 export const getEthExtrinsic = async (
   api: ApiPromise,
   provider: JsonRpcProvider,
   tx: PopulatedTransaction,
 ) => {
   const gasPrice = (await provider.getGasPrice()).toBigInt();
-  let gasLimit = 109920n;   // default gas limit
+  let gasLimit = DEFAULT_GAS_LIMIT;
 
   try {
     gasLimit = (await provider.estimateGas({ ...tx, gasPrice })).toBigInt();
   } catch {
-    // use default gas limit
+    // swallow and use default gas limit
   }
 
   return api.tx.evm.ethCallV2(
