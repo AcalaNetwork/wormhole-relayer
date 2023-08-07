@@ -2,6 +2,7 @@ import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { BigNumber, Contract, PopulatedTransaction, Signer, Wallet, ethers } from 'ethers';
 import { CHAIN_ID_ACALA, CHAIN_ID_AVAX, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array } from '@certusone/wormhole-sdk';
+import { DispatchError } from '@polkadot/types/interfaces';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { SubstrateSigner } from '@acala-network/bodhi';
@@ -86,13 +87,58 @@ export const getTxFailingReason = async (txHash: string, provider: JsonRpcProvid
   return '0x';
 };
 
-export const sendExtrinsic = async (
+export const getDispatchErrMsg = async (
+  api: ApiPromise,
+  err: DispatchError,
+) => {
+  if (err.isModule) {
+    const decoded = api.registry.findMetaError(err.asModule);
+    const { docs, method, section } = decoded;
+    return `${section}.${method}: ${docs.join(' ')}`;
+  }
+
+  return err.toString();;
+};
+
+export const dryRunExtrinsic = async (
+  api: ApiPromise,
   extrinsic: SubmittableExtrinsic<'promise', ISubmittableResult>,
+) => {
+  // const curBlockHash = (await api.rpc.chain.getBlockHash()).toHex();
+  const res = await api.rpc.system.dryRun(extrinsic.toHex());
+
+  if (res.isErr) {
+    const err = res.asErr;
+    const errMsg = err.toString();
+
+    throw new RelayerError('extrinsic dry run throws validity error', {
+      extrinsic: extrinsic.toHex(),
+      errMsg,
+    });
+  }
+
+  if (res.isOk && res.asOk.isErr) {
+    const err = res.asOk.asErr;
+    const errMsg = getDispatchErrMsg(api, err);
+
+    throw new RelayerError('extrinsic dry run throws dispatch error', {
+      extrinsic: extrinsic.toHex(),
+      errMsg,
+    });
+  }
+};
+
+export const sendExtrinsic = async (
+  api: ApiPromise,
   provider: JsonRpcProvider,
+  extrinsic: SubmittableExtrinsic<'promise', ISubmittableResult>,
   confirmations?: number,
   timeout?: number,
 ) => {
-  // TODO: dry run before sending
+  await dryRunExtrinsic(api, extrinsic);
+
+  return '0x';
+
   await extrinsic.send();
   const txHash = extrinsic.hash.toHex();
   console.log({ txHash });
@@ -106,13 +152,22 @@ export const sendExtrinsic = async (
   return receipt.transactionHash;
 };
 
-export const getEthExtrinsic = (
+export const getEthExtrinsic = async (
   api: ApiPromise,
+  provider: JsonRpcProvider,
   tx: PopulatedTransaction,
 ) => {
-  // TODO: estimate more precise gas params
-  const gasPrice = 100009999999n;
-  const gasLimit = 109920n;
+  const gasPrice = (await provider.getGasPrice()).toBigInt();
+  let gasLimit = 109920n;   // default gas limit
+
+  try {
+    gasLimit = (await provider.estimateGas({ ...tx, gasPrice })).toBigInt();
+  } catch {
+    // use default gas limit
+  }
+
+  // const gasPrice = 100009999999n;
+  // const gasLimit = 109920n;
 
   return api.tx.evm.ethCallV2(
     { Call: tx.to },
