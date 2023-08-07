@@ -10,6 +10,8 @@ import {
   RelayAndRouteParams,
   RouteParamsWormhole,
   RouteParamsXcm,
+  _populateRelayTx,
+  _populateRouteTx,
   checkShouldRelayBeforeRouting,
   getChainConfig,
   getEthExtrinsic,
@@ -41,35 +43,6 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
   const receipt = await tx.wait();
 
   return receipt.transactionHash;
-};
-
-export const _populateRelayTx = async (params: RelayAndRouteParams) => {
-  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId];
-  const chainConfig = await getChainConfig(routerChainId);
-  const { tokenBridgeAddr, wallet } = chainConfig;
-
-  await checkShouldRelayBeforeRouting(params, chainConfig);
-
-  const bridge = Bridge__factory.connect(tokenBridgeAddr, wallet);
-  return await bridge.populateTransaction.completeTransfer(hexToUint8Array(params.signedVAA));
-};
-
-export const _populateRouteTx = async (routeParamsXcm: RelayAndRouteParams) => {
-  const { chainConfig } = await prepareRouteXcm(routeParamsXcm);
-  const { factoryAddr, feeAddr, wallet } = chainConfig;
-
-  const xcmInstruction: XcmInstructionsStruct = {
-    dest: routeParamsXcm.dest,
-    weight: '0x00',
-  };
-  const factory = Factory__factory.connect(factoryAddr, wallet);
-  const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfig);
-
-  return await factory.populateTransaction.deployXcmRouterAndRoute(
-    feeAddr,
-    xcmInstruction,
-    routerChainTokenAddr,
-  );
 };
 
 export const relayAndRouteBatch = async (params: RelayAndRouteParams): Promise<string> => {
