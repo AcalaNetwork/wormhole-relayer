@@ -47,12 +47,13 @@ export const prepareRouteXcm = async ({
 
   const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[destParaId];
   const chainConfig = await getChainConfig(routerChainId);
+  const { feeAddr, factoryAddr, wallet } = chainConfig;
 
   const weight = '0x00';    // unlimited
   const xcmInstruction = { dest, weight };
 
-  const factory = Factory__factory.connect(chainConfig.factoryAddr, chainConfig.wallet);
-  const routerAddr = await factory.callStatic.deployXcmRouter(chainConfig.feeAddr, xcmInstruction);
+  const factory = Factory__factory.connect(factoryAddr, wallet);
+  const routerAddr = await factory.callStatic.deployXcmRouter(feeAddr, xcmInstruction);
 
   return {
     routerAddr,
@@ -73,13 +74,14 @@ export const prepareRouteWormhole = async ({
   }
 
   const chainConfig = await getChainConfig(routerChainId);
+  const { feeAddr, factoryAddr, tokenBridgeAddr, wallet } = chainConfig;
 
   const routerChainTokenAddr = await getRouterChainTokenAddr(originAddr, chainConfig);
   if (routerChainTokenAddr === ZERO_ADDR) {
     throw new Error(`origin token ${originAddr} not supported on router chain ${routerChainId}`);
   }
 
-  const recipient = Buffer.from(tryNativeToHexString(destAddr, chainConfig.chainId), 'hex');
+  const recipient = Buffer.from(tryNativeToHexString(destAddr, routerChainId), 'hex');
   const wormholeInstructions: WormholeInstructionsStruct = {
     recipientChain: targetChainId,
     recipient,
@@ -87,11 +89,11 @@ export const prepareRouteWormhole = async ({
     arbiterFee: 0,
   };
 
-  const factory = Factory__factory.connect(chainConfig.factoryAddr, chainConfig.wallet);
+  const factory = Factory__factory.connect(factoryAddr, wallet);
   const routerAddr = await factory.callStatic.deployWormholeRouter(
-    chainConfig.feeAddr,
+    feeAddr,
     wormholeInstructions,
-    chainConfig.tokenBridgeAddr,
+    tokenBridgeAddr,
   );
 
   return {
@@ -105,24 +107,27 @@ export const prepareRouteWormhole = async ({
 export const _populateRelayTx = async (params: RelayAndRouteParams) => {
   const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId];
   const chainConfig = await getChainConfig(routerChainId);
+  const { tokenBridgeAddr, wallet } = chainConfig;
+
   await checkShouldRelayBeforeRouting(params, chainConfig);
 
-  const bridge = Bridge__factory.connect(chainConfig.tokenBridgeAddr, chainConfig.wallet);
+  const bridge = Bridge__factory.connect(tokenBridgeAddr, wallet);
   return await bridge.populateTransaction.completeTransfer(hexToUint8Array(params.signedVAA));
 };
 
 export const _populateRouteTx = async (routeParamsXcm: RelayAndRouteParams) => {
   const { chainConfig } = await prepareRouteXcm(routeParamsXcm);
+  const { feeAddr, factoryAddr, wallet } = chainConfig;
 
   const xcmInstruction: XcmInstructionsStruct = {
     dest: routeParamsXcm.dest,
     weight: '0x00',
   };
-  const factory = Factory__factory.connect(chainConfig.factoryAddr, chainConfig.wallet);
+  const factory = Factory__factory.connect(factoryAddr, wallet);
   const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfig);
 
   return await factory.populateTransaction.deployXcmRouterAndRoute(
-    chainConfig.feeAddr,
+    feeAddr,
     xcmInstruction,
     routerChainTokenAddr,
   );

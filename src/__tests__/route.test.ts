@@ -291,7 +291,10 @@ describe('/routeWormhole', () => {
 
     /*  ---------- should be able to redeem from eth ----------  */
     const depositReceipt = await providerKarura.getTransactionReceipt(txHash);
-    const sequence = parseSequenceFromLogEth(depositReceipt as ContractReceipt, CONTRACTS.TESTNET.karura.core);
+    const sequence = parseSequenceFromLogEth(
+      depositReceipt as ContractReceipt,
+      CONTRACTS.TESTNET.karura.core,
+    );
     console.log('route to wormhole complete', { sequence }, 'waiting for VAA...');
 
     const signedVAA = await getSignedVAAFromSequence(

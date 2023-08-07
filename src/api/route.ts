@@ -23,16 +23,17 @@ import {
 
 export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> => {
   const { chainConfig } = await prepareRouteXcm(routeParamsXcm);
+  const { feeAddr, factoryAddr, wallet } = chainConfig;
 
   const xcmInstruction: XcmInstructionsStruct = {
     dest: routeParamsXcm.dest,
     weight: '0x00',
   };
-  const factory = Factory__factory.connect(chainConfig.factoryAddr, chainConfig.wallet);
+  const factory = Factory__factory.connect(factoryAddr, wallet);
   const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfig);
 
   const tx = await factory.deployXcmRouterAndRoute(
-    chainConfig.feeAddr,
+    feeAddr,
     xcmInstruction,
     routerChainTokenAddr,
   );
@@ -45,24 +46,27 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
 export const _populateRelayTx = async (params: RelayAndRouteParams) => {
   const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId];
   const chainConfig = await getChainConfig(routerChainId);
+  const { tokenBridgeAddr, wallet } = chainConfig;
+
   await checkShouldRelayBeforeRouting(params, chainConfig);
 
-  const bridge = Bridge__factory.connect(chainConfig.tokenBridgeAddr, chainConfig.wallet);
+  const bridge = Bridge__factory.connect(tokenBridgeAddr, wallet);
   return await bridge.populateTransaction.completeTransfer(hexToUint8Array(params.signedVAA));
 };
 
 export const _populateRouteTx = async (routeParamsXcm: RelayAndRouteParams) => {
   const { chainConfig } = await prepareRouteXcm(routeParamsXcm);
+  const { factoryAddr, feeAddr, wallet } = chainConfig;
 
   const xcmInstruction: XcmInstructionsStruct = {
     dest: routeParamsXcm.dest,
     weight: '0x00',
   };
-  const factory = Factory__factory.connect(chainConfig.factoryAddr, chainConfig.wallet);
+  const factory = Factory__factory.connect(factoryAddr, wallet);
   const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfig);
 
   return await factory.populateTransaction.deployXcmRouterAndRoute(
-    chainConfig.feeAddr,
+    feeAddr,
     xcmInstruction,
     routerChainTokenAddr,
   );

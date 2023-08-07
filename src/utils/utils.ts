@@ -31,7 +31,11 @@ export const getApi = async (privateKey: string, nodeUrl: string) => {
   return { substrateAddr, api };
 };
 
-export const parseAmount = async (tokenAddr: string, amount: string, provider: any): Promise<BigNumber> => {
+export const parseAmount = async (
+  tokenAddr: string,
+  amount: string,
+  provider: any,
+): Promise<BigNumber> => {
   const erc20 = new Contract(tokenAddr, ['function decimals() view returns (uint8)'], provider);
   const decimals = await erc20.decimals();
 
