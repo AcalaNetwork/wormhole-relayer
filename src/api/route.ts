@@ -1,8 +1,7 @@
 import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-import { ChainId,  hexToUint8Array } from '@certusone/wormhole-sdk';
 import { Factory__factory } from '@acala-network/asset-router/dist/typechain-types';
-import { JsonRpcProvider } from '@ethersproject/providers';
 import { XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
+import { hexToUint8Array } from '@certusone/wormhole-sdk';
 
 import {
   DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID,
@@ -11,12 +10,10 @@ import {
   RelayAndRouteParams,
   RouteParamsWormhole,
   RouteParamsXcm,
-  _prepareRoute,
   checkShouldRelayBeforeRouting,
-  getApi,
+  getChainConfig,
   getEthExtrinsic,
   getRouterChainTokenAddr,
-  getSigner,
   logger,
   prepareRouteWormhole,
   prepareRouteXcm,
@@ -25,13 +22,13 @@ import {
 } from '../utils';
 
 export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> => {
-  const { chainConfig, signer } = await prepareRouteXcm(routeParamsXcm);
+  const { chainConfig } = await prepareRouteXcm(routeParamsXcm);
 
   const xcmInstruction: XcmInstructionsStruct = {
     dest: routeParamsXcm.dest,
     weight: '0x00',
   };
-  const factory = Factory__factory.connect(chainConfig.factoryAddr, signer);
+  const factory = Factory__factory.connect(chainConfig.factoryAddr, chainConfig.wallet);
   const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfig);
 
   const tx = await factory.deployXcmRouterAndRoute(
@@ -46,22 +43,22 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
 };
 
 export const _populateRelayTx = async (params: RelayAndRouteParams) => {
-  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId] as ChainId;
-  const { chainConfig, signer } = await _prepareRoute(routerChainId);
-  await checkShouldRelayBeforeRouting(params, chainConfig, signer);
+  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId];
+  const chainConfig = await getChainConfig(routerChainId);
+  await checkShouldRelayBeforeRouting(params, chainConfig);
 
-  const bridge = Bridge__factory.connect(chainConfig.tokenBridgeAddr, signer);
+  const bridge = Bridge__factory.connect(chainConfig.tokenBridgeAddr, chainConfig.wallet);
   return await bridge.populateTransaction.completeTransfer(hexToUint8Array(params.signedVAA));
 };
 
 export const _populateRouteTx = async (routeParamsXcm: RelayAndRouteParams) => {
-  const { chainConfig, signer } = await prepareRouteXcm(routeParamsXcm);
+  const { chainConfig } = await prepareRouteXcm(routeParamsXcm);
 
   const xcmInstruction: XcmInstructionsStruct = {
     dest: routeParamsXcm.dest,
     weight: '0x00',
   };
-  const factory = Factory__factory.connect(chainConfig.factoryAddr, signer);
+  const factory = Factory__factory.connect(chainConfig.factoryAddr, chainConfig.wallet);
   const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfig);
 
   return await factory.populateTransaction.deployXcmRouterAndRoute(
@@ -77,17 +74,8 @@ export const relayAndRouteBatch = async (params: RelayAndRouteParams): Promise<s
     _populateRouteTx(params),
   ]);
 
-  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId] as ChainId;
-  const { chainConfig } = await _prepareRoute(routerChainId);
-
-  const [
-    { addr, api },
-    signer,
-  ] = await Promise.all([
-    getApi(chainConfig),
-    getSigner(chainConfig),
-  ]);
-  const provider = signer.provider! as JsonRpcProvider;
+  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId];
+  const { api, provider, relayerSubstrateAddr } = await getChainConfig(routerChainId);
 
   const [relayExtrinsic, routeExtrinsic] = await Promise.all([
     getEthExtrinsic(api, provider, relayTx),
@@ -95,7 +83,7 @@ export const relayAndRouteBatch = async (params: RelayAndRouteParams): Promise<s
   ]);
 
   const batchTx = api.tx.utility.batchAll([relayExtrinsic, routeExtrinsic]);
-  await batchTx.signAsync(addr);
+  await batchTx.signAsync(relayerSubstrateAddr);
 
   const txHash = await sendExtrinsic(api, provider, batchTx);
 
@@ -103,9 +91,9 @@ export const relayAndRouteBatch = async (params: RelayAndRouteParams): Promise<s
 };
 
 export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[string, string]> => {
-  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId] as ChainId;
-  const { chainConfig, signer } = await _prepareRoute(routerChainId);
-  await checkShouldRelayBeforeRouting(params, chainConfig, signer);
+  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId];
+  const chainConfig = await getChainConfig(routerChainId);
+  await checkShouldRelayBeforeRouting(params, chainConfig);
 
   const wormholeReceipt = await relayEVM(chainConfig, params.signedVAA);
   logger.debug({ txHash: wormholeReceipt.transactionHash }, 'relay finished');
@@ -117,16 +105,16 @@ export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[strin
 export const routeWormhole = async (routeParamsWormhole: RouteParamsWormhole): Promise<string> => {
   const {
     chainConfig,
-    signer,
     routerChainTokenAddr,
     wormholeInstructions,
   } = await prepareRouteWormhole(routeParamsWormhole);
+  const { feeAddr, tokenBridgeAddr, factoryAddr, wallet } = chainConfig;
 
-  const factory = Factory__factory.connect(chainConfig.factoryAddr, signer);
+  const factory = Factory__factory.connect(factoryAddr, wallet);
   const tx = await factory.deployWormholeRouterAndRoute(
-    chainConfig.feeAddr,
+    feeAddr,
     wormholeInstructions,
-    chainConfig.tokenBridgeAddr,
+    tokenBridgeAddr,
     routerChainTokenAddr,
   );
   const receipt = await tx.wait();

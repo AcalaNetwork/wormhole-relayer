@@ -1,4 +1,4 @@
-import { BigNumber, ContractReceipt, Signer } from 'ethers';
+import { BigNumber, ContractReceipt } from 'ethers';
 import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { ERC20__factory, FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
 import {
@@ -13,7 +13,6 @@ import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../consts';
 import { RelayAndRouteParams } from './validate';
 import { RelayError } from '../middlewares/error';
 import { VaaInfo, parseVaaPayload } from './wormhole';
-import { getSigner } from './utils';
 import { logger } from './logger';
 
 interface ShouldRelayResult {
@@ -75,10 +74,10 @@ const VAA_MAX_DECIMALS = 8;
 export const checkShouldRelayBeforeRouting = async (
   params: RelayAndRouteParams,
   chainConfig: ChainConfig,
-  signer: Signer,
 ) => {
-  const tokenBridge = Bridge__factory.connect(chainConfig.tokenBridgeAddr, signer);
-  const feeRegistry = FeeRegistry__factory.connect(chainConfig.feeAddr, signer);
+  const { tokenBridgeAddr, feeAddr, wallet } = chainConfig;
+  const tokenBridge = Bridge__factory.connect(tokenBridgeAddr, wallet);
+  const feeRegistry = FeeRegistry__factory.connect(feeAddr, wallet);
 
   const vaaInfo = await parseVaaPayload(hexToUint8Array(params.signedVAA));
   const {
@@ -97,7 +96,7 @@ export const checkShouldRelayBeforeRouting = async (
     throw new RelayError('unsupported token', { ...vaaInfo, amount: BigNumber.from(vaaAmount) });
   }
 
-  const erc20 = ERC20__factory.connect(wrappedAddr, signer);
+  const erc20 = ERC20__factory.connect(wrappedAddr, wallet);
   const originDecimals = await erc20.decimals();
   const realAmount = originDecimals <= VAA_MAX_DECIMALS
     ? vaaAmount
@@ -112,11 +111,9 @@ export const relayEVM = async (
   chainConfig: ChainConfig,
   signedVAA: string,
 ): Promise<ContractReceipt> => {
-  const signer = await getSigner(chainConfig);
-
   const receipt = await redeemOnEth(
     chainConfig.tokenBridgeAddr,
-    signer,
+    chainConfig.wallet,
     hexToUint8Array(signedVAA),
   );
 

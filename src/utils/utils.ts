@@ -1,39 +1,34 @@
-import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
-import { BigNumber, Contract, PopulatedTransaction, Signer, Wallet, ethers } from 'ethers';
+import { BigNumber, Contract, PopulatedTransaction, Wallet } from 'ethers';
 import { CHAIN_ID_ACALA, CHAIN_ID_AVAX, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array } from '@certusone/wormhole-sdk';
 import { DispatchError } from '@polkadot/types/interfaces';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { SubstrateSigner } from '@acala-network/bodhi';
 import { options } from '@acala-network/api';
 import { parseUnits } from 'ethers/lib/utils';
+// import { waitReady } from '@polkadot/wasm-crypto';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
 
-import { ChainConfig } from './configureEnv';
 import { RelayerError } from '../middlewares';
-import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { bridgeToken, getSignedVAAFromSequence } from './wormhole';
 
 export type ROUTER_CHAIN_ID = typeof CHAIN_ID_KARURA | typeof CHAIN_ID_ACALA;
 
-export const getSigner = async (config: ChainConfig): Promise<Signer> => {
-  const provider = new AcalaJsonRpcProvider(config.ethRpc);
-  return new ethers.Wallet(config.walletPrivateKey, provider);
-};
-
-// TODO: reuse api
-export const getApi = async (config: ChainConfig) => {
+export const getApi = async (privateKey: string, nodeUrl: string) => {
+  await cryptoWaitReady();
   const keyring = new Keyring({ type: 'sr25519' });
-  const keyPair = keyring.addFromSeed(hexToUint8Array(config.walletPrivateKey));
-  const addr = keyPair.address;
+  const keyPair = keyring.addFromSeed(hexToUint8Array(privateKey));
+  const substrateAddr = keyPair.address;
 
   const api = await ApiPromise.create(options({
-    provider: new WsProvider(config.nodeUrl),
+    provider: new WsProvider(nodeUrl),
   }));
 
   api.setSigner(new SubstrateSigner(api.registry, keyPair));
 
-  return { addr, api };
+  return { substrateAddr, api };
 };
 
 export const parseAmount = async (tokenAddr: string, amount: string, provider: any): Promise<BigNumber> => {
