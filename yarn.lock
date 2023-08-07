@@ -30,6 +30,24 @@
     "@ethersproject/providers" "^5.7.0"
     ethers "^5.7.0"
 
+"@acala-network/bodhi@^2.7.5":
+  version "2.7.5"
+  resolved "https://registry.npmjs.org/@acala-network/bodhi/-/bodhi-2.7.5.tgz#ba502a7f65d9802bcdbef8055efa2615ce5570e8"
+  integrity sha512-Rf9+2JvL7Ld8ywh5VHmRssVQyR/eLZgafFHzKroFGSw/dB9cJjWk92RY1MpaNmakpavIqypZd2mPyRIpISHLtg==
+  dependencies:
+    "@acala-network/eth-providers" "2.7.5"
+    "@ethersproject/abstract-provider" "~5.7.0"
+    "@ethersproject/abstract-signer" "~5.7.0"
+    "@ethersproject/address" "~5.7.0"
+    "@ethersproject/bignumber" "~5.7.0"
+    "@ethersproject/bytes" "~5.7.0"
+    "@ethersproject/logger" "~5.7.0"
+    "@ethersproject/properties" "~5.7.0"
+    "@ethersproject/strings" "~5.7.0"
+    "@types/bn.js" "~5.1.0"
+    bn.js "~5.2.0"
+    ethers "~5.7.2"
+
 "@acala-network/contracts@4.3.4":
   version "4.3.4"
   resolved "https://registry.npmjs.org/@acala-network/contracts/-/contracts-4.3.4.tgz#f37cf54894c72b762df539042a61f90b10b68600"
@@ -39,6 +57,31 @@
   version "4.3.9"
   resolved "https://registry.npmjs.org/@acala-network/contracts/-/contracts-4.3.9.tgz#634d471081c3438e9a96a15443c5e0453657e201"
   integrity sha512-Eu2jg40c3mLA05WNNL1bg2TWweHZxxVmmDq9unV8A7rXCITgcbJsq6SrBjNmdz1UCfsyfyd+3cg+7Pfxzeq+sw==
+
+"@acala-network/eth-providers@2.7.5":
+  version "2.7.5"
+  resolved "https://registry.npmjs.org/@acala-network/eth-providers/-/eth-providers-2.7.5.tgz#d45376733f78d62f80e91caaa5e819bbdc1a92b9"
+  integrity sha512-nBv0OHf/nY83+yeyaD3N6L0Ve71MujocALvtPBvTFC6GxvpE7BfXZedmj/M/yY2c0FfoN6eo8/CauF+bn48LQA==
+  dependencies:
+    "@acala-network/contracts" "4.3.4"
+    "@acala-network/eth-transactions" "2.7.5"
+    "@ethersproject/abstract-provider" "~5.7.0"
+    "@ethersproject/address" "~5.7.0"
+    "@ethersproject/bignumber" "~5.7.0"
+    "@ethersproject/bytes" "~5.7.0"
+    "@ethersproject/contracts" "~5.7.0"
+    "@ethersproject/keccak256" "~5.7.0"
+    "@ethersproject/logger" "~5.7.0"
+    "@ethersproject/networks" "~5.7.0"
+    "@ethersproject/properties" "~5.7.0"
+    "@ethersproject/providers" "~5.7.0"
+    "@ethersproject/transactions" "~5.7.0"
+    "@ethersproject/wallet" "~5.7.0"
+    bn.js "~5.2.0"
+    ethers "~5.7.0"
+    graphql "~16.0.1"
+    graphql-request "~3.6.1"
+    lru-cache "~7.8.2"
 
 "@acala-network/eth-providers@^2.6.2", "@acala-network/eth-providers@~2.6.8":
   version "2.6.8"
@@ -69,6 +112,21 @@
   version "2.6.8"
   resolved "https://registry.npmjs.org/@acala-network/eth-transactions/-/eth-transactions-2.6.8.tgz#da29a24ea17da93bdb4a0329782482d94332457c"
   integrity sha512-0p0mTTcB9uOcqfQYHnLMKeevu+cMnZ2D9BdrTtlzwM5WK+EVlBbVMNy1YiU0KYZG0p53BaNAI7aEsuJ20BOPUw==
+  dependencies:
+    "@ethersproject/address" "~5.7.0"
+    "@ethersproject/bignumber" "~5.7.0"
+    "@ethersproject/bytes" "~5.7.0"
+    "@ethersproject/constants" "~5.7.0"
+    "@ethersproject/hash" "~5.7.0"
+    "@ethersproject/logger" "~5.7.0"
+    "@ethersproject/rlp" "~5.7.0"
+    "@ethersproject/transactions" "~5.7.0"
+    "@ethersproject/wallet" "~5.7.0"
+
+"@acala-network/eth-transactions@2.7.5":
+  version "2.7.5"
+  resolved "https://registry.npmjs.org/@acala-network/eth-transactions/-/eth-transactions-2.7.5.tgz#f86ccac3e811205799f4da119d0fe7fa7934951c"
+  integrity sha512-oNqkH0re5AWmlDLXiPd/S6L0EKu4V24ZVJIH7YmNE1LDZih0vHXRiNRGG39YYa0Edmejlw52rP2GWE0y+VTm5w==
   dependencies:
     "@ethersproject/address" "~5.7.0"
     "@ethersproject/bignumber" "~5.7.0"
@@ -518,7 +576,7 @@
     "@ethersproject/transactions" "^5.7.0"
     "@ethersproject/web" "^5.7.0"
 
-"@ethersproject/abstract-signer@5.7.0", "@ethersproject/abstract-signer@^5.7.0":
+"@ethersproject/abstract-signer@5.7.0", "@ethersproject/abstract-signer@^5.7.0", "@ethersproject/abstract-signer@~5.7.0":
   version "5.7.0"
   resolved "https://registry.npmjs.org/@ethersproject/abstract-signer/-/abstract-signer-5.7.0.tgz#13f4f32117868452191a4649723cb086d2b596b2"
   integrity sha512-a16V8bq1/Cz+TGCkE2OPMTOUDLS3grCpdjoJCYNnVBbdYEMSgKrU0+B90s8b6H+ByYTBZN7a3g76jdIJi7UfKQ==
@@ -756,7 +814,7 @@
     "@ethersproject/sha2" "^5.7.0"
     "@ethersproject/strings" "^5.7.0"
 
-"@ethersproject/strings@5.7.0", "@ethersproject/strings@^5.7.0":
+"@ethersproject/strings@5.7.0", "@ethersproject/strings@^5.7.0", "@ethersproject/strings@~5.7.0":
   version "5.7.0"
   resolved "https://registry.npmjs.org/@ethersproject/strings/-/strings-5.7.0.tgz#54c9d2a7c57ae8f1205c88a9d3a56471e14d5ed2"
   integrity sha512-/9nu+lj0YswRNSH0NXYqrh8775XNyEdUQAuf3f+SmOrnVewcJ5SBNAjF7lpgehKi4abvNNXyf+HX86czCdJ8Mg==
@@ -1821,7 +1879,7 @@
     lodash "^4.17.15"
     ts-essentials "^7.0.1"
 
-"@types/bn.js@5.1.1", "@types/bn.js@^5.1.0", "@types/bn.js@^5.1.1":
+"@types/bn.js@5.1.1", "@types/bn.js@^5.1.0", "@types/bn.js@^5.1.1", "@types/bn.js@~5.1.0":
   version "5.1.1"
   resolved "https://registry.npmjs.org/@types/bn.js/-/bn.js-5.1.1.tgz#b51e1b55920a4ca26e9285ff79936bbdec910682"
   integrity sha512-qNrYbZqMx0uJAfKnKclPh+dTwK33KfLHYqtyODwd5HnXOjnkhc4qgn3BrK6RWyGZm5+sIFE7Q7Vz6QQtJB7w7g==
@@ -3612,7 +3670,7 @@ ethereumjs-util@^6.0.0, ethereumjs-util@^6.2.1:
     ethjs-util "0.1.6"
     rlp "^2.2.3"
 
-ethers@5.7.2, ethers@^5.7.0, ethers@^5.7.2, ethers@~5.7.0:
+ethers@5.7.2, ethers@^5.7.0, ethers@^5.7.2, ethers@~5.7.0, ethers@~5.7.2:
   version "5.7.2"
   resolved "https://registry.npmjs.org/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==

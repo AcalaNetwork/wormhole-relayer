@@ -2,19 +2,20 @@ import { NextFunction, Request, Response } from 'express';
 import { Schema } from 'yup';
 
 import { NoRouteError } from './error';
-import {
-  logger,
-  relayAndRouteSchema,
-  routeWormholeSchema,
-  routeXcmSchema,
-} from '../utils';
+import { logger } from '../utils';
 import {
   relayAndRoute,
+  relayAndRouteBatch,
   routeWormhole,
   routeXcm,
   shouldRouteWormhole,
   shouldRouteXcm,
 } from '../api/route';
+import {
+  relayAndRouteSchema,
+  routeWormholeSchema,
+  routeXcmSchema,
+} from '../utils/validate';
 
 interface RouterConfig {
   schema: Schema;
@@ -49,6 +50,10 @@ const ROUTER_CONFIGS: {
     '/relayAndRoute': {
       schema: relayAndRouteSchema,
       handler: relayAndRoute,
+    },
+    '/relayAndRouteBatch': {
+      schema: relayAndRouteSchema,
+      handler: relayAndRouteBatch,
     },
   },
 };

@@ -1,5 +1,7 @@
-import { ChainId,  tryNativeToHexString } from '@certusone/wormhole-sdk';
+import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+import { ChainId,  hexToUint8Array,  tryNativeToHexString } from '@certusone/wormhole-sdk';
 import { Factory__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { JsonRpcProvider } from '@ethersproject/providers';
 import { Signer } from 'ethers';
 import { WormholeInstructionsStruct, XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
 
@@ -10,31 +12,18 @@ import {
   ZERO_ADDR,
 } from '../consts';
 import {
+  RelayAndRouteParams,
+  RouteParamsWormhole,
+  RouteParamsXcm,
   checkShouldRelayBeforeRouting,
+  getApi,
+  getEthExtrinsic,
   getRouterChainTokenAddr,
   getSigner,
   logger,
   relayEVM,
+  sendExtrinsic,
 } from '../utils';
-
-interface RouteParamsBase {
-  originAddr: string;     // origin token address
-}
-
-export interface RouteParamsWormhole extends RouteParamsBase {
-  targetChainId: string;
-  destAddr: string;       // recepient address in hex
-  fromParaId: string;     // from parachain id in number
-}
-
-export interface RouteParamsXcm extends RouteParamsBase {
-  destParaId: string;  // TODO: maybe can decode from dest
-  dest: string;           // xcm encoded dest in hex
-}
-
-export interface RelayAndRouteParams extends RouteParamsXcm {
-  signedVAA: string;
-}
 
 interface RouteProps {
   routerAddr: string;
@@ -154,7 +143,7 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
   const factory = Factory__factory.connect(chainConfig.factoryAddr, signer);
   const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfig);
 
-  const tx = await factory.connect(signer).deployXcmRouterAndRoute(
+  const tx = await factory.deployXcmRouterAndRoute(
     chainConfig.feeAddr,
     xcmInstruction,
     routerChainTokenAddr,
@@ -163,6 +152,60 @@ export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> 
   const receipt = await tx.wait();
 
   return receipt.transactionHash;
+};
+
+export const _populateRelayTx = async (params: RelayAndRouteParams) => {
+  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId] as ChainId;
+  const { chainConfig, signer } = await _prepareRoute(routerChainId);
+  await checkShouldRelayBeforeRouting(params, chainConfig, signer);
+
+  const bridge = Bridge__factory.connect(chainConfig.tokenBridgeAddr, signer);
+  return await bridge.populateTransaction.completeTransfer(hexToUint8Array(params.signedVAA));
+};
+
+export const _populateRouteTx = async (routeParamsXcm: RelayAndRouteParams) => {
+  const { chainConfig, signer } = await prepareRouteXcm(routeParamsXcm);
+
+  const xcmInstruction: XcmInstructionsStruct = {
+    dest: routeParamsXcm.dest,
+    weight: '0x00',
+  };
+  const factory = Factory__factory.connect(chainConfig.factoryAddr, signer);
+  const routerChainTokenAddr = await getRouterChainTokenAddr(routeParamsXcm.originAddr, chainConfig);
+
+  return await factory.populateTransaction.deployXcmRouterAndRoute(
+    chainConfig.feeAddr,
+    xcmInstruction,
+    routerChainTokenAddr,
+  );
+};
+
+export const relayAndRouteBatch = async (params: RelayAndRouteParams): Promise<string> => {
+  const [relayTx, routeTx] = await Promise.all([
+    _populateRelayTx(params),
+    _populateRouteTx(params),
+  ]);
+
+  const routerChainId = DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID[params.destParaId] as ChainId;
+  const { chainConfig } = await _prepareRoute(routerChainId);
+
+  const [
+    { addr, api },
+    signer,
+  ] = await Promise.all([
+    getApi(chainConfig),
+    getSigner(chainConfig),
+  ]);
+
+  const relayExtrinsic = getEthExtrinsic(api, relayTx);
+  const routeExtrinsic = getEthExtrinsic(api, routeTx);
+
+  const batchTx = api.tx.utility.batchAll([relayExtrinsic, routeExtrinsic]);
+  await batchTx.signAsync(addr);
+
+  const txHash = await sendExtrinsic(batchTx, signer.provider! as JsonRpcProvider);
+
+  return txHash;
 };
 
 export const relayAndRoute = async (params: RelayAndRouteParams): Promise<[string, string]> => {

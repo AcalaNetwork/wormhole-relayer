@@ -41,6 +41,12 @@ export const errorHandler = (err: unknown, req: Request, res: Response, _next: N
       error: err.message,
       params: err.params,
     });
+  } else if (err instanceof RelayerError) {
+    res.status(500).json({
+      msg: 'an error occurred!',
+      error: err.message,
+      params: err.params,
+    });
   } else if (err instanceof Error) {
     res.status(500).json({
       msg: `internal server error: ${err.name}`,
