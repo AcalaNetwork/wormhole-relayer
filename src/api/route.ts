@@ -55,8 +55,8 @@ export const relayAndRouteBatch = async (params: RelayAndRouteParams): Promise<s
   const { api, provider, relayerSubstrateAddr } = await getChainConfig(routerChainId);
 
   const [relayExtrinsic, routeExtrinsic] = await Promise.all([
-    getEthExtrinsic(api, provider, relayTx),
-    getEthExtrinsic(api, provider, routeTx),
+    getEthExtrinsic(api, provider, relayTx, false),
+    getEthExtrinsic(api, provider, routeTx, true),
   ]);
 
   const batchTx = api.tx.utility.batchAll([relayExtrinsic, routeExtrinsic]);
