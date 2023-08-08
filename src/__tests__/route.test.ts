@@ -17,7 +17,6 @@ import { ETH_RPC, FUJI_TOKEN, GOERLI_USDC, PARA_ID } from '../consts';
 import {
   encodeXcmDest,
   expectError,
-  expectErrorContain,
   expectErrorData,
   getBasiliskUsdcBalance,
   mockXcmToRouter,
