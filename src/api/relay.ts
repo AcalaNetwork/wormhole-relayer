@@ -11,7 +11,7 @@ import {
 
 const validateRelayRequest = async (request: any, response: any) => {
   const chainId = request.body?.targetChain;
-  const chainConfigInfo = getChainConfig(chainId);
+  const chainConfigInfo = await getChainConfig(chainId);
 
   if (!chainConfigInfo) {
     return response.status(400).json({ error: 'Unsupported chainId', chainId });

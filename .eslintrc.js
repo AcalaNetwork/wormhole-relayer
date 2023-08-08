@@ -38,6 +38,12 @@ module.exports = {
       caughtErrorsIgnorePattern: '^_',
     }],
     'sort-imports-es6-autofix/sort-imports-es6': 1,
+    'max-len': [1, {
+      code: 105,
+      ignoreComments: true,
+      ignoreStrings: true,
+      ignoreTemplateLiterals: true,
+    }],
 
     /* ---------- turn off ---------- */
     '@typescript-eslint/no-extra-semi': 0,

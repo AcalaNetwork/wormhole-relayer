@@ -213,7 +213,7 @@ describe('/relayAndRouteBatch', () => {
     const afterBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
     console.log({ afterBalUser, afterBalRelayer });
 
-    // expect(afterBalRelayer - curBalRelayer).to.eq(200n);   // TODO: bind account
+    // expect(afterBalRelayer - curBalRelayer).to.eq(200n);
     expect(afterBalUser - curBalUser).to.eq(800n);  // 1000 - 200
     expect((await usdc.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
 
@@ -291,7 +291,10 @@ describe('/routeWormhole', () => {
 
     /*  ---------- should be able to redeem from eth ----------  */
     const depositReceipt = await providerKarura.getTransactionReceipt(txHash);
-    const sequence = parseSequenceFromLogEth(depositReceipt as ContractReceipt, CONTRACTS.TESTNET.karura.core);
+    const sequence = parseSequenceFromLogEth(
+      depositReceipt as ContractReceipt,
+      CONTRACTS.TESTNET.karura.core,
+    );
     console.log('route to wormhole complete', { sequence }, 'waiting for VAA...');
 
     const signedVAA = await getSignedVAAFromSequence(
