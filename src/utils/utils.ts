@@ -151,13 +151,17 @@ export const getEthExtrinsic = async (
   api: ApiPromise,
   provider: JsonRpcProvider,
   tx: PopulatedTransaction,
+  allowFailure = false,
 ) => {
   const gasPrice = (await provider.getGasPrice()).toBigInt();
   let gasLimit = DEFAULT_GAS_LIMIT;
 
   try {
     gasLimit = (await provider.estimateGas({ ...tx, gasPrice })).toBigInt();
-  } catch {
+  } catch (err) {
+    if (!allowFailure) {
+      throw new RelayerError('failed to estimate gas limit', { err, tx });
+    }
     // swallow and use default gas limit
   }
 

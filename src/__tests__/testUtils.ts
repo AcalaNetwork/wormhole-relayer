@@ -71,14 +71,12 @@ export const expectError = (err: any, msg: any, code: number) => {
   }
 };
 
-export const expectErrorContain = (err: any, msgObj: any, code: number) => {
-  if (axios.isAxiosError(err)) {
-    expect(err.response?.status).to.equal(code);
-    expect(err.response?.data.error).to.deep.contain(msgObj);
-  } else {    // HttpError from supertest
-    expect(err.status).to.equal(code);
-    expect(JSON.parse(err.text).error).to.deep.contain(msgObj);
-  }
+export const expectErrorData = (err: any, expectFn: any) => {
+  expectFn(
+    axios.isAxiosError(err)
+      ? err.response?.data
+      : JSON.parse(err.text),
+  );
 };
 
 /* ------------------------------------------------------------------ */

@@ -1,7 +1,5 @@
-import { Bridge__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { Factory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
-import { hexToUint8Array } from '@certusone/wormhole-sdk';
 
 import {
   DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID,
@@ -55,8 +53,8 @@ export const relayAndRouteBatch = async (params: RelayAndRouteParams): Promise<s
   const { api, provider, relayerSubstrateAddr } = await getChainConfig(routerChainId);
 
   const [relayExtrinsic, routeExtrinsic] = await Promise.all([
-    getEthExtrinsic(api, provider, relayTx),
-    getEthExtrinsic(api, provider, routeTx),
+    getEthExtrinsic(api, provider, relayTx, false),
+    getEthExtrinsic(api, provider, routeTx, true),
   ]);
 
   const batchTx = api.tx.utility.batchAll([relayExtrinsic, routeExtrinsic]);

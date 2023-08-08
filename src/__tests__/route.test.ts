@@ -17,6 +17,7 @@ import { ETH_RPC, FUJI_TOKEN, GOERLI_USDC, PARA_ID } from '../consts';
 import {
   encodeXcmDest,
   expectError,
+  expectErrorData,
   getBasiliskUsdcBalance,
   mockXcmToRouter,
   relayAndRoute,
@@ -171,6 +172,22 @@ describe('/relayAndRoute', () => {
     } catch (err) {
       expectError(err, 'unsupported token', 500);
     }
+
+    try {
+      await relayAndRouteBatch({
+        ...routeArgs,
+
+        // invalid VAA
+        signedVAA: '01000000000100565399ecd3485d842c6e8677179e6a909977cf5be5bbce6273a3a5c06abceb9b79adf48f41f99beb852a48e5fec0f89e7465574c7e6e2034244272c7d3d436030164d0c59b2b670100000600000000000000000000000061e44e506ca5659e6c0bba9b678586fa2d7297560000000000001c38010100000000000000000000000000000000000000000000000000000000000003e800000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b000000000000000000000000000000000000000000000000000000000000000' + '12345',
+      });
+
+      expect.fail('relayAndRoute did not throw when it should!');
+    } catch (err) {
+      expectError(err, 'failed to estimate gas limit', 500);
+      expectErrorData(err, errData => {
+        expect(errData.params.err.reason).to.contain('VM signature invalid');
+      });
+    }
   });
 });
 
@@ -253,6 +270,22 @@ describe('/relayAndRouteBatch', () => {
       expect.fail('relayAndRouteBatch did not throw when it should!');
     } catch (err) {
       expectError(err, 'unsupported token', 500);
+    }
+
+    try {
+      await relayAndRouteBatch({
+        ...routeArgs,
+
+        // invalid VAA
+        signedVAA: '01000000000100565399ecd3485d842c6e8677179e6a909977cf5be5bbce6273a3a5c06abceb9b79adf48f41f99beb852a48e5fec0f89e7465574c7e6e2034244272c7d3d436030164d0c59b2b670100000600000000000000000000000061e44e506ca5659e6c0bba9b678586fa2d7297560000000000001c38010100000000000000000000000000000000000000000000000000000000000003e800000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b000000000000000000000000000000000000000000000000000000000000000' + '12345',
+      });
+
+      expect.fail('relayAndRouteBatch did not throw when it should!');
+    } catch (err) {
+      expectError(err, 'failed to estimate gas limit', 500);
+      expectErrorData(err, errData => {
+        expect(errData.params.err.reason).to.contain('VM signature invalid');
+      });
     }
   });
 });
