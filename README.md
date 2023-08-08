@@ -22,7 +22,7 @@ docker-compose version: `docker-compose version 1.29.2, build 5becea4c`
 get the relayer version
 ```
 GET /version
-1.3.10
+1.4.0
 ```
 
 ### `/shouldRelay`
