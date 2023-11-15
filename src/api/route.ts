@@ -1,11 +1,13 @@
-import { Factory__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { Factory__factory, HomaFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
+import { evmToAddr32 } from '@acala-network/asset-router/dist/utils';
 
 import {
   DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID,
 } from '../consts';
 import {
   RelayAndRouteParams,
+  RouteParamsHoma,
   RouteParamsWormhole,
   RouteParamsXcm,
   _populateRelayTx,
@@ -13,6 +15,7 @@ import {
   checkShouldRelayBeforeRouting,
   getChainConfig,
   getEthExtrinsic,
+  getMainnetChainId,
   getRouterChainTokenAddr,
   logger,
   prepareRouteWormhole,
@@ -126,4 +129,15 @@ export const shouldRouteWormhole = async (data: any) =>  {
       msg: error.message,
     };
   }
+};
+
+export const getHomaRouterAddr = async ({ chain, destAddr }: RouteParamsHoma) =>  {
+  const chainId = getMainnetChainId(chain);
+  const chainConfig = await getChainConfig(chainId);
+  const { feeAddr, homaFactoryAddr, accountHelperAddr, wallet } = chainConfig;
+
+  const homaFactory = HomaFactory__factory.connect(homaFactoryAddr!, wallet);   // TODO: remove !
+  const routerAddr = await homaFactory.callStatic.deployHomaRouter(feeAddr, evmToAddr32(destAddr));
+
+  return { routerAddr };
 };

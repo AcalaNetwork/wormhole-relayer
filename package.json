@@ -28,7 +28,7 @@
     "@certusone/wormhole-sdk": "^0.9.12",
     "@improbable-eng/grpc-web": "^0.14.0",
     "@improbable-eng/grpc-web-node-http-transport": "^0.15.0",
-    "@polkadot/api": "^10.5.1",
+    "@polkadot/api": "^10.9.1",
     "axios": "^0.26.1",
     "bech32": "^2.0.0",
     "cors": "^2.8.5",

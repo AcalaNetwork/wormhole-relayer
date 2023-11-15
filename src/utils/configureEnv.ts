@@ -18,6 +18,8 @@ export type ChainConfig = {
   tokenBridgeAddr: string;
   feeAddr: string;
   factoryAddr: string;
+  homaFactoryAddr?: string;
+  accountHelperAddr?: string;
   isTestnet: boolean;
 };
 
