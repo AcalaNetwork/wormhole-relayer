@@ -14,6 +14,7 @@ export const createApp = () => {
   const app = express();
 
   app.use(cors());
+  console.log('!!!!')
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
