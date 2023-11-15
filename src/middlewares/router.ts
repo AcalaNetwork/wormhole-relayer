@@ -6,6 +6,7 @@ import {
   getHomaRouterAddr,
   relayAndRoute,
   relayAndRouteBatch,
+  routeHoma,
   routeWormhole,
   routeXcm,
   shouldRouteWormhole,
@@ -60,6 +61,10 @@ const ROUTER_CONFIGS: {
     '/relayAndRouteBatch': {
       schema: relayAndRouteSchema,
       handler: relayAndRouteBatch,
+    },
+    '/routeHoma': {
+      schema: routeHomaSchema,
+      handler: routeHoma,
     },
   },
 };

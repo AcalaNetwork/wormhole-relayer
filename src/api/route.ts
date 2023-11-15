@@ -1,3 +1,4 @@
+import { DOT } from '@acala-network/contracts/utils/AcalaTokens';
 import { Factory__factory, HomaFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
 import { evmToAddr32 } from '@acala-network/asset-router/dist/utils';
@@ -6,6 +7,7 @@ import {
   DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID,
 } from '../consts';
 import {
+  Mainnet,
   RelayAndRouteParams,
   RouteParamsHoma,
   RouteParamsWormhole,
@@ -131,13 +133,30 @@ export const shouldRouteWormhole = async (data: any) =>  {
   }
 };
 
-export const getHomaRouterAddr = async ({ chain, destAddr }: RouteParamsHoma) =>  {
+const prepareRouteHoma = async (chain: Mainnet) => {
   const chainId = getMainnetChainId(chain);
   const chainConfig = await getChainConfig(chainId);
-  const { feeAddr, homaFactoryAddr, accountHelperAddr, wallet } = chainConfig;
+  const { feeAddr, homaFactoryAddr, wallet } = chainConfig;
 
-  const homaFactory = HomaFactory__factory.connect(homaFactoryAddr!, wallet);   // TODO: remove !
-  const routerAddr = await homaFactory.callStatic.deployHomaRouter(feeAddr, evmToAddr32(destAddr));
+  const homaFactory = HomaFactory__factory.connect(homaFactoryAddr!, wallet);
+
+  return { homaFactory, feeAddr };
+};
+
+export const getHomaRouterAddr = async ({ chain, destAddr }: RouteParamsHoma) =>  {
+  const { homaFactory, feeAddr } = await prepareRouteHoma(chain);
+  const routerAddr = await homaFactory.callStatic.deployHomaRouter(
+    feeAddr,
+    evmToAddr32(destAddr)
+  );
 
   return { routerAddr };
+};
+
+export const routeHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  {
+  const { homaFactory, feeAddr } = await prepareRouteHoma(chain);
+  const tx = await homaFactory.deployHomaRouterAndRoute(feeAddr, evmToAddr32(destAddr), DOT);
+  const receipt = await tx.wait();
+
+  return receipt.transactionHash;
 };
