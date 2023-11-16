@@ -352,10 +352,10 @@ describe('/routeWormhole', () => {
     console.log({ signedVAA });
 
     const providerFuji = new JsonRpcProvider(ETH_RPC.FUJI);
-    const relayerSignerKaruraFuji = new Wallet(TEST_KEY.USER, providerFuji);
+    const relayerSignerFuji = new Wallet(TEST_KEY.USER, providerFuji);
     const receipt = await redeemOnEth(
       CONTRACTS.TESTNET.avalanche.token_bridge,
-      relayerSignerKaruraFuji,
+      relayerSignerFuji,
       hexToUint8Array(signedVAA),
     );
     console.log(`redeem finished! txHash: ${receipt.transactionHash}`);
