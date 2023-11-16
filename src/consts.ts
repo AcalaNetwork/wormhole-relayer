@@ -10,6 +10,8 @@ dotenv.config({ path: '.env' });
 const isTestnet = Number(process.env.TESTNET_MODE ?? 1);
 
 export const enum ETH_RPC {
+  LOCAL = 'http://localhost:8545',
+
   BSC = 'https://endpoints.omniatech.io/v1/bsc/mainnet/public',
   KARURA = 'https://eth-rpc-karura.aca-api.network',
   ACALA = 'https://eth-rpc-acala.aca-api.network',
@@ -51,6 +53,9 @@ export const RELAYER_API = {
   RELAY_AND_ROUTE: '/relayAndRoute',
   RELAY_AND_ROUTE_BATCH: '/relayAndRouteBatch',
 
+  GET_HOMA_ROUTER_ADDR: '/shouldRouteHoma',
+  ROUTE_HOMA: '/routeHoma',
+
   NO_ROUTE: '/noRoute',
   VERSION: '/version',
   TEST_TIMEOUT: '/testTimeout',
@@ -67,6 +72,9 @@ export const RELAYER_URL = {
   ROUTE_WORMHOLE: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_WORMHOLE}`,
   RELAY_AND_ROUTE: `${RELAYER_BASE_URL}${RELAYER_API.RELAY_AND_ROUTE}`,
   RELAY_AND_ROUTE_BATCH: `${RELAYER_BASE_URL}${RELAYER_API.RELAY_AND_ROUTE_BATCH}`,
+
+  GET_HOMA_ROUTER_ADDR: `${RELAYER_BASE_URL}${RELAYER_API.GET_HOMA_ROUTER_ADDR}`,
+  ROUTE_HOMA: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_HOMA}`,
 
   NO_ROUTE: `${RELAYER_BASE_URL}${RELAYER_API.NO_ROUTE}`,
   VERSION: `${RELAYER_BASE_URL}${RELAYER_API.VERSION}`,

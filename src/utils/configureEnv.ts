@@ -7,7 +7,8 @@ import dotenv from 'dotenv';
 
 import { ROUTER_CHAIN_ID, getApi } from './utils';
 
-dotenv.config({ path: '.env' });
+const envPath = process.env.ENV_PATH ?? '.env';
+dotenv.config({ path: envPath });
 
 export type ChainConfig = {
   chainId: ROUTER_CHAIN_ID;

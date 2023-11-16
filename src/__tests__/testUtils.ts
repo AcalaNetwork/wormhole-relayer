@@ -46,19 +46,25 @@ export const getBasiliskUsdcBalance = async (api: ApiPromise, addr: string) => {
   return (balance as any).free.toBigInt();
 };
 
-export const mockXcmToRouter = async (routerAddr: string, signer: Wallet) => {
-  const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, signer);
+export const mockXcmToRouter = async (
+  routerAddr: string,
+  signer: Wallet,
+  tokenAddr = KARURA_USDC_ADDRESS,
+  amount = 0.001,
+) => {
+  const token = ERC20__factory.connect(tokenAddr, signer);
 
-  expect((await usdc.balanceOf(routerAddr)).toNumber()).to.eq(0);
+  expect((await token.balanceOf(routerAddr)).toNumber(), 'router already has balance!').to.eq(0);
 
-  const ROUTE_AMOUNT = 0.001;
-  const routeAmount = parseUnits(String(ROUTE_AMOUNT), 6);
-  if ((await usdc.balanceOf(signer.address)).lt(routeAmount)) {
-    throw new Error(`signer ${signer.address} has no enough usdc`);
+  const decimals = await token.decimals();
+
+  const routeAmount = parseUnits(String(amount), decimals);
+  if ((await token.balanceOf(signer.address)).lt(routeAmount)) {
+    throw new Error(`signer ${signer.address} has no enough token [${tokenAddr}] to transfer!`);
   }
-  await (await usdc.transfer(routerAddr, routeAmount)).wait();
+  await (await token.transfer(routerAddr, routeAmount)).wait();
 
-  expect((await usdc.balanceOf(routerAddr)).toBigInt()).to.eq(routeAmount.toBigInt());
+  expect((await token.balanceOf(routerAddr)).toBigInt()).to.eq(routeAmount.toBigInt());
 };
 
 export const expectError = (err: any, msg: any, code: number) => {
@@ -162,3 +168,11 @@ export const version = process.env.COVERAGE
 export const testTimeout = process.env.COVERAGE
   ? _supertestPost(RELAYER_API.TEST_TIMEOUT)
   : _axiosPost(RELAYER_URL.TEST_TIMEOUT);
+
+export const shouldRouteHoma = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.GET_HOMA_ROUTER_ADDR)
+  : _axiosGet(RELAYER_URL.GET_HOMA_ROUTER_ADDR);
+
+export const routeHoma = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.ROUTE_HOMA)
+  : _axiosPost(RELAYER_URL.ROUTE_HOMA);

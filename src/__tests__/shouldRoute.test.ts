@@ -7,8 +7,10 @@ import {
   ROUTE_SUPPORTED_CHAINS_AND_ASSETS,
   ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD,
 } from '../consts';
+import { Mainnet } from '../utils';
 import {
   expectError,
+  shouldRouteHoma,
   shouldRouteWormhole,
   shouldRouteXcm,
 } from './testUtils';
@@ -301,6 +303,91 @@ describe.concurrent('/shouldRouteWormhole', () => {
           msg: `origin token ${unsupportedToken} not supported on router chain 11`,
         },
       });
+    });
+  });
+});
+
+describe.concurrent.only('/shouldRouteHoma', () => {
+  const destAddr = '0x75E480dB528101a381Ce68544611C169Ad7EB342';
+
+  it('when should route (mainnet)', async () => {
+    // for (const network of [Object.values(Mainnet)]) {
+    for (const chain of ['acala']) {
+      let res = await shouldRouteHoma({
+        destAddr,
+        chain,
+      });
+
+      expect(res).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "routerAddr": "0xa013818BBddc5d2d55ab9cCD50759b3B1953d6cd",
+            "shouldRoute": true,
+          },
+        }
+      `);
+
+      // should be case insensitive
+      res = await shouldRouteHoma({
+        destAddr: destAddr.toLocaleLowerCase(),
+        chain,
+      });
+
+      expect(res).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "routerAddr": "0xa013818BBddc5d2d55ab9cCD50759b3B1953d6cd",
+            "shouldRoute": true,
+          },
+        }
+      `);
+    }
+  });
+
+  describe('when should not route', () => {
+    it('when missing params', async () => {
+      try {
+        await shouldRouteHoma({
+          destAddr,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['chain is a required field'], 400);
+      }
+
+      try {
+        await shouldRouteHoma({
+          chain: Mainnet.Acala,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['destAddr is a required field'], 400);
+      }
+
+      try {
+        await shouldRouteHoma({
+          chain: 'mandala',
+          destAddr,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['chain must be one of the following values: acala, karura'], 400);
+      }
+    });
+
+    it('when bad params', async () => {
+      const res = await shouldRouteHoma({
+        chain: Mainnet.Acala,
+        destAddr: '0xaaaaaaaaaa',
+      });
+      expect(res).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "msg": "incorrect data length (argument=\\"recipient\\", value=\\"0x65766d3aaaaaaaaaaa0000000000000000\\", code=INVALID_ARGUMENT, version=abi/5.7.0)",
+            "shouldRoute": false,
+          },
+        }
+      `);
     });
   });
 });

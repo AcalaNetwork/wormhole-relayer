@@ -3,7 +3,7 @@ import { Schema } from 'yup';
 
 import { NoRouteError } from './error';
 import {
-  getHomaRouterAddr,
+  shouldRouteHoma,
   relayAndRoute,
   relayAndRouteBatch,
   routeHoma,
@@ -39,9 +39,9 @@ const ROUTER_CONFIGS: {
       schema: routeXcmSchema,
       handler: shouldRouteXcm,
     },
-    '/getHomaRouterAddr': {
+    '/shouldRouteHoma': {
       schema: routeHomaSchema,
-      handler: getHomaRouterAddr,
+      handler: shouldRouteHoma,
     },
   },
 

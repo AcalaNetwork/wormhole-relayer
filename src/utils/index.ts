@@ -5,3 +5,4 @@ export * from './route';
 export * from './utils';
 export * from './validate';
 export * from './wormhole';
+export * from './address';
