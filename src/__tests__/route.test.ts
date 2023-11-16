@@ -444,8 +444,6 @@ describe.skip('/routeHoma', () => {
     console.log('xcming to router ...');
     await mockXcmToRouter(routerAddr, userAcalaFork, DOT, stakeAmount);
 
-    await fetchTokenBalances();
-
     console.log('routing ...');
     const routeRes = await routeHoma({
       ...routeArgs,
@@ -457,10 +455,10 @@ describe.skip('/routeHoma', () => {
     const bal1 = await fetchTokenBalances();
 
     // router should be destroyed
-    expect(bal1.routerBalDot.toNumber()).to.eq(0);
-    expect(bal1.routerBalLdot.toNumber()).to.eq(0);
     const routerCode = await providerKarura.getCode(routerAddr);
     expect(routerCode).to.eq('0x');
+    expect(bal1.routerBalDot.toNumber()).to.eq(0);
+    expect(bal1.routerBalLdot.toNumber()).to.eq(0);
 
     // user should receive LDOT
     const routingFee = await fee.getFee(DOT);
@@ -480,9 +478,9 @@ describe.skip('/routeHoma', () => {
   });
 
   it('route to substrate address', async () => {
-    const acalaSs58Prefix = 10;
+    const ACALA_SS58_PREFIX = 10;
     const userAccountId = await evmAccounts.getAccountId(TEST_ADDR_USER);
-    const userSubstrateAddr = encodeAddress(userAccountId, acalaSs58Prefix);
+    const userSubstrateAddr = encodeAddress(userAccountId, ACALA_SS58_PREFIX);
 
     await testHomaRouter(userSubstrateAddr);
   });

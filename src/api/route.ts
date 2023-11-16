@@ -1,7 +1,6 @@
 import { DOT } from '@acala-network/contracts/utils/AcalaTokens';
 import { Factory__factory, HomaFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
-import { evmToAddr32, nativeToAddr32 } from '@acala-network/asset-router/dist/utils';
 
 import {
   DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID,
@@ -26,7 +25,6 @@ import {
   sendExtrinsic,
   toAddr32,
 } from '../utils';
-import { isEvmAddress, isSubstrateAddress } from '@acala-network/eth-providers';
 
 export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> => {
   const { chainConfig } = await prepareRouteXcm(routeParamsXcm);

@@ -165,17 +165,17 @@ export const getEthExtrinsic = async (
     // swallow and use default gas limit
   }
 
-  if (!tx.data) {
-    throw new Error('cannot populate tx.data');
-  }
-  if (!tx.value) {
-    throw new Error('cannot populate tx.value');
-  }
+  // if (!tx.data) {
+  //   throw new Error('cannot populate tx.data');
+  // }
+  // if (!tx.value) {
+  //   throw new Error('cannot populate tx.value');
+  // }
 
   return api.tx.evm.ethCallV2(
     { Call: tx.to },
-    tx.data,
-    tx.value.toString(),
+    tx.data!,
+    tx.value!.toString(),
     gasPrice,
     gasLimit,
     [],
