@@ -174,8 +174,8 @@ export const getEthExtrinsic = async (
 
   return api.tx.evm.ethCallV2(
     { Call: tx.to },
-    tx.data!,
-    tx.value!.toString(),
+    tx.data ?? '0x',
+    tx.value?.toBigInt() ?? 0,
     gasPrice,
     gasLimit,
     [],
