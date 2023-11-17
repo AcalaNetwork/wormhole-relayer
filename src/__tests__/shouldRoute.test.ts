@@ -383,7 +383,7 @@ describe.concurrent('/shouldRouteHoma', () => {
       expect(res).toMatchInlineSnapshot(`
         {
           "data": {
-            "msg": "incorrect data length (argument=\\"recipient\\", value=\\"0x65766d3aaaaaaaaaaa0000000000000000\\", code=INVALID_ARGUMENT, version=abi/5.7.0)",
+            "msg": "address 0xaaaaaaaaaa is not a valid evm or substrate address",
             "shouldRoute": false,
           },
         }
