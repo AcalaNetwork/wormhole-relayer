@@ -309,39 +309,76 @@ describe.concurrent('/shouldRouteWormhole', () => {
 
 describe.concurrent.skip('/shouldRouteHoma', () => {
   const destAddr = '0x75E480dB528101a381Ce68544611C169Ad7EB342';
+  const destAddrSubstrate = '23AdbsfRysaabyrWS2doCFsKisvt7dGbS3wQFXRS6pNbQY8G';
 
-  it('when should route (mainnet)', async () => {
+  describe('when should route', async () => {
+    it('to evm address', async () => {
+      // for (const network of [Object.values(Mainnet)]) {
+      for (const chain of ['acala']) {
+        let res = await shouldRouteHoma({
+          destAddr,
+          chain,
+        });
+
+        expect(res).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "routerAddr": "0xa013818BBddc5d2d55ab9cCD50759b3B1953d6cd",
+            "shouldRoute": true,
+          },
+        }
+      `);
+
+        // should be case insensitive
+        res = await shouldRouteHoma({
+          destAddr: destAddr.toLocaleLowerCase(),
+          chain,
+        });
+
+        expect(res).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "routerAddr": "0xa013818BBddc5d2d55ab9cCD50759b3B1953d6cd",
+            "shouldRoute": true,
+          },
+        }
+      `);
+      }
+    });
+
+    it('to substrate address', async () => {
     // for (const network of [Object.values(Mainnet)]) {
-    for (const chain of ['acala']) {
-      let res = await shouldRouteHoma({
-        destAddr,
-        chain,
-      });
+      for (const chain of ['acala']) {
+        let res = await shouldRouteHoma({
+          destAddr: destAddrSubstrate,
+          chain,
+        });
 
-      expect(res).toMatchInlineSnapshot(`
-        {
-          "data": {
-            "routerAddr": "0xa013818BBddc5d2d55ab9cCD50759b3B1953d6cd",
-            "shouldRoute": true,
-          },
-        }
-      `);
+        expect(res).toMatchInlineSnapshot(`
+          {
+            "data": {
+              "routerAddr": "0xfD6143c380706912a04230f22cF92c402561820e",
+              "shouldRoute": true,
+            },
+          }
+        `);
 
-      // should be case insensitive
-      res = await shouldRouteHoma({
-        destAddr: destAddr.toLocaleLowerCase(),
-        chain,
-      });
+        // should be case insensitive
+        res = await shouldRouteHoma({
+          destAddr: destAddrSubstrate.toLocaleLowerCase(),
+          chain,
+        });
 
-      expect(res).toMatchInlineSnapshot(`
-        {
-          "data": {
-            "routerAddr": "0xa013818BBddc5d2d55ab9cCD50759b3B1953d6cd",
-            "shouldRoute": true,
-          },
-        }
-      `);
-    }
+        expect(res).toMatchInlineSnapshot(`
+          {
+            "data": {
+              "msg": "address 23adbsfrysaabyrws2docfskisvt7dgbs3wqfxrs6pnbqy8g is not a valid evm or substrate address",
+              "shouldRoute": false,
+            },
+          }
+        `);
+      }
+    });
   });
 
   describe('when should not route', () => {
