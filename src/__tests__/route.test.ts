@@ -9,7 +9,7 @@ import { EVMAccounts__factory, IHoma__factory } from '@acala-network/contracts/t
 import { EVM_ACCOUNTS, HOMA } from '@acala-network/contracts/utils/Predeploy';
 import { FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { ONE_ACA, almostEq, nativeToAddr32, toHuman } from '@acala-network/asset-router/dist/utils';
+import { ONE_ACA, almostEq, toHuman } from '@acala-network/asset-router/dist/utils';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { encodeAddress } from '@polkadot/util-crypto';
 import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils';
@@ -54,9 +54,9 @@ const dest = encodeXcmDest({
 });
 
 const providerKarura = new AcalaJsonRpcProvider(ETH_RPC.KARURA_TESTNET);
-const providerAcalaFork = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
+const relayerKarura = new Wallet(TEST_KEY.RELAYER, providerKarura);
 
-const relayerSignerKarura = new Wallet(TEST_KEY.RELAYER, providerKarura);
+const providerAcalaFork = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
 const relayerAcalaFork = new Wallet(TEST_KEY.RELAYER, providerAcalaFork);
 const userAcalaFork = new Wallet(TEST_KEY.USER, providerAcalaFork);
 
@@ -77,7 +77,7 @@ describe('/routeXcm', () => {
     const { routerAddr } = res.data;
 
     console.log('xcming to router ...');
-    await mockXcmToRouter(routerAddr, relayerSignerKarura);
+    await mockXcmToRouter(routerAddr, relayerKarura);
 
     const curBalUser = await getBasiliskUsdcBalance(api, destAddr);
     console.log({ curBalUser });
@@ -320,7 +320,7 @@ describe('/routeWormhole', () => {
     const { routerAddr } = res.data;
 
     console.log('xcming to router ...');
-    await mockXcmToRouter(routerAddr, relayerSignerKarura);
+    await mockXcmToRouter(routerAddr, relayerKarura);
 
     const curBalUser = (await usdcF.balanceOf(TEST_ADDR_USER)).toBigInt();
     const curBalRelayer = (await usdcK.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
