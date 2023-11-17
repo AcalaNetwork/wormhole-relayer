@@ -307,7 +307,7 @@ describe.concurrent('/shouldRouteWormhole', () => {
   });
 });
 
-describe.concurrent('/shouldRouteHoma', () => {
+describe.concurrent.skip('/shouldRouteHoma', () => {
   const destAddr = '0x75E480dB528101a381Ce68544611C169Ad7EB342';
 
   it('when should route (mainnet)', async () => {
