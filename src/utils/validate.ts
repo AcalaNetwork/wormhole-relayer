@@ -29,7 +29,7 @@ export interface RouteParamsXcm extends RouteParamsBase {
 
 export interface RouteParamsHoma {
   chain: Mainnet;
-  destAddr: string;   // dest evm address
+  destAddr: string;   // dest evm or acala native address
 }
 
 export interface RelayAndRouteParams extends RouteParamsXcm {
