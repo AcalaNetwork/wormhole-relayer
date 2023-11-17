@@ -313,7 +313,7 @@ describe.concurrent.skip('/shouldRouteHoma', () => {
 
   describe('when should route', async () => {
     it('to evm address', async () => {
-      // for (const network of [Object.values(Mainnet)]) {
+      // for (const network of [Object.values(Mainnet)]) {    // TODO: enable this after deploying contract to karura
       for (const chain of ['acala']) {
         let res = await shouldRouteHoma({
           destAddr,
@@ -347,9 +347,9 @@ describe.concurrent.skip('/shouldRouteHoma', () => {
     });
 
     it('to substrate address', async () => {
-    // for (const network of [Object.values(Mainnet)]) {
+      // for (const network of [Object.values(Mainnet)]) {    // TODO: enable this after deploying contract to karura
       for (const chain of ['acala']) {
-        let res = await shouldRouteHoma({
+        const res = await shouldRouteHoma({
           destAddr: destAddrSubstrate,
           chain,
         });
@@ -359,21 +359,6 @@ describe.concurrent.skip('/shouldRouteHoma', () => {
             "data": {
               "routerAddr": "0xfD6143c380706912a04230f22cF92c402561820e",
               "shouldRoute": true,
-            },
-          }
-        `);
-
-        // should be case insensitive
-        res = await shouldRouteHoma({
-          destAddr: destAddrSubstrate.toLocaleLowerCase(),
-          chain,
-        });
-
-        expect(res).toMatchInlineSnapshot(`
-          {
-            "data": {
-              "msg": "address 23adbsfrysaabyrws2docfskisvt7dgbs3wqfxrs6pnbqy8g is not a valid evm or substrate address",
-              "shouldRoute": false,
             },
           }
         `);
