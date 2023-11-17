@@ -326,6 +326,86 @@ data: {
 // similar to /routeXcm
 ```
 
+### `/shouldRouteHoma`
+checks if the relayer can route this request, returns router address
+```
+GET /shouldRouteWormhole
+params: {
+  destAddr: string;   // recepient evm or acala native address
+  chain: string;      // 'acala' or 'karura'
+}
+```
+
+example
+```
+# ---------- when should route ---------- #
+GET /shouldRouteHoma?destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&chain=acala
+=>
+{
+  "data": {
+    "shouldRoute": true,
+    "routerAddr": "0xfD6143c380706912a04230f22cF92c402561820e"
+  }
+}
+
+GET /shouldRouteHoma?destAddr=23AdbsfRysaabyrWS2doCFsKisvt7dGbS3wQFXRS6pNbQY8G&chain=acala
+=>
+{
+  "data": {
+    "shouldRoute": true,
+    "routerAddr": "0xfD6143c380706912a04230f22cF92c402561820e"
+  }
+}
+
+# ---------- when should not route ---------- #
+GET /shouldRouteHoma?destAddr=0xabcde&chain=acala
+=>
+{
+  "data": {
+    "shouldRoute": false,
+    "msg": "address 0xabcde is not a valid evm or substrate address"
+  }
+}
+
+# ---------- when error ---------- #
+GET /shouldRouteHoma?chain=acala
+=>
+{
+  "msg": "invalid request params!",
+  "error": [
+    "destAddr is a required field"
+  ]
+}
+```
+
+### `/routeHoma`
+route the quest, and returns the route txhash
+```
+POST /routeHoma
+data: {
+  destAddr: string;   // recepient evm or acala native address
+  chain: string;      // 'acala' or 'karura'
+}
+```
+
+example
+```
+POST /routeHoma
+data: {
+  destAddr: 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
+  chain: 'acala'
+}
+
+=> tx hash
+{
+  data: '0x677cd79963bb4b45c50009f213194397be3081cfb206e958da02b6357c44674e'
+}
+
+
+/* ---------- when error ---------- */
+// similar to /routeXcm
+```
+
 ## Routing Process
 A complete working flow can be found in [routing e2e tests](./src/__tests__/route.test.ts).
 
@@ -364,6 +444,23 @@ yarn test:relay
 
 yarn test:shouldRoute
 yarn test:route
+```
+
+### test homa router setup
+first start a local acala fork
+```
+npx @acala-network/chopsticks@latest -c src/__tests__/configs/acala.yml -p 8000
+```
+
+start an rpc adapter
+```
+npx @acala-network/eth-rpc-adapter -e ws://localhost:8000
+```
+
+start the relayer
+```
+mv .env.homa .env
+yarn dev
 ```
 
 ## Production Config

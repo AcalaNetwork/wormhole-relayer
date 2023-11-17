@@ -2,17 +2,20 @@ import { NextFunction, Request, Response } from 'express';
 import { Schema } from 'yup';
 
 import { NoRouteError } from './error';
-import { logger } from '../utils';
 import {
+  shouldRouteHoma,
   relayAndRoute,
   relayAndRouteBatch,
+  routeHoma,
   routeWormhole,
   routeXcm,
   shouldRouteWormhole,
   shouldRouteXcm,
 } from '../api/route';
+import { logger } from '../utils';
 import {
   relayAndRouteSchema,
+  routeHomaSchema,
   routeWormholeSchema,
   routeXcmSchema,
 } from '../utils/validate';
@@ -36,6 +39,10 @@ const ROUTER_CONFIGS: {
       schema: routeXcmSchema,
       handler: shouldRouteXcm,
     },
+    '/shouldRouteHoma': {
+      schema: routeHomaSchema,
+      handler: shouldRouteHoma,
+    },
   },
 
   POST: {
@@ -55,6 +62,10 @@ const ROUTER_CONFIGS: {
       schema: relayAndRouteSchema,
       handler: relayAndRouteBatch,
     },
+    '/routeHoma': {
+      schema: routeHomaSchema,
+      handler: routeHoma,
+    },
   },
 };
 
@@ -65,7 +76,7 @@ const handleRoute = async (req: Request, res: Response) => {
     ? req.body
     : req.query;
 
-  logger.info({ args }, `==> ${reqPath}`);
+  logger.info({ args }, `⬇ ${reqPath}`);
 
   const config = ROUTER_CONFIGS[method]?.[path];
   if (!config) {
@@ -75,7 +86,7 @@ const handleRoute = async (req: Request, res: Response) => {
   await config.schema.validate(args, { abortEarly: false });
   const data = await config.handler(args);
 
-  logger.info({ data }, `<== ${reqPath}`);
+  logger.info({ data }, `✨ ${reqPath}`);
   res.end(JSON.stringify({ data }));
 };
 

@@ -1,0 +1,35 @@
+endpoint: wss://acala-rpc.aca-api.network
+mock-signature-host: true
+block: ${env.ACALA_BLOCK_NUMBER}
+db: ./db.sqlite
+
+import-storage:
+  Sudo:
+    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - providers: 1
+          data:
+            free: 1000000000000000
+      -
+        -
+          - 246gNkjCexYRsCpdjtVhz35sHjcb21jpqipzT9u4uwKV8iEE
+        - data:
+            free: 1000000000000000
+  Tokens:
+    Accounts:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: DOT
+        - free: 1000000000000000
+  EvmAccounts:
+    EvmAddresses:
+    - - - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+      - '0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3'    # relayer
+    Accounts:
+    - - - '0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3'
+      - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY

@@ -1,4 +1,16 @@
-import { ObjectSchema, object, string } from 'yup';
+import { CHAIN_ID_ACALA, CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
+import { ObjectSchema, mixed, object, string } from 'yup';
+
+export enum Mainnet {
+  Acala = 'acala',
+  Karura = 'karura',
+}
+
+export const getMainnetChainId = (mainnet: Mainnet) => (
+  mainnet === Mainnet.Acala
+    ? CHAIN_ID_ACALA
+    : CHAIN_ID_KARURA
+);
 
 interface RouteParamsBase {
   originAddr: string;     // origin token address
@@ -13,6 +25,11 @@ export interface RouteParamsWormhole extends RouteParamsBase {
 export interface RouteParamsXcm extends RouteParamsBase {
   destParaId: string;  // TODO: maybe can decode from dest
   dest: string;           // xcm encoded dest in hex
+}
+
+export interface RouteParamsHoma {
+  chain: Mainnet;
+  destAddr: string;   // dest evm or acala native address
 }
 
 export interface RelayAndRouteParams extends RouteParamsXcm {
@@ -37,4 +54,9 @@ export const routeWormholeSchema: ObjectSchema<RouteParamsWormhole> = object({
   targetChainId: string().required(),
   destAddr: string().required(),
   fromParaId: string().required(),
+});
+
+export const routeHomaSchema: ObjectSchema<RouteParamsHoma> = object({
+  destAddr: string().required(),
+  chain: mixed<Mainnet>().oneOf(Object.values(Mainnet)).required(),
 });

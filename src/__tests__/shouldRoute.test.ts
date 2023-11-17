@@ -7,8 +7,10 @@ import {
   ROUTE_SUPPORTED_CHAINS_AND_ASSETS,
   ROUTE_SUPPORTED_CHAINS_AND_ASSETS_PROD,
 } from '../consts';
+import { Mainnet } from '../utils';
 import {
   expectError,
+  shouldRouteHoma,
   shouldRouteWormhole,
   shouldRouteXcm,
 } from './testUtils';
@@ -301,6 +303,113 @@ describe.concurrent('/shouldRouteWormhole', () => {
           msg: `origin token ${unsupportedToken} not supported on router chain 11`,
         },
       });
+    });
+  });
+});
+
+describe.concurrent.skip('/shouldRouteHoma', () => {
+  const destAddr = '0x75E480dB528101a381Ce68544611C169Ad7EB342';
+  const destAddrSubstrate = '23AdbsfRysaabyrWS2doCFsKisvt7dGbS3wQFXRS6pNbQY8G';
+
+  describe('when should route', async () => {
+    it('to evm address', async () => {
+      // for (const network of [Object.values(Mainnet)]) {    // TODO: enable this after deploying contract to karura
+      for (const chain of ['acala']) {
+        let res = await shouldRouteHoma({
+          destAddr,
+          chain,
+        });
+
+        expect(res).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "routerAddr": "0xa013818BBddc5d2d55ab9cCD50759b3B1953d6cd",
+            "shouldRoute": true,
+          },
+        }
+      `);
+
+        // should be case insensitive
+        res = await shouldRouteHoma({
+          destAddr: destAddr.toLocaleLowerCase(),
+          chain,
+        });
+
+        expect(res).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "routerAddr": "0xa013818BBddc5d2d55ab9cCD50759b3B1953d6cd",
+            "shouldRoute": true,
+          },
+        }
+      `);
+      }
+    });
+
+    it('to substrate address', async () => {
+      // for (const network of [Object.values(Mainnet)]) {    // TODO: enable this after deploying contract to karura
+      for (const chain of ['acala']) {
+        const res = await shouldRouteHoma({
+          destAddr: destAddrSubstrate,
+          chain,
+        });
+
+        expect(res).toMatchInlineSnapshot(`
+          {
+            "data": {
+              "routerAddr": "0xfD6143c380706912a04230f22cF92c402561820e",
+              "shouldRoute": true,
+            },
+          }
+        `);
+      }
+    });
+  });
+
+  describe('when should not route', () => {
+    it('when missing params', async () => {
+      try {
+        await shouldRouteHoma({
+          destAddr,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['chain is a required field'], 400);
+      }
+
+      try {
+        await shouldRouteHoma({
+          chain: Mainnet.Acala,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['destAddr is a required field'], 400);
+      }
+
+      try {
+        await shouldRouteHoma({
+          chain: 'mandala',
+          destAddr,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['chain must be one of the following values: acala, karura'], 400);
+      }
+    });
+
+    it('when bad params', async () => {
+      const res = await shouldRouteHoma({
+        chain: Mainnet.Acala,
+        destAddr: '0xaaaaaaaaaa',
+      });
+      expect(res).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "msg": "address 0xaaaaaaaaaa is not a valid evm or substrate address",
+            "shouldRoute": false,
+          },
+        }
+      `);
     });
   });
 });
