@@ -15,7 +15,9 @@ const startServer = async (): Promise<void> => {
       ⚡               relayer running on port ${PORT}               ⚡
       ----------------------------------------------------------------
       KARURA_ETH_RPC  : ${process.env.KARURA_ETH_RPC}
+      KARURA_NODE_URL  : ${process.env.KARURA_NODE_URL}
       ACALA_ETH_RPC   : ${process.env.ACALA_ETH_RPC}
+      ACALA_NODE_URL   : ${process.env.ACALA_NODE_URL}
       TESTNET_MODE    : ${process.env.TESTNET_MODE}
       VERSION         : ${VERSION}
       ----------------------------------------------------------------

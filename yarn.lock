@@ -17,10 +17,10 @@
     "@acala-network/api-derive" "6.0.4"
     "@acala-network/types" "6.0.4"
 
-"@acala-network/asset-router@~1.0.11":
-  version "1.0.11"
-  resolved "https://registry.npmjs.org/@acala-network/asset-router/-/asset-router-1.0.11.tgz#7fe0df7b00d5821fb1383c49b1a824eb3f640b41"
-  integrity sha512-WIqVN0h2DlZVHnM/WjgURwLpWj4CyAaegpmPUSdPgsLSj8lFY/iQIgM0JUENLAKPL9FyivTIIBYstBbbIKDk4g==
+"@acala-network/asset-router@~1.0.12":
+  version "1.0.12"
+  resolved "https://registry.npmjs.org/@acala-network/asset-router/-/asset-router-1.0.12.tgz#bfadaf1ca1626e519b1b1dfb9db066f9a8de5833"
+  integrity sha512-2FLkZ5S50A0gpAM/QQn2wnZ+pcQ0dIaxgzufP+yMHsKW3DeK71fLDpI5GlRUXgIhuMvcMBOvMjV8vt/hifOUzg==
   dependencies:
     "@acala-network/contracts" "^4.5.0"
     "@acala-network/eth-providers" "^2.7.13"
