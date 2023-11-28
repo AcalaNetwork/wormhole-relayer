@@ -45,7 +45,6 @@ const ROUTER_CONFIGS: {
       handler: shouldRouteHoma,
     },
     '/health': {
-      schema: undefined,
       handler: healthCheck,
     },
   },
