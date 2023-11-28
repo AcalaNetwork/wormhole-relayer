@@ -7,6 +7,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { SubstrateSigner } from '@acala-network/bodhi';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { decodeEthGas } from '@acala-network/eth-providers';
 import { options } from '@acala-network/api';
 import { parseUnits } from 'ethers/lib/utils';
 
@@ -165,12 +166,24 @@ export const getEthExtrinsic = async (
     // swallow and use default gas limit
   }
 
-  return api.tx.evm.ethCallV2(
-    { Call: tx.to },
+  if (!tx.to) {
+    throw new RelayerError('tx.to is undefined when constructing eth extrinsic', { tx });
+  }
+
+  const {
+    gasLimit: substrateGasLimit,
+    storageLimit,
+  } = decodeEthGas({
+    gasLimit: BigNumber.from(gasLimit),
+    gasPrice: BigNumber.from(gasPrice),
+  });
+
+  return api.tx.evm.strictCall(
+    tx.to,
     tx.data ?? '0x',
     tx.value?.toBigInt() ?? 0,
-    gasPrice,
-    gasLimit,
+    substrateGasLimit,
+    storageLimit,
     [],
   );
 };
