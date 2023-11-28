@@ -2,17 +2,18 @@ import { NextFunction, Request, Response } from 'express';
 import { Schema } from 'yup';
 
 import { NoRouteError } from './error';
+import { healthCheck } from '../api/health';
+import { logger } from '../utils';
 import {
-  shouldRouteHoma,
   relayAndRoute,
   relayAndRouteBatch,
   routeHoma,
   routeWormhole,
   routeXcm,
+  shouldRouteHoma,
   shouldRouteWormhole,
   shouldRouteXcm,
 } from '../api/route';
-import { logger } from '../utils';
 import {
   relayAndRouteSchema,
   routeHomaSchema,
@@ -21,7 +22,7 @@ import {
 } from '../utils/validate';
 
 interface RouterConfig {
-  schema: Schema;
+  schema?: Schema;
   handler: (data: any) => Promise<any>;
 }
 
@@ -42,6 +43,10 @@ const ROUTER_CONFIGS: {
     '/shouldRouteHoma': {
       schema: routeHomaSchema,
       handler: shouldRouteHoma,
+    },
+    '/health': {
+      schema: undefined,
+      handler: healthCheck,
     },
   },
 
@@ -83,7 +88,7 @@ const handleRoute = async (req: Request, res: Response) => {
     throw new NoRouteError(`${reqPath} not supported`);
   }
 
-  await config.schema.validate(args, { abortEarly: false });
+  await config.schema?.validate(args, { abortEarly: false });
   const data = await config.handler(args);
 
   logger.info({ data }, `✨ ${reqPath}`);

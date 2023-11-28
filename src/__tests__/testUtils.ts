@@ -169,6 +169,10 @@ export const testTimeout = process.env.COVERAGE
   ? _supertestPost(RELAYER_API.TEST_TIMEOUT)
   : _axiosPost(RELAYER_URL.TEST_TIMEOUT);
 
+export const health = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.HEALTH)
+  : _axiosGet(RELAYER_URL.HEALTH);
+
 export const shouldRouteHoma = process.env.COVERAGE
   ? _supertestGet(RELAYER_API.GET_HOMA_ROUTER_ADDR)
   : _axiosGet(RELAYER_URL.GET_HOMA_ROUTER_ADDR);
