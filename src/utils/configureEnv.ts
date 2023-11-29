@@ -91,5 +91,5 @@ const configAcala = async (): Promise<ChainConfig> => {
 
 const configs = prepareEnvironment();
 export const getChainConfig = async (chainId: ROUTER_CHAIN_ID): Promise<ChainConfig> => (
-  (await configs).find((x) => x.chainId === chainId)!
+  (await configs).find(x => x.chainId === chainId)!
 );

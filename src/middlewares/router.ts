@@ -2,17 +2,17 @@ import { NextFunction, Request, Response } from 'express';
 import { Schema } from 'yup';
 
 import { NoRouteError } from './error';
+import { logger } from '../utils';
 import {
-  shouldRouteHoma,
   relayAndRoute,
   relayAndRouteBatch,
   routeHoma,
   routeWormhole,
   routeXcm,
+  shouldRouteHoma,
   shouldRouteWormhole,
   shouldRouteXcm,
 } from '../api/route';
-import { logger } from '../utils';
 import {
   relayAndRouteSchema,
   routeHomaSchema,
