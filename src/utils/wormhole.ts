@@ -84,7 +84,7 @@ export const getRouterChainTokenAddr = async (
     : ROUTER_TOKEN_INFO;
 
   const targetTokenInfo = Object.values(routerTokenInfo)
-    .find((info) => info.originAddr === originAddr);
+    .find(info => info.originAddr === originAddr);
 
   if (!targetTokenInfo) {
     return ZERO_ADDR;

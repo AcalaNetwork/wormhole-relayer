@@ -27,7 +27,7 @@ const startServer = async (): Promise<void> => {
   });
 };
 
-startServer().catch((e) => {
+startServer().catch(e => {
   console.log('❗️❗️ something is wrong with relayer: ', e);
   process.exit(1);
 });
