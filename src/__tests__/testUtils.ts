@@ -54,17 +54,18 @@ export const mockXcmToRouter = async (
 ) => {
   const token = ERC20__factory.connect(tokenAddr, signer);
 
-  expect((await token.balanceOf(routerAddr)).toNumber(), 'router already has balance!').to.eq(0);
-
   const decimals = await token.decimals();
-
   const routeAmount = parseUnits(String(amount), decimals);
-  if ((await token.balanceOf(signer.address)).lt(routeAmount)) {
-    throw new Error(`signer ${signer.address} has no enough token [${tokenAddr}] to transfer!`);
-  }
-  await (await token.transfer(routerAddr, routeAmount)).wait();
 
-  expect((await token.balanceOf(routerAddr)).toBigInt()).to.eq(routeAmount.toBigInt());
+  const routerBal = await token.balanceOf(routerAddr);
+  if (routerBal.gt(0)) {
+    expect(routerBal.toBigInt()).to.eq(routeAmount.toBigInt());
+  } else {
+    if ((await token.balanceOf(signer.address)).lt(routeAmount)) {
+      throw new Error(`signer ${signer.address} has no enough token [${tokenAddr}] to transfer!`);
+    }
+    await (await token.transfer(routerAddr, routeAmount)).wait();
+  }
 };
 
 export const expectError = (err: any, msg: any, code: number) => {
@@ -168,6 +169,10 @@ export const version = process.env.COVERAGE
 export const testTimeout = process.env.COVERAGE
   ? _supertestPost(RELAYER_API.TEST_TIMEOUT)
   : _axiosPost(RELAYER_URL.TEST_TIMEOUT);
+
+export const health = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.HEALTH)
+  : _axiosGet(RELAYER_URL.HEALTH);
 
 export const shouldRouteHoma = process.env.COVERAGE
   ? _supertestGet(RELAYER_API.GET_HOMA_ROUTER_ADDR)

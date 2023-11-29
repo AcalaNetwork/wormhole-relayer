@@ -59,6 +59,7 @@ export const RELAYER_API = {
   NO_ROUTE: '/noRoute',
   VERSION: '/version',
   TEST_TIMEOUT: '/testTimeout',
+  HEALTH: '/health',
 } as const;
 
 export const RELAYER_URL = {
@@ -79,6 +80,7 @@ export const RELAYER_URL = {
   NO_ROUTE: `${RELAYER_BASE_URL}${RELAYER_API.NO_ROUTE}`,
   VERSION: `${RELAYER_BASE_URL}${RELAYER_API.VERSION}`,
   TEST_TIMEOUT: `${RELAYER_BASE_URL}${RELAYER_API.TEST_TIMEOUT}`,
+  HEALTH: `${RELAYER_BASE_URL}${RELAYER_API.HEALTH}`,
 } as const;
 
 /* ---------------

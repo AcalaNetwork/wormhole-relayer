@@ -50,7 +50,7 @@
   resolved "https://registry.npmjs.org/@acala-network/contracts/-/contracts-4.5.0.tgz#966821b130380fb552646a84269e9f069b221a4b"
   integrity sha512-dmknf3S3+a39lxJNPA6M0VkaJgvYprvapueNIKCG9kSEqOaEx/a2fVTlBt7K10u/qPvrJwkAyNp5t6XvuCcw2w==
 
-"@acala-network/eth-providers@2.7.13", "@acala-network/eth-providers@^2.7.13", "@acala-network/eth-providers@~2.7.13":
+"@acala-network/eth-providers@2.7.13", "@acala-network/eth-providers@^2.7.13":
   version "2.7.13"
   resolved "https://registry.npmjs.org/@acala-network/eth-providers/-/eth-providers-2.7.13.tgz#b20b946e6660905f7cea44086ba072b4099f92d4"
   integrity sha512-IuVOd+mhnugAO4OCKr/uXVDrvJIhb7+88Wj9fzqsSQO3HRg+HZexCYOjPGHOWspaKenk5pJGAKAdTK+EQYp4/g==
@@ -64,10 +64,31 @@
     graphql-request "~3.6.1"
     lru-cache "~7.8.2"
 
+"@acala-network/eth-providers@~2.7.14":
+  version "2.7.14"
+  resolved "https://registry.yarnpkg.com/@acala-network/eth-providers/-/eth-providers-2.7.14.tgz#f4d246c8fc5410ef449a9ca161038d9e16b67a82"
+  integrity sha512-9n0GYvRWc3fDRmZU1amWETbhqz7wTeLuesn5JSVuvFNacoAKqOefqYRCFIOy05LWUYyDeVRboH+/CvEvPLNb/A==
+  dependencies:
+    "@acala-network/contracts" "4.3.4"
+    "@acala-network/eth-transactions" "2.7.14"
+    bn.js "~5.2.0"
+    dd-trace "~4.16.0"
+    ethers "~5.7.0"
+    graphql "~16.0.1"
+    graphql-request "~3.6.1"
+    lru-cache "~7.8.2"
+
 "@acala-network/eth-transactions@2.7.13":
   version "2.7.13"
   resolved "https://registry.npmjs.org/@acala-network/eth-transactions/-/eth-transactions-2.7.13.tgz#eecd14690fe6d1315a0aba48f01fb751a10937d1"
   integrity sha512-zEKak7yT5UyxC7CSrg1q/AQXUSYizVTw59TJcK+95VQMttq8LiY+Vy9PEs4+2Eqpet9X19BDg8LUu5VLoK33uw==
+  dependencies:
+    ethers "~5.7.0"
+
+"@acala-network/eth-transactions@2.7.14":
+  version "2.7.14"
+  resolved "https://registry.yarnpkg.com/@acala-network/eth-transactions/-/eth-transactions-2.7.14.tgz#ffa78f7695c92fec5805b255d27b96d55fa2e741"
+  integrity sha512-9gixopUUmfzhSyrO+efkE20Q6GPdRSVWuXwKMCPlR7BSMvYfI6+/ksj5mexFEYA1rFCSBgUiy3Y4jNfRzsA6cQ==
   dependencies:
     ethers "~5.7.0"
 

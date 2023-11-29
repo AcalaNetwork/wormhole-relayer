@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { expectError, noRoute, testTimeout, version } from './testUtils';
+import { expectError, health, noRoute, testTimeout, version } from './testUtils';
 
 describe.concurrent('/miscellaneous', () => {
   describe('when no route for the request', () => {
@@ -30,6 +30,16 @@ describe.concurrent('/miscellaneous', () => {
       const endTime = Date.now();
 
       expect(endTime - startTime).to.be.gte(1000);
+    });
+  });
+
+  describe('/health', () => {
+    it('works', async () => {
+      const res = await health({});
+
+      expect(Number(res.data.relayerBalAcala)).to.be.gt(0);
+      expect(Number(res.data.relayerBalKarura)).to.be.gt(0);
+      expect(res.data.isHealthy).to.be.true;
     });
   });
 });
