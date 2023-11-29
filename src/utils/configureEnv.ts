@@ -3,7 +3,7 @@ import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { ApiPromise } from '@polkadot/api';
 import { CHAIN_ID_ACALA, CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
 import { Wallet } from 'ethers';
-import { cleanEnv, num, str } from 'envalid';
+import { bool, cleanEnv, str } from 'envalid';
 import dotenv from 'dotenv';
 
 import { ROUTER_CHAIN_ID, getApi } from './utils';
@@ -33,10 +33,10 @@ const env = cleanEnv(process.env, {
   ACALA_ETH_RPC: str(),
   ACALA_PRIVATE_KEY: str(),
   ACALA_NODE_URL: str(),
-  TESTNET_MODE: num({ choices: [0, 1] }),
+  TESTNET_MODE: bool(),
 });
 
-const isTestnet = Boolean(Number(env.TESTNET_MODE));
+const isTestnet = env.TESTNET_MODE;
 
 export const prepareEnvironment = (): Promise<RelayerEnvironment> => Promise.all([
   configKarura(),
