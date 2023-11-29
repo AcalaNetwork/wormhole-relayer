@@ -3,12 +3,10 @@ import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { ApiPromise } from '@polkadot/api';
 import { CHAIN_ID_ACALA, CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
 import { Wallet } from 'ethers';
+import { cleanEnv, num, str } from 'envalid';
 import dotenv from 'dotenv';
 
 import { ROUTER_CHAIN_ID, getApi } from './utils';
-
-const envPath = process.env.ENV_PATH ?? '.env';
-dotenv.config({ path: envPath });
 
 export type ChainConfig = {
   chainId: ROUTER_CHAIN_ID;
@@ -26,16 +24,19 @@ export type ChainConfig = {
 
 export type RelayerEnvironment = ChainConfig[];
 
-const ensureEnvVars = (envVars: string[]) => {
-  for (const envVar of envVars) {
-    if (!process.env[envVar]) {
-      console.error(`Missing environment variable ${envVar}`);
-      process.exit(1);
-    }
-  }
-};
+dotenv.config();
 
-const isTestnet = Boolean(Number(process.env.TESTNET_MODE ?? 1));
+const env = cleanEnv(process.env, {
+  KARURA_ETH_RPC: str(),
+  KARURA_PRIVATE_KEY: str(),
+  KARURA_NODE_URL: str(),
+  ACALA_ETH_RPC: str(),
+  ACALA_PRIVATE_KEY: str(),
+  ACALA_NODE_URL: str(),
+  TESTNET_MODE: num({ choices: [0, 1] }),
+});
+
+const isTestnet = Boolean(Number(env.TESTNET_MODE));
 
 export const prepareEnvironment = (): Promise<RelayerEnvironment> => Promise.all([
   configKarura(),
@@ -43,21 +44,15 @@ export const prepareEnvironment = (): Promise<RelayerEnvironment> => Promise.all
 ]);
 
 const configKarura = async (): Promise<ChainConfig> => {
-  ensureEnvVars([
-    'KARURA_ETH_RPC',
-    'KARURA_PRIVATE_KEY',
-    'KARURA_NODE_URL',
-  ]);
-
   const addresses = isTestnet
     ? ADDRESSES.KARURA_TESTNET
     : ADDRESSES.KARURA;
 
-  const provider = new AcalaJsonRpcProvider(process.env.KARURA_ETH_RPC!);
-  const wallet = new Wallet(process.env.KARURA_PRIVATE_KEY!, provider);
+  const provider = new AcalaJsonRpcProvider(env.KARURA_ETH_RPC);
+  const wallet = new Wallet(env.KARURA_PRIVATE_KEY, provider);
   const { substrateAddr, api } = await getApi(
-    process.env.KARURA_PRIVATE_KEY!,
-    process.env.KARURA_NODE_URL!,
+    env.KARURA_PRIVATE_KEY,
+    env.KARURA_NODE_URL,
   );
 
   return {
@@ -72,21 +67,15 @@ const configKarura = async (): Promise<ChainConfig> => {
 };
 
 const configAcala = async (): Promise<ChainConfig> => {
-  ensureEnvVars([
-    'ACALA_ETH_RPC',
-    'ACALA_PRIVATE_KEY',
-    'ACALA_NODE_URL',
-  ]);
-
   const addresses = isTestnet
     ? ADDRESSES.ACALA_TESTNET
     : ADDRESSES.ACALA;
 
-  const provider = new AcalaJsonRpcProvider(process.env.ACALA_ETH_RPC!);
-  const wallet = new Wallet(process.env.ACALA_PRIVATE_KEY!, provider);
+  const provider = new AcalaJsonRpcProvider(env.ACALA_ETH_RPC);
+  const wallet = new Wallet(env.ACALA_PRIVATE_KEY, provider);
   const { substrateAddr, api } = await getApi(
-    process.env.ACALA_PRIVATE_KEY!,
-    process.env.ACALA_NODE_URL!,
+    env.ACALA_PRIVATE_KEY,
+    env.ACALA_NODE_URL,
   );
 
   return {
@@ -100,7 +89,7 @@ const configAcala = async (): Promise<ChainConfig> => {
   };
 };
 
-const env = prepareEnvironment();
+const configs = prepareEnvironment();
 export const getChainConfig = async (chainId: ROUTER_CHAIN_ID): Promise<ChainConfig> => (
-  (await env).find((x) => x.chainId === chainId)!
+  (await configs).find((x) => x.chainId === chainId)!
 );
