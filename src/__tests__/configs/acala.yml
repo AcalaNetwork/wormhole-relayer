@@ -1,4 +1,4 @@
-endpoint: wss://acala-rpc.aca-api.network
+endpoint: wss://crosschain-dev.polkawallet.io:9915
 mock-signature-host: true
 block: ${env.ACALA_BLOCK_NUMBER}
 db: ./db.sqlite
