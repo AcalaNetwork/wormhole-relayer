@@ -480,6 +480,8 @@ describe.skip('/routeHoma', () => {
   it('route to substrate address', async () => {
     const ACALA_SS58_PREFIX = 10;
     const userAccountId = await evmAccounts.getAccountId(TEST_ADDR_USER);
+    expect(userAccountId.slice(-10)).to.not.eq('0'.repeat(10));     // should not be default substrate addr
+
     const userSubstrateAddr = encodeAddress(userAccountId, ACALA_SS58_PREFIX);
 
     await testHomaRouter(userSubstrateAddr);
