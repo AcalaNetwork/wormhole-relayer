@@ -7,15 +7,18 @@ import { logger } from '../utils';
 import {
   relayAndRoute,
   relayAndRouteBatch,
+  routeEuphrates,
   routeHoma,
   routeWormhole,
   routeXcm,
+  shouldRouteEuphrates,
   shouldRouteHoma,
   shouldRouteWormhole,
   shouldRouteXcm,
 } from '../api/route';
 import {
   relayAndRouteSchema,
+  routeEuphratesSchema,
   routeHomaSchema,
   routeWormholeSchema,
   routeXcmSchema,
@@ -44,6 +47,10 @@ const ROUTER_CONFIGS: {
       schema: routeHomaSchema,
       handler: shouldRouteHoma,
     },
+    '/shouldRouteEuphrates': {
+      schema: routeEuphratesSchema,
+      handler: shouldRouteEuphrates,
+    },
     '/health': {
       handler: healthCheck,
     },
@@ -69,6 +76,10 @@ const ROUTER_CONFIGS: {
     '/routeHoma': {
       schema: routeHomaSchema,
       handler: routeHoma,
+    },
+    '/routeEuphrates': {
+      schema: routeEuphratesSchema,
+      handler: routeEuphrates,
     },
   },
 };

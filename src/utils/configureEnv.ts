@@ -19,6 +19,7 @@ export type ChainConfig = {
   factoryAddr: string;
   homaFactoryAddr?: string;
   accountHelperAddr?: string;
+  euphratesFactoryAddr?: string;
   isTestnet: boolean;
 };
 

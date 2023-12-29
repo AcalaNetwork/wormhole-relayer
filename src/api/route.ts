@@ -8,6 +8,7 @@ import {
 import {
   Mainnet,
   RelayAndRouteParams,
+  RouteParamsEuphrates,
   RouteParamsHoma,
   RouteParamsWormhole,
   RouteParamsXcm,
@@ -133,14 +134,14 @@ export const shouldRouteWormhole = async (data: any) =>  {
   }
 };
 
-const prepareRouteHoma = async (chain: Mainnet) => {
+const prepareRouteEuphrates = async (chain: Mainnet) => {
   const chainId = getMainnetChainId(chain);
   const chainConfig = await getChainConfig(chainId);
-  const { feeAddr, homaFactoryAddr, wallet } = chainConfig;
+  const { feeAddr, euphratesFactoryAddr, wallet } = chainConfig;
 
-  const homaFactory = HomaFactory__factory.connect(homaFactoryAddr!, wallet);
+  const euphratesFactory = EuphratesFactory__factory.connect(euphratesFactoryAddr!, wallet);
 
-  return { homaFactory, feeAddr };
+  return { euphratesFactory, feeAddr };
 };
 
 export const shouldRouteHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  {
@@ -166,6 +167,44 @@ export const shouldRouteHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  
 export const routeHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  {
   const { homaFactory, feeAddr } = await prepareRouteHoma(chain);
   const tx = await homaFactory.deployHomaRouterAndRoute(feeAddr, toAddr32(destAddr), DOT);
+  const receipt = await tx.wait();
+
+  return receipt.transactionHash;
+};
+
+const prepareRouteHoma = async (chain: Mainnet) => {
+  const chainId = getMainnetChainId(chain);
+  const chainConfig = await getChainConfig(chainId);
+  const { feeAddr, homaFactoryAddr, wallet } = chainConfig;
+
+  const homaFactory = HomaFactory__factory.connect(homaFactoryAddr!, wallet);
+
+  return { homaFactory, feeAddr };
+};
+
+export const shouldRouteEuphrates = async ({ destAddr }: RouteParamsEuphrates) => {
+  try {
+    const { euphratesFactory, feeAddr } = await prepareRouteEuphrates(Mainnet.Acala);
+    const routerAddr = await euphratesFactory.callStatic.deployEuphratesRouter(
+      feeAddr,
+      toAddr32(destAddr),
+    );
+
+    return {
+      shouldRoute: true,
+      routerAddr,
+    };
+  } catch (err) {
+    return {
+      shouldRoute: false,
+      msg: err.message,
+    };
+  }
+};
+
+export const routeEuphrates = async ({ destAddr }: RouteParamsHoma) => {
+  const { euphratesFactory, feeAddr } = await prepareRouteEuphrates(Mainnet.Acala);
+  const tx = await euphratesFactory.deployEuphratesRouterAndRoute(feeAddr, toAddr32(destAddr));
   const receipt = await tx.wait();
 
   return receipt.transactionHash;
