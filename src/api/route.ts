@@ -1,9 +1,9 @@
 import { DOT } from '@acala-network/contracts/utils/AcalaTokens';
-import { Factory__factory, HomaFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { EuphratesFactory__factory, Factory__factory, HomaFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
 
 import {
-  DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID,
+  DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID, EUPHRATES_ADDR,
 } from '../consts';
 import {
   Mainnet,
@@ -26,6 +26,7 @@ import {
   sendExtrinsic,
   toAddr32,
 } from '../utils';
+import { RelayerError } from '../middlewares';
 
 export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> => {
   const { chainConfig } = await prepareRouteXcm(routeParamsXcm);
@@ -182,12 +183,13 @@ const prepareRouteHoma = async (chain: Mainnet) => {
   return { homaFactory, feeAddr };
 };
 
-export const shouldRouteEuphrates = async ({ destAddr }: RouteParamsEuphrates) => {
+export const shouldRouteEuphrates = async (params: RouteParamsEuphrates) => {
   try {
     const { euphratesFactory, feeAddr } = await prepareRouteEuphrates(Mainnet.Acala);
     const routerAddr = await euphratesFactory.callStatic.deployEuphratesRouter(
       feeAddr,
-      toAddr32(destAddr),
+      params,
+      EUPHRATES_ADDR,
     );
 
     return {
@@ -202,9 +204,18 @@ export const shouldRouteEuphrates = async ({ destAddr }: RouteParamsEuphrates) =
   }
 };
 
-export const routeEuphrates = async ({ destAddr }: RouteParamsHoma) => {
+export const routeEuphrates = async (params: RouteParamsEuphrates) => {
+  if (params.token === undefined) {
+    throw new RelayerError('no token address provided for routeEuphrates', params);
+  }
+
   const { euphratesFactory, feeAddr } = await prepareRouteEuphrates(Mainnet.Acala);
-  const tx = await euphratesFactory.deployEuphratesRouterAndRoute(feeAddr, toAddr32(destAddr));
+  const tx = await euphratesFactory.deployEuphratesRouterAndRoute(
+    feeAddr,
+    params,
+    EUPHRATES_ADDR,
+    params.token,
+  );
   const receipt = await tx.wait();
 
   return receipt.transactionHash;
