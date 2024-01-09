@@ -3,7 +3,7 @@ import { EuphratesFactory__factory, Factory__factory, HomaFactory__factory } fro
 import { XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
 
 import {
-  DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID, EUPHRATES_ADDR,
+  DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID, EUPHRATES_ADDR, EUPHRATES_POOLS,
 } from '../consts';
 import {
   Mainnet,
@@ -186,6 +186,10 @@ const prepareRouteHoma = async (chain: Mainnet) => {
 export const shouldRouteEuphrates = async (params: RouteParamsEuphrates) => {
   try {
     const { euphratesFactory, feeAddr } = await prepareRouteEuphrates(Mainnet.Acala);
+    if (!EUPHRATES_POOLS.includes(params.poolId)) {
+      throw new RelayerError(`euphrates poolId ${params.poolId} is not supported`, params);
+    }
+
     const routerAddr = await euphratesFactory.callStatic.deployEuphratesRouter(
       feeAddr,
       params,

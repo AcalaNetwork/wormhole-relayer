@@ -175,9 +175,17 @@ export const health = process.env.COVERAGE
   : _axiosGet(RELAYER_URL.HEALTH);
 
 export const shouldRouteHoma = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.GET_HOMA_ROUTER_ADDR)
-  : _axiosGet(RELAYER_URL.GET_HOMA_ROUTER_ADDR);
+  ? _supertestGet(RELAYER_API.SHOULD_ROUTER_HOMA)
+  : _axiosGet(RELAYER_URL.SHOULD_ROUTER_HOMA);
 
 export const routeHoma = process.env.COVERAGE
   ? _supertestPost(RELAYER_API.ROUTE_HOMA)
   : _axiosPost(RELAYER_URL.ROUTE_HOMA);
+
+export const shouldRouteEuphrates = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.SHOULD_ROUTER_EUPHRATES)
+  : _axiosGet(RELAYER_URL.SHOULD_ROUTER_EUPHRATES);
+
+export const routeEuphrates = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.ROUTE_EUPHRATES)
+  : _axiosPost(RELAYER_URL.ROUTE_EUPHRATES);

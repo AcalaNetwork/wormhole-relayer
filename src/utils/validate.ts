@@ -1,5 +1,5 @@
 import { CHAIN_ID_ACALA, CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
-import { ObjectSchema, mixed, number, object, string } from 'yup';
+import { ObjectSchema, mixed, object, string } from 'yup';
 
 export enum Mainnet {
   Acala = 'acala',
@@ -33,7 +33,7 @@ export interface RouteParamsHoma {
 }
 
 export interface RouteParamsEuphrates {
-  poolId: number;      // euphrates pool id
+  poolId: string;      // euphrates pool id
   recipient: string;   // dest evm address
   token?: string;      // token to route, not required for `shouldRoute`
 }
@@ -68,7 +68,7 @@ export const routeHomaSchema: ObjectSchema<RouteParamsHoma> = object({
 });
 
 export const routeEuphratesSchema: ObjectSchema<RouteParamsEuphrates> = object({
-  poolId: number().required(),
+  poolId: string().required(),
   recipient: string().required(),
   token: string(),
 });
