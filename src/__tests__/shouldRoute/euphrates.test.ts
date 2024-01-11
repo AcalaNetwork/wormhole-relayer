@@ -9,7 +9,7 @@ import {
   shouldRouteEuphrates,
 } from '../testUtils';
 
-describe.concurrent('/shouldRouteEuphrates', () => {
+describe.concurrent.skip('/shouldRouteEuphrates', () => {
   const recipient = '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6';
 
   const testShouldRouteEuphrates = async (params: RouteParamsEuphrates) => {

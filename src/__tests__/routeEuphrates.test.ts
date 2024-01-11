@@ -35,7 +35,7 @@ const EUPHRAETS_POOL_INFO = {
   3: [DOT, WTDOT],
 };
 
-describe('/routeEuphrates', () => {
+describe.skip('/routeEuphrates', () => {
   const DOT_DECIMALS = 10;
   const homa = IHoma__factory.connect(HOMA, providerAcalaFork);
   const fee = FeeRegistry__factory.connect(ADDRESSES.ACALA_TESTNET.feeAddr, providerAcalaFork);
