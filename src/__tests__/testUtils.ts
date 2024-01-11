@@ -46,7 +46,7 @@ export const getBasiliskUsdcBalance = async (api: ApiPromise, addr: string) => {
   return (balance as any).free.toBigInt();
 };
 
-export const mockXcmToRouter = async (
+export const transferToRouter = async (
   routerAddr: string,
   signer: Wallet,
   tokenAddr = KARURA_USDC_ADDRESS,
@@ -61,12 +61,14 @@ export const mockXcmToRouter = async (
   if (routerBal.gt(0)) {
     expect(routerBal.toBigInt()).to.eq(routeAmount.toBigInt());
   } else {
-    if ((await token.balanceOf(signer.address)).lt(routeAmount)) {
-      throw new Error(`signer ${signer.address} has no enough token [${tokenAddr}] to transfer!`);
+    const signerTokenBal = await token.balanceOf(signer.address);
+    if (signerTokenBal.lt(routeAmount)) {
+      throw new Error(`signer ${signer.address} has no enough token [${tokenAddr}] to transfer! ${signerTokenBal.toBigInt()} < ${routeAmount.toBigInt()}`);
     }
     await (await token.transfer(routerAddr, routeAmount)).wait();
   }
 };
+export const mockXcmToRouter = transferToRouter;
 
 export const expectError = (err: any, msg: any, code: number) => {
   if (axios.isAxiosError(err)) {

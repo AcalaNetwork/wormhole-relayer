@@ -17,17 +17,16 @@
     "@acala-network/api-derive" "6.0.4"
     "@acala-network/types" "6.0.4"
 
-"@acala-network/asset-router@1.0.13-1":
-  version "1.0.13-1"
-  resolved "https://registry.yarnpkg.com/@acala-network/asset-router/-/asset-router-1.0.13-1.tgz#a5da78315335ce24cb289019f9ba8ac6af28423e"
-  integrity sha512-zi2j3Nijn94DlgTu+NilHcb+6mWEIzInm+Gy66OmfQQAYbjG2X7gg45O5oyBPs6kClHrSf459zeAYMtobWb/Sg==
+"@acala-network/asset-router@1.0.13":
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/@acala-network/asset-router/-/asset-router-1.0.13.tgz#0ad0e8ce8bd462a7291a6bf8f951bd24f83ea0e4"
+  integrity sha512-J0W5MSVKYIz/cgx9KVCqe9NLkg+FdRrAl6BqCZzZkj8JPcQhUlxgW7TP/s3yYr/5MXk3wDb69z/f2cBWGjhbxw==
   dependencies:
     "@acala-network/contracts" "^4.5.0"
     "@acala-network/eth-providers" "^2.7.13"
     "@certusone/wormhole-sdk" "^0.9.11"
     "@ethersproject/abi" "^5.7.0"
     "@ethersproject/providers" "^5.7.0"
-    "@openzeppelin/contracts" "^5.0.1"
     "@polkadot/util-crypto" "^12.5.1"
     ethers "^5.7.0"
 
@@ -1292,11 +1291,6 @@
   version "1.18.1"
   resolved "https://registry.npmjs.org/@opentelemetry/semantic-conventions/-/semantic-conventions-1.18.1.tgz#8e47caf57a84b1dcc1722b2025693348cdf443b4"
   integrity sha512-+NLGHr6VZwcgE/2lw8zDIufOCGnzsA5CbQIMleXZTrgkBd0TanCX+MiDYJ1TOS4KL/Tqk0nFRxawnaYr6pkZkA==
-
-"@openzeppelin/contracts@^5.0.1":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-5.0.1.tgz#93da90fc209a0a4ff09c1deb037fbb35e4020890"
-  integrity sha512-yQJaT5HDp9hYOOp4jTYxMsR02gdFZFXhewX5HW9Jo4fsqSVqqyIO/xTHdWDaKX5a3pv1txmf076Lziz+sO7L1w==
 
 "@polka/url@^1.0.0-next.20":
   version "1.0.0-next.21"
