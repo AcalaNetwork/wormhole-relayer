@@ -4,7 +4,7 @@ import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Wallet } from 'ethers';
 import { expect } from 'vitest';
-import { parseEther, parseUnits } from 'ethers/lib/utils';
+import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils';
 import axios from 'axios';
 import request from 'supertest';
 
@@ -23,7 +23,7 @@ export const transferFromFujiToKaruraTestnet = async (
 
   const bal = await wallet.getBalance();
   if (bal.lt(parseEther('0.03'))) {
-    throw new Error('insufficient balance on fuji!');
+    throw new Error(`${wallet.address} has insufficient balance on fuji! bal: ${formatEther(bal)}`);
   }
 
   return await transferFromAvax(

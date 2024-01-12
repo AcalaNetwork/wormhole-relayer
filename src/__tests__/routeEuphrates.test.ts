@@ -3,6 +3,7 @@ import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { DOT, LCDOT_13 as LCDOT, LDOT } from '@acala-network/contracts/utils/AcalaTokens';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { HOMA } from '@acala-network/contracts/utils/Predeploy';
 import { IHoma__factory } from '@acala-network/contracts/typechain';
 import { ONE_ACA, almostEq, toHuman } from '@acala-network/asset-router/dist/utils';
 import { Wallet } from 'ethers';
@@ -10,7 +11,6 @@ import {  describe, expect, it } from 'vitest';
 import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils';
 
 import { ETH_RPC, EUPHRATES_ADDR, EUPHRATES_POOLS } from '../consts';
-import { HOMA } from '@acala-network/contracts/utils/Predeploy';
 import {
   TEST_ADDR_RELAYER,
   TEST_ADDR_USER,
@@ -98,7 +98,7 @@ describe.skip('/routeEuphrates', () => {
     const res = await shouldRouteEuphrates(routeArgs);
     ({ routerAddr } = res.data);
 
-    // make sure user has enough DOT to transfer to router
+    // make sure user has enough DOT/LCDOT to transfer to router
     const bal = await fetchTokenBalances(poolId);
     if (bal.userBalIn.lt(parsedStakeAmount)) {
       if (bal.relayerBalIn.lt(parsedStakeAmount)) {
