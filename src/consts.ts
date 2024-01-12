@@ -249,4 +249,4 @@ export const TESTNET_MODE_WARNING = `
 export const EUPHRATES_ADDR = '0x7Fe92EC600F15cD25253b421bc151c51b0276b7D';
 export const EUPHRATES_POOLS = ['0', '1', '2', '3'];
 
-export const VERSION = '1.5.1';
+export const VERSION = '1.6.0';
