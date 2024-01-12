@@ -32,6 +32,12 @@ export interface RouteParamsHoma {
   destAddr: string;   // dest evm or acala native address
 }
 
+export interface RouteParamsEuphrates {
+  poolId: string;      // euphrates pool id
+  recipient: string;   // dest evm address
+  token?: string;      // token to route, not required for `shouldRoute`
+}
+
 export interface RelayAndRouteParams extends RouteParamsXcm {
   signedVAA: string;
 }
@@ -59,4 +65,10 @@ export const routeWormholeSchema: ObjectSchema<RouteParamsWormhole> = object({
 export const routeHomaSchema: ObjectSchema<RouteParamsHoma> = object({
   destAddr: string().required(),
   chain: mixed<Mainnet>().oneOf(Object.values(Mainnet)).required(),
+});
+
+export const routeEuphratesSchema: ObjectSchema<RouteParamsEuphrates> = object({
+  poolId: string().required(),
+  recipient: string().required(),
+  token: string(),
 });

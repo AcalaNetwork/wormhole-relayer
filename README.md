@@ -329,7 +329,7 @@ data: {
 ### `/shouldRouteHoma`
 checks if the relayer can route this request, returns router address
 ```
-GET /shouldRouteWormhole
+GET /shouldRouteHoma
 params: {
   destAddr: string;   // recepient evm or acala native address
   chain: string;      // 'acala' or 'karura'
@@ -394,6 +394,58 @@ POST /routeHoma
 data: {
   destAddr: 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
   chain: 'acala'
+}
+
+=> tx hash
+{
+  data: '0x677cd79963bb4b45c50009f213194397be3081cfb206e958da02b6357c44674e'
+}
+
+
+/* ---------- when error ---------- */
+// similar to /routeXcm
+```
+
+### `/shouldRouteEuphrates`
+checks if the relayer can route this request, returns router address
+```
+GET /shouldRouteWormhole
+params: {
+  recipient: string;   // recepient evm address
+  poolId: string;      // euphrate pool id
+}
+```
+
+example
+```
+GET /shouldRouteEuphrates?poolId=0&recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
+=>
+{
+  "data": {
+    "shouldRoute": true,
+    "routerAddr": "0xCc968605e16C9dF27b03aE3E5273507216Fd4C9C"
+  }
+}
+```
+
+### `/routeEuphrates`
+route the quest, and returns the route txhash
+```
+POST /routeEuphrates
+data: {
+  recipient: string;   // recepient evm address
+  poolId: string;      // euphrate pool id
+  token: string;       // token address to route
+}
+```
+
+example
+```
+POST /routeEuphrates
+data: {
+  recipient: "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
+  poolId:"0",
+  token: "0x000000000000000000040000000000000000000d"
 }
 
 => tx hash

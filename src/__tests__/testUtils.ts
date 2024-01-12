@@ -4,7 +4,7 @@ import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Wallet } from 'ethers';
 import { expect } from 'vitest';
-import { parseEther, parseUnits } from 'ethers/lib/utils';
+import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils';
 import axios from 'axios';
 import request from 'supertest';
 
@@ -23,7 +23,7 @@ export const transferFromFujiToKaruraTestnet = async (
 
   const bal = await wallet.getBalance();
   if (bal.lt(parseEther('0.03'))) {
-    throw new Error('insufficient balance on fuji!');
+    throw new Error(`${wallet.address} has insufficient balance on fuji! bal: ${formatEther(bal)}`);
   }
 
   return await transferFromAvax(
@@ -46,7 +46,7 @@ export const getBasiliskUsdcBalance = async (api: ApiPromise, addr: string) => {
   return (balance as any).free.toBigInt();
 };
 
-export const mockXcmToRouter = async (
+export const transferToRouter = async (
   routerAddr: string,
   signer: Wallet,
   tokenAddr = KARURA_USDC_ADDRESS,
@@ -61,12 +61,14 @@ export const mockXcmToRouter = async (
   if (routerBal.gt(0)) {
     expect(routerBal.toBigInt()).to.eq(routeAmount.toBigInt());
   } else {
-    if ((await token.balanceOf(signer.address)).lt(routeAmount)) {
-      throw new Error(`signer ${signer.address} has no enough token [${tokenAddr}] to transfer!`);
+    const signerTokenBal = await token.balanceOf(signer.address);
+    if (signerTokenBal.lt(routeAmount)) {
+      throw new Error(`signer ${signer.address} has no enough token [${tokenAddr}] to transfer! ${signerTokenBal.toBigInt()} < ${routeAmount.toBigInt()}`);
     }
     await (await token.transfer(routerAddr, routeAmount)).wait();
   }
 };
+export const mockXcmToRouter = transferToRouter;
 
 export const expectError = (err: any, msg: any, code: number) => {
   if (axios.isAxiosError(err)) {
@@ -175,9 +177,17 @@ export const health = process.env.COVERAGE
   : _axiosGet(RELAYER_URL.HEALTH);
 
 export const shouldRouteHoma = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.GET_HOMA_ROUTER_ADDR)
-  : _axiosGet(RELAYER_URL.GET_HOMA_ROUTER_ADDR);
+  ? _supertestGet(RELAYER_API.SHOULD_ROUTER_HOMA)
+  : _axiosGet(RELAYER_URL.SHOULD_ROUTER_HOMA);
 
 export const routeHoma = process.env.COVERAGE
   ? _supertestPost(RELAYER_API.ROUTE_HOMA)
   : _axiosPost(RELAYER_URL.ROUTE_HOMA);
+
+export const shouldRouteEuphrates = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.SHOULD_ROUTER_EUPHRATES)
+  : _axiosGet(RELAYER_URL.SHOULD_ROUTER_EUPHRATES);
+
+export const routeEuphrates = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.ROUTE_EUPHRATES)
+  : _axiosPost(RELAYER_URL.ROUTE_EUPHRATES);

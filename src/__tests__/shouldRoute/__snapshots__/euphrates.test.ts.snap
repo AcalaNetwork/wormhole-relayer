@@ -1,0 +1,73 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/shouldRouteEuphrates > when should route 1`] = `
+{
+  "data": {
+    "routerAddr": "0xCc968605e16C9dF27b03aE3E5273507216Fd4C9C",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteEuphrates > when should route 2`] = `
+{
+  "data": {
+    "routerAddr": "0xCc968605e16C9dF27b03aE3E5273507216Fd4C9C",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteEuphrates > when should route 3`] = `
+{
+  "data": {
+    "routerAddr": "0x84d5Beaa3808834c8A10e8DA241CDc0f1798E546",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteEuphrates > when should route 4`] = `
+{
+  "data": {
+    "routerAddr": "0x84d5Beaa3808834c8A10e8DA241CDc0f1798E546",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteEuphrates > when should route 5`] = `
+{
+  "data": {
+    "routerAddr": "0xAf808916d378Ee8EE0a737e2bf65Ad4dF1AcF342",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteEuphrates > when should route 6`] = `
+{
+  "data": {
+    "routerAddr": "0xAf808916d378Ee8EE0a737e2bf65Ad4dF1AcF342",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteEuphrates > when should route 7`] = `
+{
+  "data": {
+    "routerAddr": "0x804Beb16fcd17D3AC84de0614fC9D9e0550BEBf7",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteEuphrates > when should route 8`] = `
+{
+  "data": {
+    "routerAddr": "0x804Beb16fcd17D3AC84de0614fC9D9e0550BEBf7",
+    "shouldRoute": true,
+  },
+}
+`;

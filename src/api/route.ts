@@ -1,13 +1,14 @@
 import { DOT } from '@acala-network/contracts/utils/AcalaTokens';
-import { Factory__factory, HomaFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { EuphratesFactory__factory, Factory__factory, HomaFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
 
 import {
-  DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID,
+  DEST_PARA_ID_TO_ROUTER_WORMHOLE_CHAIN_ID, EUPHRATES_ADDR, EUPHRATES_POOLS,
 } from '../consts';
 import {
   Mainnet,
   RelayAndRouteParams,
+  RouteParamsEuphrates,
   RouteParamsHoma,
   RouteParamsWormhole,
   RouteParamsXcm,
@@ -25,6 +26,7 @@ import {
   sendExtrinsic,
   toAddr32,
 } from '../utils';
+import { RelayerError } from '../middlewares';
 
 export const routeXcm = async (routeParamsXcm: RouteParamsXcm): Promise<string> => {
   const { chainConfig } = await prepareRouteXcm(routeParamsXcm);
@@ -133,14 +135,14 @@ export const shouldRouteWormhole = async (data: any) =>  {
   }
 };
 
-const prepareRouteHoma = async (chain: Mainnet) => {
+const prepareRouteEuphrates = async (chain: Mainnet) => {
   const chainId = getMainnetChainId(chain);
   const chainConfig = await getChainConfig(chainId);
-  const { feeAddr, homaFactoryAddr, wallet } = chainConfig;
+  const { feeAddr, euphratesFactoryAddr, wallet } = chainConfig;
 
-  const homaFactory = HomaFactory__factory.connect(homaFactoryAddr!, wallet);
+  const euphratesFactory = EuphratesFactory__factory.connect(euphratesFactoryAddr!, wallet);
 
-  return { homaFactory, feeAddr };
+  return { euphratesFactory, feeAddr };
 };
 
 export const shouldRouteHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  {
@@ -166,6 +168,58 @@ export const shouldRouteHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  
 export const routeHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  {
   const { homaFactory, feeAddr } = await prepareRouteHoma(chain);
   const tx = await homaFactory.deployHomaRouterAndRoute(feeAddr, toAddr32(destAddr), DOT);
+  const receipt = await tx.wait();
+
+  return receipt.transactionHash;
+};
+
+const prepareRouteHoma = async (chain: Mainnet) => {
+  const chainId = getMainnetChainId(chain);
+  const chainConfig = await getChainConfig(chainId);
+  const { feeAddr, homaFactoryAddr, wallet } = chainConfig;
+
+  const homaFactory = HomaFactory__factory.connect(homaFactoryAddr!, wallet);
+
+  return { homaFactory, feeAddr };
+};
+
+export const shouldRouteEuphrates = async (params: RouteParamsEuphrates) => {
+  try {
+    const { euphratesFactory, feeAddr } = await prepareRouteEuphrates(Mainnet.Acala);
+    if (!EUPHRATES_POOLS.includes(params.poolId)) {
+      throw new RelayerError(`euphrates poolId ${params.poolId} is not supported`, params);
+    }
+
+    const routerAddr = await euphratesFactory.callStatic.deployEuphratesRouter(
+      feeAddr,
+      params,
+      EUPHRATES_ADDR,
+    );
+
+    return {
+      shouldRoute: true,
+      routerAddr,
+    };
+  } catch (err) {
+    return {
+      shouldRoute: false,
+      msg: err.message,
+    };
+  }
+};
+
+export const routeEuphrates = async (params: RouteParamsEuphrates) => {
+  if (params.token === undefined) {
+    throw new RelayerError('no token address provided for routeEuphrates', params);
+  }
+
+  const { euphratesFactory, feeAddr } = await prepareRouteEuphrates(Mainnet.Acala);
+  const tx = await euphratesFactory.deployEuphratesRouterAndRoute(
+    feeAddr,
+    params,
+    EUPHRATES_ADDR,
+    params.token,
+  );
   const receipt = await tx.wait();
 
   return receipt.transactionHash;
