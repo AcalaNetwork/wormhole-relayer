@@ -409,7 +409,7 @@ data: {
 ### `/shouldRouteEuphrates`
 checks if the relayer can route this request, returns router address
 ```
-GET /shouldRouteWormhole
+GET /shouldRouteEuphrates
 params: {
   recipient: string;   // recepient evm address
   poolId: string;      // euphrate pool id
