@@ -31,7 +31,7 @@
         "-r",
         "ts-node/register/transpile-only",
       ],
-      "args": ["scripts/transfer.ts"],
+      "args": ["scripts/wh-transfer.ts"],
       "cwd": "${workspaceRoot}",
       "internalConsoleOptions": "openOnSessionStart",
       "skipFiles": ["<node_internals>/**"]
