@@ -20,6 +20,7 @@ export const enum ETH_RPC {
   FUJI = 'https://avalanche-fuji-c-chain.publicnode.com',
   GOERLI = 'https://rpc.ankr.com/eth_goerli',
   KARURA_TESTNET = 'https://eth-rpc-karura-testnet.aca-staging.network',
+  ACALA_TESTNET = 'https://eth-rpc-acala-testnet.aca-staging.network',
 };
 
 export const enum BSC_TOKEN {
