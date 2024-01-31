@@ -1,4 +1,4 @@
-FROM node:16-alpine as relayer
+FROM node:18-alpine as relayer
 LABEL maintainer="hello@acala.network"
 
 USER node
