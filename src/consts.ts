@@ -33,8 +33,8 @@ export const enum FUJI_TOKEN {
 };
 
 export const WORMHOLE_GUARDIAN_RPC = {
-  TESTNET: ['https://api.testnet.wormholescan.io/api/v1/'],
-  MAINNET: ['https://api.wormholescan.io/api/v1/'],
+  TESTNET: ['https://api.testnet.wormholescan.io'],
+  MAINNET: ['https://api.wormholescan.io'],
 };
 
 const RELAYER_BASE_URL = 'http://localhost:3111';
