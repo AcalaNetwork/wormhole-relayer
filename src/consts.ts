@@ -33,8 +33,8 @@ export const enum FUJI_TOKEN {
 };
 
 export const WORMHOLE_GUARDIAN_RPC = {
-  TESTNET: ['https://wormhole-v2-testnet-api.certus.one'],
-  MAINNET: ['https://wormhole-v2-mainnet-api.certus.one'],
+  TESTNET: ['https://api.testnet.wormholescan.io'],
+  MAINNET: ['https://api.wormholescan.io'],
 };
 
 const RELAYER_BASE_URL = 'http://localhost:3111';
@@ -249,4 +249,4 @@ export const TESTNET_MODE_WARNING = `
 export const EUPHRATES_ADDR = '0x7Fe92EC600F15cD25253b421bc151c51b0276b7D';
 export const EUPHRATES_POOLS = ['0', '1', '2', '3'];
 
-export const VERSION = '1.6.0';
+export const VERSION = '1.6.1';
