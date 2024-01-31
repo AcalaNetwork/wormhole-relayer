@@ -1,5 +1,6 @@
 import { DOT } from '@acala-network/contracts/utils/AcalaTokens';
 import { EuphratesFactory__factory, Factory__factory, HomaFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { KSM } from '@acala-network/contracts/utils/KaruraTokens';
 import { XcmInstructionsStruct } from '@acala-network/asset-router/dist/typechain-types/src/Factory';
 
 import {
@@ -166,8 +167,8 @@ export const shouldRouteHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  
 };
 
 export const routeHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  {
-  const { homaFactory, feeAddr } = await prepareRouteHoma(chain);
-  const tx = await homaFactory.deployHomaRouterAndRoute(feeAddr, toAddr32(destAddr), DOT);
+  const { homaFactory, feeAddr, routeToken } = await prepareRouteHoma(chain);
+  const tx = await homaFactory.deployHomaRouterAndRoute(feeAddr, toAddr32(destAddr), routeToken);
   const receipt = await tx.wait();
 
   return receipt.transactionHash;
@@ -179,8 +180,9 @@ const prepareRouteHoma = async (chain: Mainnet) => {
   const { feeAddr, homaFactoryAddr, wallet } = chainConfig;
 
   const homaFactory = HomaFactory__factory.connect(homaFactoryAddr!, wallet);
+  const routeToken = chain === Mainnet.Acala ? DOT : KSM;
 
-  return { homaFactory, feeAddr };
+  return { homaFactory, feeAddr, routeToken };
 };
 
 export const shouldRouteEuphrates = async (params: RouteParamsEuphrates) => {
