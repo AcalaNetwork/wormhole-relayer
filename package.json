@@ -1,6 +1,7 @@
 {
   "name": "acala-wormhole-relayer",
   "version": "1.6.2",
+  "type": "module",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

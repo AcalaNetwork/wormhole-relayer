@@ -6,19 +6,25 @@
   "configurations": [
     {
       "name": "relayer",
-      "type": "node",
+      "type": "pwa-node",
       "request": "launch",
-      "runtimeExecutable": "node",
+      "program": "${workspaceFolder}/src/index.ts",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npx",
       "runtimeArgs": [
-        "--inspect-brk=8888",
-        "--nolazy",
+        "ts-node",
+        "--inspect-brk=8888"
+      ],
+      "args": [
         "-r",
         "ts-node/register/transpile-only",
+        "src/index.ts"
       ],
-      "args": ["src/index"],
-      "cwd": "${workspaceRoot}",
-      "internalConsoleOptions": "openOnSessionStart",
-      "skipFiles": ["<node_internals>/**"]
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/__awaiter**",
+      ],
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }
