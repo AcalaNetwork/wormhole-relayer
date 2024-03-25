@@ -15,7 +15,7 @@ import {
   shouldRouteHoma,
   shouldRouteWormhole,
   shouldRouteXcm,
-} from '../api/route';
+} from '../api';
 import {
   relayAndRouteSchema,
   routeEuphratesSchema,
