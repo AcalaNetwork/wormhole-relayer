@@ -1,5 +1,5 @@
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
-import { BigNumber, Contract, PopulatedTransaction, Wallet } from 'ethers';
+import { BigNumber, Contract, PopulatedTransaction, Signer, Wallet } from 'ethers';
 import { CHAIN_ID_ACALA, CHAIN_ID_AVAX, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array } from '@certusone/wormhole-sdk';
 import { DispatchError } from '@polkadot/types/interfaces';
 import { ISubmittableResult } from '@polkadot/types/types';
@@ -9,10 +9,10 @@ import { SubstrateSigner } from '@acala-network/bodhi';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { decodeEthGas } from '@acala-network/eth-providers';
 import { options } from '@acala-network/api';
-import { parseUnits } from 'ethers/lib/utils';
+import { formatUnits, parseUnits } from 'ethers/lib/utils';
 
-import { RelayerError } from '../middlewares';
 import { bridgeToken, getSignedVAAFromSequence } from './wormhole';
+import { RelayerError } from './error';
 
 export type ROUTER_CHAIN_ID = typeof CHAIN_ID_KARURA | typeof CHAIN_ID_ACALA;
 
@@ -186,4 +186,17 @@ export const getEthExtrinsic = async (
     storageLimit,
     [],
   );
+};
+
+export const getTokenBalance = async (tokenAddr: string, signer: Signer): Promise<string> => {
+  const erc20 = new Contract(tokenAddr, [
+    'function decimals() view returns (uint8)',
+    'function balanceOf(address _owner) public view returns (uint256 balance)',
+  ], signer);
+  const [bal, decimals] = await Promise.all([
+    erc20.balanceOf(await signer.getAddress()),
+    erc20.decimals(),
+  ]);
+
+  return formatUnits(bal, decimals);
 };

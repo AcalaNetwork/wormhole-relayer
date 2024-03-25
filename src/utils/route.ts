@@ -9,13 +9,9 @@ import {
   ROUTE_SUPPORTED_CHAINS_AND_ASSETS,
   ZERO_ADDR,
 } from '../consts';
-import {
-  RelayAndRouteParams,
-  RouteParamsWormhole,
-  RouteParamsXcm,
-  checkShouldRelayBeforeRouting,
-  getRouterChainTokenAddr,
-} from '../utils';
+import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from './validate';
+import { getRouterChainTokenAddr } from './wormhole';
+import { checkShouldRelayBeforeRouting } from './relay';
 
 interface RouteProps {
   routerAddr: string;

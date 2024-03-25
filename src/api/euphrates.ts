@@ -3,13 +3,13 @@ import { EuphratesFactory__factory } from '@acala-network/asset-router/dist/type
 import { EUPHRATES_ADDR, EUPHRATES_POOLS } from '../consts';
 import {
   Mainnet,
+  RouteError,
   RouteParamsEuphrates,
   _populateRelayTx,
   _populateRouteTx,
   getChainConfig,
   getMainnetChainId,
 } from '../utils';
-import { RelayerError } from '../middlewares';
 
 const prepareRouteEuphrates = async (chain: Mainnet) => {
   const chainId = getMainnetChainId(chain);
@@ -25,7 +25,7 @@ export const shouldRouteEuphrates = async (params: RouteParamsEuphrates) => {
   try {
     const { euphratesFactory, feeAddr } = await prepareRouteEuphrates(Mainnet.Acala);
     if (!EUPHRATES_POOLS.includes(params.poolId)) {
-      throw new RelayerError(`euphrates poolId ${params.poolId} is not supported`, params);
+      throw new RouteError(`euphrates poolId ${params.poolId} is not supported`, params);
     }
 
     const routerAddr = await euphratesFactory.callStatic.deployEuphratesRouter(
@@ -48,7 +48,7 @@ export const shouldRouteEuphrates = async (params: RouteParamsEuphrates) => {
 
 export const routeEuphrates = async (params: RouteParamsEuphrates) => {
   if (params.token === undefined) {
-    throw new RelayerError('no token address provided for routeEuphrates', params);
+    throw new RouteError('no token address provided for routeEuphrates', params);
   }
 
   const { euphratesFactory, feeAddr } = await prepareRouteEuphrates(Mainnet.Acala);

@@ -10,19 +10,6 @@ import {
   parseAmount,
 } from '../src/utils';
 
-export const getErc20Balance = async (tokenAddr: string, signer: Signer): Promise<string> => {
-  const erc20 = new Contract(tokenAddr, [
-    'function decimals() view returns (uint8)',
-    'function balanceOf(address _owner) public view returns (uint256 balance)',
-  ], signer);
-  const [bal, decimals] = await Promise.all([
-    erc20.balanceOf(await signer.getAddress()),
-    erc20.decimals(),
-  ]);
-
-  return formatUnits(bal, decimals);
-};
-
 export const transferErc20 = async (
   tokenAddr: string,
   amount: string,

@@ -8,8 +8,8 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 import { BSC_TOKEN, ETH_RPC , RELAYER_URL } from '../src/consts';
-import { ROUTER_CHAIN_ID } from '../src/utils';
-import { getErc20Balance, transferErc20, transferFromBSC } from './scriptUtils';
+import { ROUTER_CHAIN_ID, getTokenBalance } from '../src/utils';
+import { transferErc20, transferFromBSC } from './scriptUtils';
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 const key = process.env.KEY;
@@ -37,7 +37,7 @@ const routeXcm = async (chainId: ROUTER_CHAIN_ID) => {
   const wallet = new Wallet(key, provider);
 
   const token = chainId === CHAIN_ID_KARURA ? BSC_TOKEN.USDC : BSC_TOKEN.DAI;
-  const bal = await getErc20Balance(token, wallet);
+  const bal = await getTokenBalance(token, wallet);
   if (Number(bal) === 0) {
     throw new Error('no token balance to transfer!');
   }
@@ -81,7 +81,7 @@ const routeWormhole = async (chainId: ROUTER_CHAIN_ID) => {
     ? ROUTER_TOKEN_INFO.usdc.karuraAddr
     : ROUTER_TOKEN_INFO.dai.acalaAddr;
 
-  const bal = await getErc20Balance(token, wallet);
+  const bal = await getTokenBalance(token, wallet);
   if (Number(bal) === 0) {
     throw new Error('no token balance to transfer!');
   }

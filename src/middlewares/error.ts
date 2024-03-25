@@ -1,28 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { ValidationError } from 'yup';
 
-export class RelayerError extends Error {
-  params: any;
-
-  constructor(message: string, params?: any) {
-    super(message);
-    this.name = 'RelayerError';
-    this.params = params;
-  }
-}
-
-export class NoRouteError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'NoRouteError';
-  }
-}
-
-export class RelayError extends RelayerError {
-  constructor(message: string, params?: any) {
-    super(message, params);
-  }
-};
+import { NoRouteError, RelayError, RelayerError, RouteError } from '../utils';
 
 export const errorHandler = (err: unknown, req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof ValidationError) {
@@ -41,6 +20,12 @@ export const errorHandler = (err: unknown, req: Request, res: Response, _next: N
       error: err.message,
       params: err.params,
     });
+  } else if (err instanceof RouteError) {
+    res.status(500).json({
+      msg: 'cannot route this request!',
+      error: err.message,
+      params: err.params,
+    });
   } else if (err instanceof RelayerError) {
     res.status(500).json({
       msg: 'an error occurred!',
@@ -54,7 +39,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, _next: N
     });
   } else {
     res.status(500).json({
-      msg: 'internal server error',
+      msg: 'unknown internal server error',
       error: JSON.stringify(err),
     });
   }
