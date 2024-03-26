@@ -54,6 +54,7 @@ export const routeHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  {
   return receipt.transactionHash;
 };
 
+/* --------------------------------- auto route homa --------------------------------- */
 export enum RouteStatus {
   Waiting = 0,
   Routing = 1,
@@ -82,11 +83,11 @@ export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
   routeTracker[reqId] = { status: RouteStatus.Waiting };
 
   const { homaFactory, feeAddr, routeToken, wallet } = await prepareRouteHoma(chain);
-  const dot = ERC20__factory.connect(DOT, wallet);
+  const dotOrKsm = ERC20__factory.connect(routeToken, wallet);
 
   const waitForToken = new Promise<void>((resolve, reject) => {
     const id = setInterval(async () => {
-      const bal = await dot.balanceOf(routerAddr!);   // TODO: probably should add retry here to make sure this won't throw
+      const bal = await dotOrKsm.balanceOf(routerAddr!);   // TODO: probably should add retry here to make sure this won't throw
       if (bal.gt(0)) {
         clearInterval(id);
         resolve();
