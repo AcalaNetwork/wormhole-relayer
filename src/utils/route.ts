@@ -10,8 +10,8 @@ import {
   ZERO_ADDR,
 } from '../consts';
 import { RelayAndRouteParams, RouteParamsWormhole, RouteParamsXcm } from './validate';
-import { getRouterChainTokenAddr } from './wormhole';
 import { checkShouldRelayBeforeRouting } from './relay';
+import { getRouterChainTokenAddr } from './wormhole';
 
 interface RouteProps {
   routerAddr: string;

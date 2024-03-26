@@ -54,7 +54,7 @@ export const routeHoma = async ({ chain, destAddr }: RouteParamsHoma) =>  {
   return receipt.transactionHash;
 };
 
-enum RouteStatus {
+export enum RouteStatus {
   Waiting = 0,
   Routing = 1,
   Confirming = 2,

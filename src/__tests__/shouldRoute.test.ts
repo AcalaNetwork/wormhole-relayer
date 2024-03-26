@@ -321,13 +321,13 @@ describe.concurrent.skip('/shouldRouteHoma', () => {
         });
 
         expect(res).toMatchInlineSnapshot(`
-        {
-          "data": {
-            "routerAddr": "0xa013818BBddc5d2d55ab9cCD50759b3B1953d6cd",
-            "shouldRoute": true,
-          },
-        }
-      `);
+          {
+            "data": {
+              "routerAddr": "0x8A4f03B2D615172f0714AaC2E8C399a6f0d9e448",
+              "shouldRoute": true,
+            },
+          }
+        `);
 
         // should be case insensitive
         res = await shouldRouteHoma({
@@ -336,13 +336,13 @@ describe.concurrent.skip('/shouldRouteHoma', () => {
         });
 
         expect(res).toMatchInlineSnapshot(`
-        {
-          "data": {
-            "routerAddr": "0xa013818BBddc5d2d55ab9cCD50759b3B1953d6cd",
-            "shouldRoute": true,
-          },
-        }
-      `);
+          {
+            "data": {
+              "routerAddr": "0x8A4f03B2D615172f0714AaC2E8C399a6f0d9e448",
+              "shouldRoute": true,
+            },
+          }
+        `);
       }
     });
 
@@ -357,7 +357,7 @@ describe.concurrent.skip('/shouldRouteHoma', () => {
         expect(res).toMatchInlineSnapshot(`
           {
             "data": {
-              "routerAddr": "0xfD6143c380706912a04230f22cF92c402561820e",
+              "routerAddr": "0x1140EFc2C45e9307701DA521884F75dDDe28f28f",
               "shouldRoute": true,
             },
           }

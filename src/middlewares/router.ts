@@ -58,11 +58,11 @@ const ROUTER_CONFIGS: {
     '/health': {
       handler: healthCheck,
     },
-    '/getRouteStatus': {
+    '/routeStatus': {
       schema: routeStatusSchema,
       handler: getRouteStatus,
     },
-    '/getAllRouteStatus': {
+    '/allRouteStatus': {
       handler: getAllRouteStatus,
     },
   },

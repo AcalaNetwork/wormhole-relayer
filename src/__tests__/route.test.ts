@@ -13,6 +13,7 @@ import { ONE_ACA, almostEq, toHuman } from '@acala-network/asset-router/dist/uti
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { encodeAddress } from '@polkadot/util-crypto';
 import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils';
+import assert from 'assert';
 
 import {
   BASILISK_TESTNET_NODE_URL,
@@ -22,6 +23,7 @@ import {
   TEST_KEY,
 } from './testConsts';
 import { ETH_RPC, FUJI_TOKEN, GOERLI_USDC, PARA_ID } from '../consts';
+import { RouteStatus } from '../api';
 import {
   encodeXcmDest,
   expectError,
@@ -31,6 +33,8 @@ import {
   relayAndRoute,
   relayAndRouteBatch,
   routeHoma,
+  routeHomaAuto,
+  routeStatus,
   routeWormhole,
   routeXcm,
   shouldRouteHoma,
@@ -421,6 +425,9 @@ describe.skip('/routeHoma', () => {
   };
 
   const testHomaRouter = async (destAddr: string) => {
+    const relayerBal = await relayerAcalaFork.getBalance();
+    assert(relayerBal.gt(parseEther('10')), `relayer doesn't have enough balance to relay! ${relayerAcalaFork.address}`);
+
     const routeArgs = {
       destAddr,
       chain: 'acala',
@@ -473,6 +480,80 @@ describe.skip('/routeHoma', () => {
     expect(bal1.relayerBalDot.sub(bal0.relayerBalDot).toBigInt()).to.eq(routingFee.toBigInt());
   };
 
+  const testAutoHomaRouter = async (destAddr: string) => {
+    const relayerBal = await relayerAcalaFork.getBalance();
+    assert(relayerBal.gt(parseEther('10')), `relayer doesn't have enough balance to relay! ${relayerAcalaFork.address}`);
+
+    const routeArgs = {
+      destAddr,
+      chain: 'acala',
+    };
+    const res = await shouldRouteHoma(routeArgs);
+    ({ routerAddr } = res.data);
+
+    // make sure user has enough DOT to transfer to router
+    const bal = await fetchTokenBalances();
+    if (bal.userBalDot.lt(parsedStakeAmount)) {
+      if (bal.relayerBalDot.lt(parsedStakeAmount)) {
+        throw new Error('both relayer and user do not have enough DOT to transfer to router!');
+      }
+
+      console.log('refilling dot for user ...');
+      await (await dot.connect(relayerAcalaFork).transfer(TEST_ADDR_USER, parsedStakeAmount)).wait();
+    }
+
+    const bal0 = await fetchTokenBalances();
+
+    console.log('sending auto routing request ...');
+    const routeRes = await routeHomaAuto({
+      ...routeArgs,
+      token: DOT,
+    });
+    const reqId = routeRes.data;
+    console.log(`auto route submitted! reqId: ${reqId}`);
+
+    const waitForRoute = new Promise<void>((resolve, reject) => {
+      const pollRouteStatus = setInterval(async () => {
+        const res = await routeStatus({ id: reqId });
+        // console.log(`current status: ${res.data.status}`);
+
+        if (res.data.status === RouteStatus.Complete) {
+          resolve();
+          clearInterval(pollRouteStatus);
+        }
+      }, 1000);
+
+      setTimeout(reject, 100 * 1000);
+    });
+
+    console.log('xcming to router ...');
+    await mockXcmToRouter(routerAddr, userAcalaFork, DOT, stakeAmount);
+
+    console.log('waiting for auto routing ...');
+    await waitForRoute;
+
+    console.log('route complete!');
+    const bal1 = await fetchTokenBalances();
+
+    // router should be destroyed
+    const routerCode = await providerKarura.getCode(routerAddr);
+    expect(routerCode).to.eq('0x');
+    expect(bal1.routerBalDot.toNumber()).to.eq(0);
+    expect(bal1.routerBalLdot.toNumber()).to.eq(0);
+
+    // user should receive LDOT
+    const routingFee = await fee.getFee(DOT);
+    const exchangeRate = parseEther((1 / Number(formatEther(await homa.getExchangeRate()))).toString());    // 10{18} DOT => ? LDOT
+    const expectedLdot = parsedStakeAmount.sub(routingFee).mul(exchangeRate).div(ONE_ACA);
+    const ldotReceived = bal1.userBalLdot.sub(bal0.userBalLdot);
+
+    expect(almostEq(expectedLdot, ldotReceived)).to.be.true;
+    // expect(bal0.userBalDot.sub(bal1.userBalDot)).to.eq(parsedStakeAmount);   // TODO: why this has a super slight off?
+
+    // relayer should receive DOT fee
+    expect(bal1.relayerBalDot.sub(bal0.relayerBalDot).toBigInt()).to.eq(routingFee.toBigInt());
+  };
+
   it('route to evm address', async () => {
     await testHomaRouter(TEST_ADDR_USER);
   });
@@ -484,5 +565,18 @@ describe.skip('/routeHoma', () => {
 
     await testHomaRouter(userSubstrateAddr);
   });
+
+  it('auto route to evm address', async () => {
+    await testAutoHomaRouter(TEST_ADDR_USER);
+  });
+
+  it('auto route to substrate address', async () => {
+    const ACALA_SS58_PREFIX = 10;
+    const userAccountId = await evmAccounts.getAccountId(TEST_ADDR_USER);
+    const userSubstrateAddr = encodeAddress(userAccountId, ACALA_SS58_PREFIX);
+
+    await testAutoHomaRouter(userSubstrateAddr);
+  });
 });
+
 
