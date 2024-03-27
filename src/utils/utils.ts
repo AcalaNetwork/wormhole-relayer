@@ -1,5 +1,5 @@
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
-import { BigNumber, Contract, PopulatedTransaction, Signer, Wallet } from 'ethers';
+import { BigNumber, PopulatedTransaction, Wallet } from 'ethers';
 import { CHAIN_ID_ACALA, CHAIN_ID_AVAX, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array } from '@certusone/wormhole-sdk';
 import { DispatchError } from '@polkadot/types/interfaces';
 import { ISubmittableResult } from '@polkadot/types/types';
@@ -7,12 +7,13 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { SubstrateSigner } from '@acala-network/bodhi';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { decodeEthGas } from '@acala-network/eth-providers';
+import { decodeEthGas, sleep } from '@acala-network/eth-providers';
 import { options } from '@acala-network/api';
-import { formatUnits, parseUnits } from 'ethers/lib/utils';
 
-import { bridgeToken, getSignedVAAFromSequence } from './wormhole';
 import { RelayerError } from './error';
+import { bridgeToken, getSignedVAAFromSequence } from './wormhole';
+import { parseAmount } from './token';
+import { logger } from './logger';
 
 export type ROUTER_CHAIN_ID = typeof CHAIN_ID_KARURA | typeof CHAIN_ID_ACALA;
 
@@ -29,17 +30,6 @@ export const getApi = async (privateKey: string, nodeUrl: string) => {
   api.setSigner(new SubstrateSigner(api.registry, keyPair));
 
   return { substrateAddr, api };
-};
-
-export const parseAmount = async (
-  tokenAddr: string,
-  amount: string,
-  provider: any,
-): Promise<BigNumber> => {
-  const erc20 = new Contract(tokenAddr, ['function decimals() view returns (uint8)'], provider);
-  const decimals = await erc20.decimals();
-
-  return parseUnits(amount, decimals);
 };
 
 export const transferFromAvax = async (
@@ -188,15 +178,21 @@ export const getEthExtrinsic = async (
   );
 };
 
-export const getTokenBalance = async (tokenAddr: string, signer: Signer): Promise<string> => {
-  const erc20 = new Contract(tokenAddr, [
-    'function decimals() view returns (uint8)',
-    'function balanceOf(address _owner) public view returns (uint256 balance)',
-  ], signer);
-  const [bal, decimals] = await Promise.all([
-    erc20.balanceOf(await signer.getAddress()),
-    erc20.decimals(),
-  ]);
+// TODO: ideally this only retries on certain errors, such as network issues
+export const runWithRetry = async <T>(
+  fn: () => Promise<T>,
+  { retry = 10, interval = 5 } = {},
+): Promise<T> => {
+  let error: any;
+  for (let i = 0; i < retry; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      error = err;
+      logger.info(`retrying ${fn.name} in ${interval}s [${i + 1}/${retry}]`);
+      await sleep(interval);
+    }
+  }
 
-  return formatUnits(bal, decimals);
+  throw error;
 };

@@ -426,10 +426,10 @@ data: {
 
 => route id
 {
-  data: 'homa-0'
+  data: 'homa-1711514333845'
 }
 
-GET /routeStatus?routeId=homa-0
+GET /routeStatus?routeId=homa-1711514333845
 => route status
 { data: { status: 0 } }                     // waiting for token
 { data: { status: 1 } }                     // token arrived, routing

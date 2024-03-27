@@ -12,7 +12,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import { ONE_ACA, almostEq, toHuman } from '@acala-network/asset-router/dist/utils';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { encodeAddress } from '@polkadot/util-crypto';
-import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils';
+import { parseEther, parseUnits } from 'ethers/lib/utils';
 import assert from 'assert';
 
 import {
@@ -469,12 +469,12 @@ describe.skip('/routeHoma', () => {
 
     // user should receive LDOT
     const routingFee = await fee.getFee(DOT);
-    const exchangeRate = parseEther((1 / Number(formatEther(await homa.getExchangeRate()))).toString());    // 10{18} DOT => ? LDOT
-    const expectedLdot = parsedStakeAmount.sub(routingFee).mul(exchangeRate).div(ONE_ACA);
+    const exchangeRate = await homa.getExchangeRate();   // 10{18} LDOT => ? DOT
+    const expectedLdot = parsedStakeAmount.sub(routingFee).mul(ONE_ACA).div(exchangeRate);
     const ldotReceived = bal1.userBalLdot.sub(bal0.userBalLdot);
 
     expect(almostEq(expectedLdot, ldotReceived)).to.be.true;
-    // expect(bal0.userBalDot.sub(bal1.userBalDot)).to.eq(parsedStakeAmount);   // TODO: why this has a super slight off?
+    expect(bal0.userBalDot.sub(bal1.userBalDot).toBigInt()).to.eq(parsedStakeAmount.toBigInt());
 
     // relayer should receive DOT fee
     expect(bal1.relayerBalDot.sub(bal0.relayerBalDot).toBigInt()).to.eq(routingFee.toBigInt());
@@ -543,12 +543,12 @@ describe.skip('/routeHoma', () => {
 
     // user should receive LDOT
     const routingFee = await fee.getFee(DOT);
-    const exchangeRate = parseEther((1 / Number(formatEther(await homa.getExchangeRate()))).toString());    // 10{18} DOT => ? LDOT
-    const expectedLdot = parsedStakeAmount.sub(routingFee).mul(exchangeRate).div(ONE_ACA);
+    const exchangeRate = await homa.getExchangeRate();   // 10{18} LDOT => ? DOT
+    const expectedLdot = parsedStakeAmount.sub(routingFee).mul(ONE_ACA).div(exchangeRate);
     const ldotReceived = bal1.userBalLdot.sub(bal0.userBalLdot);
 
     expect(almostEq(expectedLdot, ldotReceived)).to.be.true;
-    // expect(bal0.userBalDot.sub(bal1.userBalDot)).to.eq(parsedStakeAmount);   // TODO: why this has a super slight off?
+    expect(bal0.userBalDot.sub(bal1.userBalDot).toBigInt()).to.eq(parsedStakeAmount.toBigInt());
 
     // relayer should receive DOT fee
     expect(bal1.relayerBalDot.sub(bal0.relayerBalDot).toBigInt()).to.eq(routingFee.toBigInt());

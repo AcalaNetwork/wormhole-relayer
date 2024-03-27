@@ -74,7 +74,8 @@ const routeWormhole = async (chainId: ROUTER_CHAIN_ID) => {
   const routerAddr = res.data.data.routerAddr;
   console.log({ routerAddr }); // 0x0FF0e74513fE82A0c4830309811f1aC1e5d06055 / 0xAAbc44730778B9Dc76fA0B1E65eBeF28D8B7B086
 
-  const provider = new AcalaJsonRpcProvider(chainId === CHAIN_ID_KARURA ? ETH_RPC.KARURA : ETH_RPC.ACALA);
+  const ethRpcUrl = chainId === CHAIN_ID_KARURA ? ETH_RPC.KARURA : ETH_RPC.ACALA;
+  const provider = new AcalaJsonRpcProvider(ethRpcUrl);
   const wallet = new Wallet(key, provider);
 
   const token = chainId === CHAIN_ID_KARURA

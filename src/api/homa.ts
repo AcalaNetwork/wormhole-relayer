@@ -12,6 +12,7 @@ import {
   getChainConfig,
   getMainnetChainId,
   routeStatusParams,
+  runWithRetry,
   toAddr32,
 } from '../utils';
 
@@ -66,10 +67,10 @@ export enum RouteStatus {
 
 interface RouteInfo {
   status: RouteStatus;
-  [key: string]: any;
+  txHash?: string;
+  err?: any;
 }
 
-let routeReqId = 0;
 const routeTracker: Record<number, RouteInfo> = {};
 export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
   const { chain, destAddr } = params;
@@ -79,15 +80,15 @@ export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
     throw new RouteError(msg, params);
   }
 
-  const reqId = `homa-${routeReqId++}`;
-  routeTracker[reqId] = { status: RouteStatus.Waiting };
+  const reqId = `homa-${Date.now()}`;
+  const tracker = routeTracker[reqId] = { status: RouteStatus.Waiting } as RouteInfo;
 
   const { homaFactory, feeAddr, routeToken, wallet } = await prepareRouteHoma(chain);
   const dotOrKsm = ERC20__factory.connect(routeToken, wallet);
 
   const waitForToken = new Promise<void>((resolve, reject) => {
     const id = setInterval(async () => {
-      const bal = await dotOrKsm.balanceOf(routerAddr!);   // TODO: probably should add retry here to make sure this won't throw
+      const bal = await runWithRetry(() => dotOrKsm.balanceOf(routerAddr!));
       if (bal.gt(0)) {
         clearInterval(id);
         resolve();
@@ -102,30 +103,37 @@ export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
   });
 
   waitForToken.then(async () => {
-    routeTracker[reqId] =  { status: RouteStatus.Routing };
+    tracker.status = RouteStatus.Routing;
 
     let tx: ContractTransaction;
     try {
-      tx = await homaFactory.deployHomaRouterAndRoute(feeAddr, toAddr32(destAddr), routeToken);
+      tx = await runWithRetry(
+        () => homaFactory.deployHomaRouterAndRoute(feeAddr, toAddr32(destAddr), routeToken),
+        { retry: 3, interval: 20 }
+      );
     } catch (err) {
-      routeTracker[reqId] = { status: RouteStatus.Failed, err: err.message };
+      tracker.status = RouteStatus.Failed;
+      tracker.err = err.message;
       return;
     }
-    const txhash = tx.hash;
 
-    routeTracker[reqId] = { status: RouteStatus.Confirming, txhash };
-    const receipt = await tx.wait();
+    tracker.txHash = tx.hash;
+    tracker.status = RouteStatus.Confirming;
 
-    routeTracker[reqId] = receipt.status === 0
-      ? { status: RouteStatus.Failed, txhash }
-      : { status: RouteStatus.Complete, txhash };
+    const receipt = await runWithRetry(() => tx.wait(), { retry: 3, interval: 10 });
+    tracker.status = receipt.status === 0
+      ? RouteStatus.Failed
+      : RouteStatus.Complete;
   }).catch(err => {
-    routeTracker[reqId] = err === 'timeout'
-      ? { status: RouteStatus.Timeout }
-      : { status: RouteStatus.Failed, err: err.message };
+    if (err === 'timeout') {
+      tracker.status = RouteStatus.Timeout;
+    } else {
+      tracker.status = RouteStatus.Failed;
+      tracker.err = err;
+    }
   });
 
-  // clear after 7 days to avoid memory blow
+  // clear record after 7 days to avoid memory blow
   setTimeout(() => delete routeTracker[reqId], 7 * 24 * 60 * 60 * 1000);
 
   return reqId;
