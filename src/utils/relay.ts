@@ -11,7 +11,7 @@ import {
 import { ChainConfig } from './configureEnv';
 import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../consts';
 import { RelayAndRouteParams } from './validate';
-import { RelayError } from '../middlewares/error';
+import { RelayError } from './error';
 import { VaaInfo, parseVaaPayload } from './wormhole';
 import { logger } from './logger';
 

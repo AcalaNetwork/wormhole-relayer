@@ -5,13 +5,14 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import { Wallet } from 'ethers';
 import { expect } from 'vitest';
 import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils';
+import assert from 'assert';
 import axios from 'axios';
 import request from 'supertest';
 
 import { ETH_RPC, RELAYER_API, RELAYER_URL } from '../consts';
 import { KARURA_USDC_ADDRESS, TEST_KEY } from './testConsts';
 import { createApp } from '../app';
-import { transferFromAvax } from '../utils';
+import { getTokenBalance, transferFromAvax } from '../utils';
 
 export const transferFromFujiToKaruraTestnet = async (
   amount: string,
@@ -22,9 +23,10 @@ export const transferFromFujiToKaruraTestnet = async (
   const wallet = new Wallet(TEST_KEY.USER, provider);
 
   const bal = await wallet.getBalance();
-  if (bal.lt(parseEther('0.03'))) {
-    throw new Error(`${wallet.address} has insufficient balance on fuji! bal: ${formatEther(bal)}`);
-  }
+  assert(bal.gte(parseEther('0.03')), `${wallet.address} has insufficient balance on fuji! bal: ${formatEther(bal)}`);
+
+  const tokenBal = await getTokenBalance(sourceAsset, wallet);
+  assert(Number(tokenBal) > Number(amount), `${wallet.address} has insufficient token balance on fuji! ${tokenBal} < ${amount}`);
 
   return await transferFromAvax(
     amount,
@@ -183,6 +185,14 @@ export const shouldRouteHoma = process.env.COVERAGE
 export const routeHoma = process.env.COVERAGE
   ? _supertestPost(RELAYER_API.ROUTE_HOMA)
   : _axiosPost(RELAYER_URL.ROUTE_HOMA);
+
+export const routeHomaAuto = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.ROUTE_HOMA_AUTO)
+  : _axiosPost(RELAYER_URL.ROUTE_HOMA_AUTO);
+
+export const routeStatus = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.ROUTE_STATUS)
+  : _axiosGet(RELAYER_URL.ROUTE_STATUS);
 
 export const shouldRouteEuphrates = process.env.COVERAGE
   ? _supertestGet(RELAYER_API.SHOULD_ROUTER_EUPHRATES)

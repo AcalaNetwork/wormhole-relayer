@@ -6,3 +6,5 @@ export * from './utils';
 export * from './validate';
 export * from './wormhole';
 export * from './address';
+export * from './error';
+export * from './token';

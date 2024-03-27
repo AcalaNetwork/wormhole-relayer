@@ -42,6 +42,10 @@ export interface RelayAndRouteParams extends RouteParamsXcm {
   signedVAA: string;
 }
 
+export interface routeStatusParams {
+  id: string;
+}
+
 export const routeXcmSchema: ObjectSchema<RouteParamsXcm> = object({
   originAddr: string().required(),
   destParaId: string().required(),
@@ -71,4 +75,8 @@ export const routeEuphratesSchema: ObjectSchema<RouteParamsEuphrates> = object({
   poolId: string().required(),
   recipient: string().required(),
   token: string(),
+});
+
+export const routeStatusSchema: ObjectSchema<routeStatusParams> = object({
+  id: string().required(),
 });

@@ -406,6 +406,43 @@ data: {
 // similar to /routeXcm
 ```
 
+### `/routeHomaAuto`
+wait for the token to arrive at the router, then route the quest automatically. Returns the request id, which can be used to track route progress
+```
+POST /routeHomaAuto
+data: {
+  destAddr: string;   // recepient evm or acala native address
+  chain: string;      // 'acala' or 'karura'
+}
+```
+
+example
+```
+POST /routeHomaAuto
+data: {
+  destAddr: 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
+  chain: 'acala'
+}
+
+=> route id
+{
+  data: 'homa-1711514333845'
+}
+
+GET /routeStatus?routeId=homa-1711514333845
+=> route status
+{ data: { status: 0 } }                     // waiting for token
+{ data: { status: 1 } }                     // token arrived, routing
+{ data: { status: 2, txHash: '0x12345 } }   // routing tx submitted, waiting for confirmation
+{ data: { status: 3, txHash: '0x12345 } }   // routing completed
+{ data: { status: -1 } }                    // routing timeout out (usually becuase no token arrive in 3 min)
+{ data: { status: -2, error: 'xxx' } }      // routing failed
+```
+
+/* ---------- when error ---------- */
+// similar to /routeXcm
+```
+
 ### `/shouldRouteEuphrates`
 checks if the relayer can route this request, returns router address
 ```

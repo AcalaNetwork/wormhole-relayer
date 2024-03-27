@@ -1,28 +1,32 @@
 import { NextFunction, Request, Response } from 'express';
 import { Schema } from 'yup';
 
-import { NoRouteError } from './error';
-import { healthCheck } from '../api/health';
-import { logger } from '../utils';
 import {
+  getAllRouteStatus,
+  getRouteStatus,
+  healthCheck,
   relayAndRoute,
   relayAndRouteBatch,
   routeEuphrates,
   routeHoma,
+  routeHomaAuto,
   routeWormhole,
   routeXcm,
   shouldRouteEuphrates,
   shouldRouteHoma,
   shouldRouteWormhole,
   shouldRouteXcm,
-} from '../api/route';
+} from '../api';
 import {
   relayAndRouteSchema,
   routeEuphratesSchema,
   routeHomaSchema,
   routeWormholeSchema,
   routeXcmSchema,
-} from '../utils/validate';
+  logger,
+  NoRouteError,
+  routeStatusSchema,
+} from '../utils';
 
 interface RouterConfig {
   schema?: Schema;
@@ -54,6 +58,13 @@ const ROUTER_CONFIGS: {
     '/health': {
       handler: healthCheck,
     },
+    '/routeStatus': {
+      schema: routeStatusSchema,
+      handler: getRouteStatus,
+    },
+    '/allRouteStatus': {
+      handler: getAllRouteStatus,
+    },
   },
 
   POST: {
@@ -76,6 +87,10 @@ const ROUTER_CONFIGS: {
     '/routeHoma': {
       schema: routeHomaSchema,
       handler: routeHoma,
+    },
+    '/routeHomaAuto': {
+      schema: routeHomaSchema,
+      handler: routeHomaAuto,
     },
     '/routeEuphrates': {
       schema: routeEuphratesSchema,
