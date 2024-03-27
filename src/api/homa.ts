@@ -71,6 +71,7 @@ interface RouteInfo {
   err?: any;
 }
 
+let routeReqId = Date.now();
 const routeTracker: Record<number, RouteInfo> = {};
 export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
   const { chain, destAddr } = params;
@@ -80,7 +81,7 @@ export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
     throw new RouteError(msg, params);
   }
 
-  const reqId = `homa-${Date.now()}`;
+  const reqId = `homa-${routeReqId++}`;
   const tracker = routeTracker[reqId] = { status: RouteStatus.Waiting } as RouteInfo;
 
   const { homaFactory, feeAddr, routeToken, wallet } = await prepareRouteHoma(chain);
