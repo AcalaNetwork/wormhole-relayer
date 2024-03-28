@@ -437,7 +437,6 @@ GET /routeStatus?routeId=homa-1711514333845
 { data: { status: 3, txHash: '0x12345 } }   // routing completed
 { data: { status: -1 } }                    // routing timeout out (usually becuase no token arrive in 3 min)
 { data: { status: -2, error: 'xxx' } }      // routing failed
-```
 
 /* ---------- when error ---------- */
 // similar to /routeXcm
