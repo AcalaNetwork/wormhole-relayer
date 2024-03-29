@@ -2,7 +2,9 @@ import { ContractTransaction } from 'ethers';
 import { DOT } from '@acala-network/contracts/utils/AcalaTokens';
 import { ERC20__factory, HomaFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { KSM } from '@acala-network/contracts/utils/KaruraTokens';
+import { ValidationError } from 'yup';
 
+import { DAY, MINUTE } from '../consts';
 import {
   Mainnet,
   RouteError,
@@ -67,12 +69,40 @@ export enum RouteStatus {
 
 interface RouteInfo {
   status: RouteStatus;
+  destAddr: string;
+  timestamp: number;
+  params: RouteParamsHoma;
   txHash?: string;
   err?: any;
 }
 
+type RouteTracker = Record<number, RouteInfo>;
+
+const cleanUpTracker = (
+  tracker: RouteTracker,
+  maxDays = 7,
+  maxCount = 1000,
+) => {
+  setTimeout(() => {
+    const isSizeOk = Object.keys(tracker).length < maxCount;
+    if (isSizeOk || maxDays <= 1) return;   // record should be kept for at least 1 day
+
+    const now = Date.now();
+    Object.keys(tracker).forEach(reqId => {
+      const info = tracker[reqId];
+      const age = now - info.timestamp;
+      if (age > maxDays * DAY) {
+        delete tracker[reqId];
+      }
+    });
+
+    // resursively clean up with narrower age range until size < maxCount
+    cleanUpTracker(tracker, maxDays - 1, maxCount);
+  }, 0);
+};
+
 let routeReqId = Date.now();
-const routeTracker: Record<number, RouteInfo> = {};
+const routeTracker: RouteTracker = {};
 export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
   const { chain, destAddr } = params;
   const { routerAddr, shouldRoute, msg } = await shouldRouteHoma(params);
@@ -82,7 +112,12 @@ export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
   }
 
   const reqId = `homa-${routeReqId++}`;
-  const tracker = routeTracker[reqId] = { status: RouteStatus.Waiting } as RouteInfo;
+  const tracker: RouteInfo = routeTracker[reqId] = {
+    status: RouteStatus.Waiting,
+    destAddr,
+    timestamp: Date.now(),
+    params,
+  };
 
   const { homaFactory, feeAddr, routeToken, wallet } = await prepareRouteHoma(chain);
   const dotOrKsm = ERC20__factory.connect(routeToken, wallet);
@@ -96,7 +131,7 @@ export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
       }
     }, 3000);
 
-    const timeout = 3 * 60 * 1000;    // 3 min
+    const timeout = (params.timeout ?? 5) * MINUTE;
     setTimeout(() => {
       clearInterval(id);
       reject('timeout');
@@ -134,11 +169,26 @@ export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
     }
   });
 
-  // clear record after 7 days to avoid memory blow
-  setTimeout(() => delete routeTracker[reqId], 7 * 24 * 60 * 60 * 1000);
+  // clean up trakcer in the background
+  cleanUpTracker(routeTracker);
 
   return reqId;
 };
 
-export const getRouteStatus = async ({ id }: routeStatusParams) => routeTracker[id];
-export const getAllRouteStatus = async () => routeTracker;
+export const getRouteStatus = async ({ id, destAddr }: routeStatusParams): Promise<RouteInfo[]> => {
+  if (!id && !destAddr) {
+    throw new ValidationError('id or destAddr is required');
+  }
+
+  if (id) {
+    const routeInfo = routeTracker[id];
+    return routeInfo ? [routeInfo] : [];
+  } else {
+    return Object.values(routeTracker).filter(info => info.destAddr === destAddr);
+  }
+};
+
+export const getAllRouteStatus = async () => ({
+  reqCount: Object.keys(routeTracker).length,
+  allStatus: routeTracker,
+});
