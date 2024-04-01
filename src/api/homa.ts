@@ -68,15 +68,17 @@ export enum RouteStatus {
 };
 
 interface RouteInfo {
+  reqId: string;
   status: RouteStatus;
   destAddr: string;
+  routerAddr: string;
   timestamp: number;
   params: RouteParamsHoma;
   txHash?: string;
   err?: any;
 }
 
-type RouteTracker = Record<number, RouteInfo>;
+type RouteTracker = Record<string, RouteInfo>;
 
 const cleanUpTracker = (
   tracker: RouteTracker,
@@ -113,8 +115,10 @@ export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
 
   const reqId = `homa-${routeReqId++}`;
   const tracker: RouteInfo = routeTracker[reqId] = {
+    reqId,
     status: RouteStatus.Waiting,
     destAddr,
+    routerAddr: routerAddr!,
     timestamp: Date.now(),
     params,
   };
