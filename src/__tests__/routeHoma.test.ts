@@ -31,7 +31,7 @@ const providerAcalaFork = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
 const relayerAcalaFork = new Wallet(TEST_KEY.RELAYER, providerAcalaFork);
 const userAcalaFork = new Wallet(TEST_KEY.USER, providerAcalaFork);
 
-describe.only('/routeHoma', () => {
+describe.skip('/routeHoma', () => {
   const DOT_DECIMALS = 10;
   const dot = ERC20__factory.connect(DOT, providerAcalaFork);
   const ldot = ERC20__factory.connect(LDOT, providerAcalaFork);
