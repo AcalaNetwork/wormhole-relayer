@@ -85,4 +85,10 @@ export const routeEuphratesSchema: ObjectSchema<RouteParamsEuphrates> = object({
 export const routeStatusSchema: ObjectSchema<routeStatusParams> = object({
   id: string(),
   destAddr: string(),
-});
+}).test(
+  'id-or-destAddr',
+  'either `id` or `destAddr` is required',
+  value =>
+    (!!value.id && !value.destAddr) ||
+    (!value.id && !!value.destAddr)
+);

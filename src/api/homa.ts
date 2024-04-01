@@ -2,7 +2,6 @@ import { ContractTransaction } from 'ethers';
 import { DOT } from '@acala-network/contracts/utils/AcalaTokens';
 import { ERC20__factory, HomaFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { KSM } from '@acala-network/contracts/utils/KaruraTokens';
-import { ValidationError } from 'yup';
 
 import { DAY, MINUTE } from '../consts';
 import {
@@ -180,15 +179,13 @@ export const routeHomaAuto = async (params: RouteParamsHoma) =>  {
 };
 
 export const getRouteStatus = async ({ id, destAddr }: routeStatusParams): Promise<RouteInfo[]> => {
-  if (!id && !destAddr) {
-    throw new ValidationError('id or destAddr is required');
-  }
-
   if (id) {
     const routeInfo = routeTracker[id];
     return routeInfo ? [routeInfo] : [];
   } else {
-    return Object.values(routeTracker).filter(info => info.destAddr === destAddr);
+    return Object.values(routeTracker).filter(
+      info => info.destAddr.toLowerCase() === destAddr!.toLowerCase()
+    );
   }
 };
 

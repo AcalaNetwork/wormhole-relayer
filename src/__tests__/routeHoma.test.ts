@@ -12,7 +12,7 @@ import { encodeAddress } from '@polkadot/util-crypto';
 import { parseEther, parseUnits } from 'ethers/lib/utils';
 import assert from 'assert';
 
-import { ETH_RPC } from '../consts';
+import { ETH_RPC, SECOND } from '../consts';
 import { RouteStatus } from '../api';
 import {
   TEST_ADDR_RELAYER,
@@ -171,15 +171,16 @@ describe.skip('/routeHoma', () => {
     const waitForRoute = new Promise<void>((resolve, reject) => {
       const pollRouteStatus = setInterval(async () => {
         const res = await routeStatus({ id: reqId });
-        // console.log(`current status: ${res.data.status}`);
+        const { status } = res.data[0];
+        console.log(`current status: ${status}`);
 
-        if (res.data[0].status === RouteStatus.Complete) {
+        if (status === RouteStatus.Complete) {
           resolve();
           clearInterval(pollRouteStatus);
         }
-      }, 1000);
+      }, 1 * SECOND);
 
-      setTimeout(reject, 100 * 1000);
+      setTimeout(reject, 100 * SECOND);
     });
 
     console.log('xcming to router ...');
@@ -187,6 +188,12 @@ describe.skip('/routeHoma', () => {
 
     console.log('waiting for auto routing ...');
     await waitForRoute;
+
+    // query status by destAddr should also returns same result
+    const { data } = await routeStatus({ destAddr });
+    const reqInfo = data.find(info => info.reqId === reqId);
+    expect(reqInfo).not.to.be.undefined;
+    expect(reqInfo.status).to.eq(RouteStatus.Complete);
 
     console.log('route complete!');
     const bal1 = await fetchTokenBalances();
