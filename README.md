@@ -445,7 +445,6 @@ GET /routeStatus?destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
   { data: { status: 2, txHash: '0x22222' } },
   { data: { status: 1 } },
 ]
-```
 
 /* ---------- when error ---------- */
 // similar to /routeXcm
