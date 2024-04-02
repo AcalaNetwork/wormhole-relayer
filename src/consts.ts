@@ -258,4 +258,4 @@ export const MINUTE = 60 * SECOND;
 export const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 
-export const VERSION = '1.7.0-0';
+export const VERSION = '1.7.0-1';
