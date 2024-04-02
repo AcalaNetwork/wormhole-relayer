@@ -253,4 +253,9 @@ export const TESTNET_MODE_WARNING = `
 export const EUPHRATES_ADDR = '0x7Fe92EC600F15cD25253b421bc151c51b0276b7D';
 export const EUPHRATES_POOLS = ['0', '1', '2', '3'];
 
+export const SECOND = 1000;
+export const MINUTE = 60 * SECOND;
+export const HOUR = 60 * MINUTE;
+export const DAY = 24 * HOUR;
+
 export const VERSION = '1.7.0-0';

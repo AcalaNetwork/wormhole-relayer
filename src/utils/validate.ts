@@ -1,5 +1,5 @@
 import { CHAIN_ID_ACALA, CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
-import { ObjectSchema, mixed, object, string } from 'yup';
+import { ObjectSchema, mixed, number, object, string } from 'yup';
 
 export enum Mainnet {
   Acala = 'acala',
@@ -30,6 +30,7 @@ export interface RouteParamsXcm extends RouteParamsBase {
 export interface RouteParamsHoma {
   chain: Mainnet;
   destAddr: string;   // dest evm or acala native address
+  timeout?: number;   // timeout minutes
 }
 
 export interface RouteParamsEuphrates {
@@ -43,7 +44,8 @@ export interface RelayAndRouteParams extends RouteParamsXcm {
 }
 
 export interface routeStatusParams {
-  id: string;
+  id?: string;
+  destAddr?: string;
 }
 
 export const routeXcmSchema: ObjectSchema<RouteParamsXcm> = object({
@@ -69,6 +71,9 @@ export const routeWormholeSchema: ObjectSchema<RouteParamsWormhole> = object({
 export const routeHomaSchema: ObjectSchema<RouteParamsHoma> = object({
   destAddr: string().required(),
   chain: mixed<Mainnet>().oneOf(Object.values(Mainnet)).required(),
+  timeout: number()
+    .min(3, 'timeout must be at least 3 minutes')
+    .max(30, 'timeout cannot exceed 30 minutes'),
 });
 
 export const routeEuphratesSchema: ObjectSchema<RouteParamsEuphrates> = object({
@@ -78,5 +83,12 @@ export const routeEuphratesSchema: ObjectSchema<RouteParamsEuphrates> = object({
 });
 
 export const routeStatusSchema: ObjectSchema<routeStatusParams> = object({
-  id: string().required(),
-});
+  id: string(),
+  destAddr: string(),
+}).test(
+  'id-or-destAddr',
+  'either `id` or `destAddr` is required',
+  value =>
+    (!!value.id && !value.destAddr) ||
+    (!value.id && !!value.destAddr)
+);

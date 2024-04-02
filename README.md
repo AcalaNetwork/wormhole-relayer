@@ -431,12 +431,20 @@ data: {
 
 GET /routeStatus?routeId=homa-1711514333845
 => route status
-{ data: { status: 0 } }                     // waiting for token
-{ data: { status: 1 } }                     // token arrived, routing
-{ data: { status: 2, txHash: '0x12345 } }   // routing tx submitted, waiting for confirmation
-{ data: { status: 3, txHash: '0x12345 } }   // routing completed
-{ data: { status: -1 } }                    // routing timeout out (usually becuase no token arrive in 3 min)
-{ data: { status: -2, error: 'xxx' } }      // routing failed
+[{ data: { status: 0 } }]                     // waiting for token
+[{ data: { status: 1 } }]                     // token arrived, routing
+[{ data: { status: 2, txHash: '0x12345' } }]   // routing tx submitted, waiting for confirmation
+[{ data: { status: 3, txHash: '0x12345' } }]   // routing completed
+[{ data: { status: -1 } }]                    // routing timeout out (usually becuase no token arrive in 3 min)
+[{ data: { status: -2, error: 'xxx' } }]      // routing failed
+
+GET /routeStatus?destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
+=> all route status for this address
+[
+  { data: { status: 3, txHash: '0x11111' } },
+  { data: { status: 2, txHash: '0x22222' } },
+  { data: { status: 1 } },
+]
 
 /* ---------- when error ---------- */
 // similar to /routeXcm
