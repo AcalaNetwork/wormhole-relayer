@@ -39,6 +39,15 @@ export interface RouteParamsEuphrates {
   token?: string;      // token to route, not required for `shouldRoute`
 }
 
+export interface SwapAndRouteParams {
+  poolId: string;         // euphrates pool id
+  recipient: string;      // dest evm address
+  supplyAmount: string;   // swap tokenIn amount
+  token?: string;         // token to route, not required for `shouldRoute`
+  targetToken?: string;   // swap tokenOut address, default: ACA address
+  targetAmount?: string;  // swap tokenOut amount (with erc20 decimals)
+}
+
 export interface RelayAndRouteParams extends RouteParamsXcm {
   signedVAA: string;
 }
@@ -80,6 +89,15 @@ export const routeEuphratesSchema: ObjectSchema<RouteParamsEuphrates> = object({
   poolId: string().required(),
   recipient: string().required(),
   token: string(),
+});
+
+export const swapAndRouteSchema: ObjectSchema<SwapAndRouteParams> = object({
+  poolId: string().required(),
+  recipient: string().required(),
+  supplyAmount: string().required(),
+  token: string(),
+  targetToken: string(),
+  targetAmount: string(),
 });
 
 export const routeStatusSchema: ObjectSchema<routeStatusParams> = object({
