@@ -26,7 +26,9 @@ import {
   logger,
   NoRouteError,
   routeStatusSchema,
+  swapAndRouteSchema,
 } from '../utils';
+import { shouldSwapAndRoute, swapAndRoute } from '../api/swapAndRoute';
 
 interface RouterConfig {
   schema?: Schema;
@@ -54,6 +56,10 @@ const ROUTER_CONFIGS: {
     '/shouldRouteEuphrates': {
       schema: routeEuphratesSchema,
       handler: shouldRouteEuphrates,
+    },
+    '/shouldSwapAndRoute': {
+      schema: swapAndRouteSchema,
+      handler: shouldSwapAndRoute,
     },
     '/health': {
       handler: healthCheck,
@@ -95,6 +101,10 @@ const ROUTER_CONFIGS: {
     '/routeEuphrates': {
       schema: routeEuphratesSchema,
       handler: routeEuphrates,
+    },
+    '/swapAndRoute': {
+      schema: swapAndRouteSchema,
+      handler: swapAndRoute,
     },
   },
 };
