@@ -3,7 +3,7 @@ import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts
 import { SwapAndStakeEuphratesFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { constants } from 'ethers';
 
-import { EUPHRATES_ADDR, EUPHRATES_POOLS, RELAYER_ADDR } from '../consts';
+import { EUPHRATES_ADDR, EUPHRATES_POOLS, RELAYER_ADDR, SWAP_SUPPLY_TOKENS } from '../consts';
 import {
   Mainnet,
   RouteError,
@@ -13,11 +13,16 @@ import {
   getChainConfig,
   getMainnetChainId,
 } from '../utils';
+import { parseUnits } from 'ethers/lib/utils';
 
+const TARGET_AMOUNT_ACA = parseUnits('3', 12);
+const SUPPLY_AMOUNT_JITOSOL = parseUnits('0.0035', 9);
 const DEFAULT_SWAP_AND_ROUTE_PARAMS = {
   maker: RELAYER_ADDR,
   targetToken: ACA,
   euphrates: EUPHRATES_ADDR,
+  targetAmount: TARGET_AMOUNT_ACA,
+  supplyAmount: SUPPLY_AMOUNT_JITOSOL,
 };
 
 const prepareSwapAndRoute = async (chain: Mainnet) => {
@@ -34,30 +39,29 @@ const prepareSwapAndRoute = async (chain: Mainnet) => {
 export const shouldSwapAndRoute = async (params: SwapAndRouteParams) => {
   try {
     const { factory, feeAddr } = await prepareSwapAndRoute(Mainnet.Acala);
+
     if (!EUPHRATES_POOLS.includes(params.poolId)) {
       throw new RouteError(`euphrates poolId ${params.poolId} is not supported`, params);
     }
 
     const insts = {
       ...DEFAULT_SWAP_AND_ROUTE_PARAMS,
-      ...params,
+      recipient: params.recipient,
+      poolId: params.poolId,
     };
 
     /* ---------- TODO: remove this check later after approved max ---------- */
-    const { targetAmount } = params;
-    if (targetAmount) {
-      const aca = ERC20__factory.connect(ACA, factory.signer);
-      const allowance = await aca.allowance(insts.maker, factory.address);
-      if (allowance.lt(targetAmount)) {
-        await (await aca.approve(factory.address, constants.MaxUint256)).wait();
-      }
+    const aca = ERC20__factory.connect(ACA, factory.signer);
+    const allowance = await aca.allowance(insts.maker, factory.address);
+    if (allowance.lt(TARGET_AMOUNT_ACA)) {
+      await (await aca.approve(factory.address, constants.MaxUint256)).wait();
     }
     /* ----------------------------------------------------------------------- */
 
     const routerAddr = await factory.callStatic.deploySwapAndStakeEuphratesRouter(
       feeAddr,
       insts,
-      params.targetAmount ?? 0,
+      TARGET_AMOUNT_ACA
     );
 
     return {
@@ -77,9 +81,14 @@ export const swapAndRoute = async (params: SwapAndRouteParams) => {
     throw new RouteError('<token> param is required for swap and route', params);
   }
 
+  if (!SWAP_SUPPLY_TOKENS.includes(params.token)) {
+    throw new RouteError(`token ${params.token} is not supported for swapping`, params);
+  }
+
   const insts = {
     ...DEFAULT_SWAP_AND_ROUTE_PARAMS,
-    ...params,
+    recipient: params.recipient,
+    poolId: params.poolId,
   };
 
   const { factory, feeAddr } = await prepareSwapAndRoute(Mainnet.Acala);
@@ -87,7 +96,7 @@ export const swapAndRoute = async (params: SwapAndRouteParams) => {
     feeAddr,
     insts,
     params.token,
-    params.targetAmount ?? 0,
+    TARGET_AMOUNT_ACA,
   );
   const receipt = await tx.wait();
 

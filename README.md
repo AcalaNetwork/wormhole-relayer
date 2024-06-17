@@ -509,15 +509,12 @@ GET /shouldSwapAndRoute
 params: {
   poolId: string;         // euphrates pool id
   recipient: string;      // dest evm address
-  supplyAmount: string;   // swap tokenIn amount
-  targetToken?: string;   // swap tokenOut address, default: ACA address
-  targetAmount?: string;  // swap tokenOut amount (with erc20 decimals)
 }
 ```
 
 example
 ```
-GET /shouldSwapAndRoute?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&supplyAmount=100000000&poolId=7&targetToken=0x0000000000000000000100000000000000000000&targetAmount=2000000000000
+GET /shouldSwapAndRoute?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&poolId=7
 =>
 {
   "data": {
@@ -534,10 +531,7 @@ POST /swapAndRoute
 data: {
   poolId: string;         // euphrates pool id
   recipient: string;      // dest evm address
-  supplyAmount: string;   // swap tokenIn amount
   token?: string;         // token to route, not required for `shouldRoute`
-  targetToken?: string;   // swap tokenOut address, default: ACA address
-  targetAmount?: string;  // swap tokenOut amount (with erc20 decimals)
 }
 ```
 
@@ -545,11 +539,8 @@ example
 ```
 POST /swapAndRoute
 data: {
-  "recipient": "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
-  "supplyAmount": 100000000,
   "poolId": 7,
-  "targetToken": "0x0000000000000000000100000000000000000000",
-  "targetAmount": 2000000000000,
+  "recipient": "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
   "token": "0xa7fb00459f5896c3bd4df97870b44e868ae663d7"
 }
 

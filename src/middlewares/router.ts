@@ -2,6 +2,17 @@ import { NextFunction, Request, Response } from 'express';
 import { Schema } from 'yup';
 
 import {
+  NoRouteError,
+  logger,
+  relayAndRouteSchema,
+  routeEuphratesSchema,
+  routeHomaSchema,
+  routeStatusSchema,
+  routeWormholeSchema,
+  routeXcmSchema,
+  swapAndRouteSchema,
+} from '../utils';
+import {
   getAllRouteStatus,
   getRouteStatus,
   healthCheck,
@@ -17,17 +28,6 @@ import {
   shouldRouteWormhole,
   shouldRouteXcm,
 } from '../api';
-import {
-  relayAndRouteSchema,
-  routeEuphratesSchema,
-  routeHomaSchema,
-  routeWormholeSchema,
-  routeXcmSchema,
-  logger,
-  NoRouteError,
-  routeStatusSchema,
-  swapAndRouteSchema,
-} from '../utils';
 import { shouldSwapAndRoute, swapAndRoute } from '../api/swapAndRoute';
 
 interface RouterConfig {
