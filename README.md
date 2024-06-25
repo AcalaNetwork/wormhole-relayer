@@ -40,17 +40,17 @@ example
 ```
 # ---------- when should relay ---------- #
 GET /shouldRelay?originAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=10000000000000000000&targetChain=11
-=> { "data": { "shouldRelay":true,"msg":"" } }
+=> {"data": { "shouldRelay":true,"msg":"" }}
 
 # ---------- when should not relay ---------- #
-GET /shouldRelay?originAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=100000&targetChain=11
-=> {"shouldRelay":false,"msg":"transfer amount too small, expect at least 10000000000000000"}
+GET /shouldRelay?targetChain=12&originAsset=J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn&amount=10000
+=> {"data":{"shouldRelay":false,"msg":"transfer amount too small, expect at least 1000000"}}
 
-GET /shouldRelay?originAsset=0x00000000000000000111111111111&amount=10000000000000000000&targetChain=11
-=> {"shouldRelay":false,"msg":"token not supported"}
+GET /shouldRelay?targetChain=12&originAsset=0x00000000000000000111111111111&amount=10000
+=> {"data":{"shouldRelay":false,"msg":"originAsset 0x00000000000000000111111111111 not supported"}}
 
-GET /shouldRelay?originAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=100000&targetChain=11
-=> {"shouldRelay":false,"msg":"target chain not supported"}
+GET shouldRelay?targetChain=3&originAsset=J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn&amount=10000000
+=> {"data":{"shouldRelay":false,"msg":"target chain 3 is not supported"}}
 ```
 ### `/relay`
 ask the relayer to relay a request, given the signedVAA
