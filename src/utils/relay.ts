@@ -4,70 +4,14 @@ import { ERC20__factory, FeeRegistry__factory } from '@acala-network/asset-route
 import {
   hexToUint8Array,
   redeemOnEth,
-  tryHexToNativeString,
   tryNativeToHexString,
 } from '@certusone/wormhole-sdk';
 
 import { ChainConfig } from './configureEnv';
-import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../consts';
 import { RelayAndRouteParams } from './validate';
 import { RelayError } from './error';
-import { VaaInfo, parseVaaPayload } from './wormhole';
-import { logger } from './logger';
+import { parseVaaPayload } from './wormhole';
 
-interface ShouldRelayResult {
-  shouldRelay: boolean;
-  msg: string;
-}
-
-export const shouldRelayVaa = (vaaInfo: VaaInfo): ShouldRelayResult => {
-  const {
-    amount,
-    targetChain,
-    originChain,
-    originAddress,
-  } = vaaInfo;
-  const originAsset = tryHexToNativeString(originAddress, originChain);
-
-  const res = shouldRelay({ targetChain, originAsset, amount });
-
-  logger.debug({ targetChain, originAsset, amount, res }, 'check should relay VAA');
-
-  return res;
-};
-
-// for /relay endpoint
-export const shouldRelay = ({
-  targetChain,
-  originAsset,
-  amount: _amount,
-}: {
-  targetChain: number;
-  originAsset: string;
-  amount: bigint;
-}): ShouldRelayResult => {
-  const _noRelay = (msg: string): ShouldRelayResult => ({ shouldRelay: false, msg });
-
-  if (!targetChain) return _noRelay('missing targetChain');
-  if (!originAsset) return _noRelay('missing originAsset');
-  if (!_amount) return _noRelay('missing transfer amount');
-
-  let amount: bigint;
-  try {
-    amount = BigInt(_amount);
-  } catch (e) {
-    return _noRelay(`failed to parse amount: ${_amount}`);
-  }
-
-  const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain];
-  if (!supported) return _noRelay('target chain not supported');
-
-  const minTransfer = supported[originAsset.toLowerCase()];
-  if (!minTransfer) return _noRelay('token not supported');
-  if (amount < BigInt(minTransfer)) return _noRelay(`transfer amount too small, expect at least ${minTransfer}`);
-
-  return { shouldRelay: true, msg: '' };
-};
 
 // for /relayAndRoute endpoint
 const VAA_MAX_DECIMALS = 8;

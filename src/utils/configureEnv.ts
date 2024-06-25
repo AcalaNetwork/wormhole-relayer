@@ -6,10 +6,10 @@ import { Wallet } from 'ethers';
 import { bool, cleanEnv, str } from 'envalid';
 import dotenv from 'dotenv';
 
-import { ROUTER_CHAIN_ID, getApi } from './utils';
+import { RouterChainId, getApi } from './utils';
 
 export type ChainConfig = {
-  chainId: ROUTER_CHAIN_ID;
+  chainId: RouterChainId;
   provider: AcalaJsonRpcProvider;
   wallet: Wallet;
   api: ApiPromise;
@@ -92,6 +92,6 @@ const configAcala = async (): Promise<ChainConfig> => {
 };
 
 const configs = prepareEnvironment();
-export const getChainConfig = async (chainId: ROUTER_CHAIN_ID): Promise<ChainConfig> => (
+export const getChainConfig = async (chainId: RouterChainId): Promise<ChainConfig> => (
   (await configs).find(x => x.chainId === chainId)!
 );

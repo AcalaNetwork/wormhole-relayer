@@ -1,77 +1,78 @@
-import { hexToUint8Array } from '@certusone/wormhole-sdk';
+import { TransactionReceipt } from '@ethersproject/providers';
+import { hexToUint8Array, tryHexToNativeString } from '@certusone/wormhole-sdk';
 
+import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../consts';
 import {
+  RelayError,
+  RelayParams,
+  RouterChainId,
+  ShouldRelayParams,
   getChainConfig,
-  logger,
   parseVaaPayload,
   relayEVM,
-  shouldRelay,
-  shouldRelayVaa,
 } from '../utils';
 
-const validateRelayRequest = async (request: any, response: any) => {
-  const chainId = request.body?.targetChain;
-  const chainConfigInfo = await getChainConfig(chainId);
+interface ShouldRelayResult {
+  shouldRelay: boolean;
+  msg: string;
+}
 
-  if (!chainConfigInfo) {
-    return response.status(400).json({ error: 'Unsupported chainId', chainId });
-  }
-
-  const signedVAA = request.body?.signedVAA;
-  if (!signedVAA) {
-    return response.status(400).json({ error: 'signedVAA is required' });
-  }
-
-  // parse & validate VAA, make sure we want to relay this request
-  const vaaInfo = await parseVaaPayload(hexToUint8Array(signedVAA));
-  logger.debug(vaaInfo, 'parsed VAA info');
-
-  const { shouldRelay: _shouldRelay, msg } = shouldRelayVaa(vaaInfo);
-  if (!_shouldRelay) {
-    return response.status(400).json({
-      error: msg,
-      vaaInfo: {
-        ...vaaInfo,
-        amount: vaaInfo.amount.toString(),
-      },
-    });
-  }
-
-  return { chainConfigInfo, chainId, signedVAA };
-};
-
-export const relay = async (request: any, response: any): Promise<void> =>  {
+export const relay = async (params: RelayParams): Promise<TransactionReceipt> =>  {
+  const vaaInfo = await parseVaaPayload(hexToUint8Array(params.signedVAA));
   const {
-    chainConfigInfo,
-    chainId,
-    signedVAA,
-  } = await validateRelayRequest(request, response);
+    amount,
+    targetChain,
+    originChain,
+    originAddress,
+  } = vaaInfo;
+  const originAsset = tryHexToNativeString(originAddress, originChain);
 
-  if (!chainConfigInfo) return;
+  const { shouldRelay: _shouldRelay, msg } = await shouldRelay({
+    targetChain,
+    originAsset,
+    amount: amount.toString(),
+  });
 
-  const relayInfo = { chainId, signedVAA };
-  logger.debug(relayInfo, 'relaying ...');
+  if (!_shouldRelay) {
+    throw new RelayError(msg, { params, vaaInfo });
+  }
 
   try {
-    const receipt = await relayEVM(chainConfigInfo, signedVAA);
-    logger.debug({ ...relayInfo, txHash: receipt.transactionHash }, 'Relay Succeed 🎉🎉');
+    // already passed shouldRelay check, targetChain must be router chain
+    const chainConfigInfo = await getChainConfig(params.targetChain as RouterChainId);
+    const receipt = await relayEVM(chainConfigInfo, params.signedVAA);
 
-    return response.status(200).json(receipt);
+    return receipt;
   } catch (e) {
-    logger.debug(relayInfo, 'Relay Failed ❌');
-    logger.error(e);
-
-    return response.status(500).json({
-      error: e,
-      msg: 'Unable to relay this request.',
-      params: relayInfo,
-    });
+    throw new RelayError('failed to relay', { params, vaaInfo, error: e });
   }
 };
 
-export const checkShouldRelay = (request: any, response: any): void =>  {
-  const res = shouldRelay(request.query);
+export const shouldRelay = async (params: ShouldRelayParams) => {
+  const { targetChain, originAsset, amount: _amount } = params;
 
-  logger.debug({ ...request.query, res }, 'checkShouldRelay');
-  response.status(200).json(res);
+  const _noRelay = (msg: string): ShouldRelayResult => ({ shouldRelay: false, msg });
+
+  let amount: bigint;
+  try {
+    amount = BigInt(_amount);
+  } catch (e) {
+    return _noRelay(`failed to parse amount: ${_amount}`);
+  }
+
+  const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain];
+  if (!supported) {
+    return _noRelay(`target chain ${targetChain} is not supported`);
+  }
+
+  const minTransfer = supported[originAsset.toLowerCase()];
+  if (!minTransfer) {
+    return _noRelay(`originAsset ${originAsset} not supported`);
+  }
+
+  if (amount < BigInt(minTransfer)) {
+    return _noRelay(`transfer amount too small, expect at least ${minTransfer}`);
+  }
+
+  return { shouldRelay: true, msg: '' };
 };

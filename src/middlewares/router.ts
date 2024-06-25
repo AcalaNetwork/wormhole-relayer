@@ -5,17 +5,20 @@ import {
   NoRouteError,
   logger,
   relayAndRouteSchema,
+  relaySchema,
   routeEuphratesSchema,
   routeHomaSchema,
   routeStatusSchema,
   routeWormholeSchema,
   routeXcmSchema,
+  shouldRelaySchema,
   swapAndRouteSchema,
 } from '../utils';
 import {
   getAllRouteStatus,
   getRouteStatus,
   healthCheck,
+  relay,
   relayAndRoute,
   relayAndRouteBatch,
   routeEuphrates,
@@ -23,6 +26,7 @@ import {
   routeHomaAuto,
   routeWormhole,
   routeXcm,
+  shouldRelay,
   shouldRouteEuphrates,
   shouldRouteHoma,
   shouldRouteWormhole,
@@ -41,6 +45,10 @@ const ROUTER_CONFIGS: {
   };
 } = {
   GET: {
+    '/shouldRelay': {
+      schema: shouldRelaySchema,
+      handler: shouldRelay,
+    },
     '/shouldRouteWormhole': {
       schema: routeWormholeSchema,
       handler: shouldRouteWormhole,
@@ -74,6 +82,10 @@ const ROUTER_CONFIGS: {
   },
 
   POST: {
+    '/relay': {
+      schema: relaySchema,
+      handler: relay,
+    },
     '/routeWormhole': {
       schema: routeWormholeSchema,
       handler: routeWormhole,

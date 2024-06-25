@@ -4,7 +4,7 @@ import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 
 import {
-  ROUTER_CHAIN_ID,
+  RouterChainId,
   bridgeToken,
   getSignedVAAFromSequence,
   parseAmount,
@@ -29,7 +29,7 @@ export const transferFromBSC = async (
   amount: string,
   sourceAsset: string,
   recipientAddr: string,
-  dstChainId: ROUTER_CHAIN_ID,
+  dstChainId: RouterChainId,
   wallet: Wallet,
   isMainnet = false,
 ): Promise<string> => {

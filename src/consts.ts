@@ -142,8 +142,8 @@ const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD = {
     // 1 karura WAUSD      => Acala AUSD 0x0000000000000000000100000000000000000001
     '0x0000000000000000000100000000000000000001': '100000000',   // 1 WAUSD = 10{8}
 
-    // 0.00000001 jitosol        => Acala jitosol 0xA7fB00459F5896C3bD4df97870b44e868Ae663D7
-    j1toso1uck3rlmjorhttrvwy9hj7x8v9yyac6y7kgcpn: '1',   // 1 jitosol = 10{9}
+    // 0.01 jitosol        => Acala jitosol 0xA7fB00459F5896C3bD4df97870b44e868Ae663D7
+    j1toso1uck3rlmjorhttrvwy9hj7x8v9yyac6y7kgcpn: '1000000',   // 1 jitosol = 10{9}
   },
 };
 

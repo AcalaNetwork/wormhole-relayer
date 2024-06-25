@@ -1,4 +1,4 @@
-import { CHAIN_ID_ACALA, CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
+import { CHAINS, CHAIN_ID_ACALA, CHAIN_ID_KARURA, ChainId } from '@certusone/wormhole-sdk';
 import { ObjectSchema, mixed, number, object, string } from 'yup';
 
 export enum Mainnet {
@@ -11,6 +11,17 @@ export const getMainnetChainId = (mainnet: Mainnet) => (
     ? CHAIN_ID_ACALA
     : CHAIN_ID_KARURA
 );
+
+export interface ShouldRelayParams {
+  targetChain: ChainId;
+  originAsset: string;    // original address without padding 0s
+  amount: string;
+}
+
+export interface RelayParams {
+  targetChain: ChainId;
+  signedVAA: string;
+}
 
 interface RouteParamsBase {
   originAddr: string;     // origin token address
@@ -50,6 +61,18 @@ export interface routeStatusParams {
   id?: string;
   destAddr?: string;
 }
+
+const ALL_WORMHOLE_CHAIN_IDS = Object.values(CHAINS);
+export const shouldRelaySchema: ObjectSchema<ShouldRelayParams> = object({
+  targetChain: mixed<ChainId>().oneOf(ALL_WORMHOLE_CHAIN_IDS).required(),
+  originAsset: string().required(),
+  amount: string().required(),
+});
+
+export const relaySchema: ObjectSchema<RelayParams> = object({
+  targetChain: mixed<ChainId>().oneOf(ALL_WORMHOLE_CHAIN_IDS).required(),
+  signedVAA: string().required(),
+});
 
 export const routeXcmSchema: ObjectSchema<RouteParamsXcm> = object({
   originAddr: string().required(),

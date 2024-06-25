@@ -12,10 +12,11 @@ import { options } from '@acala-network/api';
 
 import { RelayerError } from './error';
 import { bridgeToken, getSignedVAAFromSequence } from './wormhole';
-import { parseAmount } from './token';
 import { logger } from './logger';
+import { parseAmount } from './token';
 
-export type ROUTER_CHAIN_ID = typeof CHAIN_ID_KARURA | typeof CHAIN_ID_ACALA;
+export const ROUTER_CHAIN_IDS = [CHAIN_ID_KARURA, CHAIN_ID_ACALA] as const;
+export type RouterChainId = typeof ROUTER_CHAIN_IDS[number]
 
 export const getApi = async (privateKey: string, nodeUrl: string) => {
   await cryptoWaitReady();
@@ -36,7 +37,7 @@ export const transferFromAvax = async (
   amount: string,
   sourceAsset: string,
   recipientAddr: string,
-  dstChainId: ROUTER_CHAIN_ID,
+  dstChainId: RouterChainId,
   wallet: Wallet,
   isMainnet = false,
 ): Promise<string> => {

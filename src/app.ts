@@ -2,13 +2,11 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 
+import { errorHandler, router } from './middlewares';
 import {
-  checkShouldRelay,
   getVersion,
-  relay,
   testTimeout,
 } from './api';
-import { errorHandler, router } from './middlewares';
 
 export const createApp = () => {
   const app = express();
@@ -18,8 +16,6 @@ export const createApp = () => {
   app.use(bodyParser.json());
 
   app.post('/testTimeout', testTimeout);
-  app.post('/relay', relay);
-  app.get('/shouldRelay', checkShouldRelay);
   app.get('/version', getVersion);
 
   app.use(router);
