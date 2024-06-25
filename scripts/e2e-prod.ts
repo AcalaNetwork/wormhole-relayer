@@ -8,14 +8,14 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 import { BSC_TOKEN, ETH_RPC , RELAYER_URL } from '../src/consts';
-import { ROUTER_CHAIN_ID, getTokenBalance } from '../src/utils';
+import { RouterChainId, getTokenBalance } from '../src/utils';
 import { transferErc20, transferFromBSC } from './scriptUtils';
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 const key = process.env.KEY;
 if (!key) throw new Error('KEY is not defined');
 
-const routeXcm = async (chainId: ROUTER_CHAIN_ID) => {
+const routeXcm = async (chainId: RouterChainId) => {
   console.log(`e2e testing routeXcm on ${CHAIN_ID_TO_NAME[chainId]}`);
   const params = chainId === CHAIN_ID_KARURA
     ? {
@@ -54,7 +54,7 @@ const routeXcm = async (chainId: ROUTER_CHAIN_ID) => {
   console.log(routeRes.data);
 };
 
-const routeWormhole = async (chainId: ROUTER_CHAIN_ID) => {
+const routeWormhole = async (chainId: RouterChainId) => {
   console.log(`e2e testing routeWormhole on ${CHAIN_ID_TO_NAME[chainId]}`);
   const originAddr = chainId === CHAIN_ID_KARURA
     ? ROUTER_TOKEN_INFO.usdc.originAddr

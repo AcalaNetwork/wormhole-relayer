@@ -98,7 +98,7 @@ export const RELAYER_URL = {
    thredhold amount is defined as "amount that will show on VAA"
    address should be **lower case** address to be consistent
                                                 --------------- */
-const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV = {
+const RELAY_CONFIG_DEV = {
   [CHAIN_ID_KARURA]: {
     // 0.1 BSC USDT => karura WUSDT 0x478dEFc2Fc2be13a505dafBDF1e5400847E2efF6
     '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd': '10000000',
@@ -121,7 +121,7 @@ const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV = {
   },
 };
 
-const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD = {
+const RELAY_CONFIG_PROD = {
   [CHAIN_ID_KARURA]: {
     // 10 ETH mainnet USDC => karura WUSDC 0x1F3a10587A20114EA25Ba1b388EE2dD4A337ce27
     '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': '10000000',     // 1 USDC = 10{6}
@@ -142,14 +142,14 @@ const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD = {
     // 1 karura WAUSD      => Acala AUSD 0x0000000000000000000100000000000000000001
     '0x0000000000000000000100000000000000000001': '100000000',   // 1 WAUSD = 10{8}
 
-    // 0.00000001 jitosol        => Acala jitosol 0xA7fB00459F5896C3bD4df97870b44e868Ae663D7
-    j1toso1uck3rlmjorhttrvwy9hj7x8v9yyac6y7kgcpn: '1',   // 1 jitosol = 10{9}
+    // 0.01 jitosol        => Acala jitosol 0xA7fB00459F5896C3bD4df97870b44e868Ae663D7
+    j1toso1uck3rlmjorhttrvwy9hj7x8v9yyac6y7kgcpn: '1000000',   // 1 jitosol = 10{9}
   },
 };
 
-export const RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS = isTestnet
-  ? RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_DEV
-  : RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS_PROD;
+export const RELAY_CONFIG = isTestnet
+  ? RELAY_CONFIG_DEV
+  : RELAY_CONFIG_PROD;
 
 export const enum PARA_ID {
   BASILISK = '2090',
