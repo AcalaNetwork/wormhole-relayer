@@ -1,13 +1,13 @@
-import { describe, it } from 'vitest';
-import { expect } from 'chai';
+import { AxiosError } from 'axios';
+import { describe, expect, it } from 'vitest';
 
-import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../consts';
+import { RELAY_CONFIG } from '../consts';
 import { shouldRelay } from './testUtils';
 
 describe('/shouldRelay', () => {
   it('when should relay', async () => {
-    for (const targetChain in RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS) {
-      const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain];
+    for (const targetChain in RELAY_CONFIG) {
+      const supported = RELAY_CONFIG[targetChain];
 
       for (const [token, minTransfer] of Object.entries(supported)) {
         const res = await shouldRelay({
@@ -16,8 +16,7 @@ describe('/shouldRelay', () => {
           amount: minTransfer,
         });
 
-        expect(res.shouldRelay).to.equal(true);
-        expect(res.msg).to.equal('');
+        expect(res.data).toMatchSnapshot();
       }
 
       // if not lower case address
@@ -28,74 +27,122 @@ describe('/shouldRelay', () => {
           amount: minTransfer,
         });
 
-        expect(res.shouldRelay).to.equal(true);
-        expect(res.msg).to.equal('');
+        expect(res.data).toMatchSnapshot();
       }
     }
   });
 
   describe('when should not relay', () => {
-    const USDT_BSC = '0x337610d27c682e347c9cd60bd4b3b107c9d34ddd';
+    const targetChain = 12;
+    const JITOSOL = 'j1toso1uck3rlmjorhttrvwy9hj7x8v9yyac6y7kgcpn';
 
     it('when missing params', async () => {
-      let res = await shouldRelay({
-        originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
-        amount: '10000',
-      });
-      expect(res.shouldRelay).to.equal(false);
-      expect(res.msg).to.equal('missing targetChain');
+      try {
+        await shouldRelay({
+          originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
+          amount: '10000',
+        });
 
-      res = await shouldRelay({
-        targetChain: 11,
-        amount: '10000',
-      });
-      expect(res.shouldRelay).to.equal(false);
-      expect(res.msg).to.equal('missing originAsset');
+        expect.fail('should throw error but did not');
+      } catch (err) {
+        expect((err as AxiosError).response?.data).toMatchInlineSnapshot(`
+          {
+            "error": [
+              "targetChain is a required field",
+            ],
+            "msg": "invalid request params!",
+          }
+        `);
+      }
 
-      res = await shouldRelay({
-        targetChain: 11,
-        originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
-      });
-      expect(res.shouldRelay).to.equal(false);
-      expect(res.msg).to.equal('missing transfer amount');
+      try {
+        await shouldRelay({
+          targetChain,
+          amount: '10000',
+        });
+
+        expect.fail('should throw error but did not');
+      } catch (err) {
+        expect((err as AxiosError).response?.data).toMatchInlineSnapshot(`
+          {
+            "error": [
+              "originAsset is a required field",
+            ],
+            "msg": "invalid request params!",
+          }
+        `);
+      }
+
+      try {
+        await shouldRelay({
+          targetChain,
+          originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
+        });
+
+        expect.fail('should throw error but did not');
+      } catch (err) {
+        expect((err as AxiosError).response?.data).toMatchInlineSnapshot(`
+          {
+            "error": [
+              "amount is a required field",
+            ],
+            "msg": "invalid request params!",
+          }
+        `);
+      }
     });
 
     it('when relay condition not met', async () => {
       let res = await shouldRelay({
-        targetChain: 12345,
+        targetChain: 3104,
         originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
         amount: '10000',
       });
-      expect(res.shouldRelay).to.equal(false);
-      expect(res.msg).to.equal('target chain not supported');
+      expect(res.data).toMatchInlineSnapshot(`
+        {
+          "msg": "target chain 3104 is not supported",
+          "shouldRelay": false,
+        }
+      `);
 
-      res = await shouldRelay({
-        targetChain: 11,
-        originAsset: '0x111111111191d46ee29420539fc25f0000000000',
-        amount: '10000',
-      });
-      expect(res.shouldRelay).to.equal(false);
-      expect(res.msg).to.equal('token not supported');
-
-      const targetChain = 11;
-      const originAsset = USDT_BSC;
+      const originAsset = '0x111111111191d46ee29420539fc25f0000000000';
       res = await shouldRelay({
         targetChain,
         originAsset,
         amount: '10000',
       });
-      expect(res.shouldRelay).to.equal(false);
-      expect(res.msg).to.equal(`transfer amount too small, expect at least ${RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain][originAsset]}`);
+      expect(res.data).toMatchInlineSnapshot(`
+        {
+          "msg": "originAsset 0x111111111191d46ee29420539fc25f0000000000 not supported",
+          "shouldRelay": false,
+        }
+      `);
+
+      res = await shouldRelay({
+        targetChain,
+        originAsset: JITOSOL,
+        amount: '10',
+      });
+      expect(res.data).toMatchInlineSnapshot(`
+        {
+          "msg": "transfer amount too small, expect at least 1000000",
+          "shouldRelay": false,
+        }
+      `);
     });
 
     it('when amount is not number', async () => {
       const res = await shouldRelay({
-        targetChain: 11,
-        originAsset: USDT_BSC,
+        targetChain,
+        originAsset: JITOSOL,
         amount: '{"type":"BigNumber","hex":"0xe8d4a51000"}',
       });
-      expect(res.shouldRelay).to.equal(false);
-      expect(res.msg).to.contain('failed to parse amount');
+      expect(res.data).toMatchInlineSnapshot(`
+        {
+          "msg": "failed to parse amount: {\\"type\\":\\"BigNumber\\",\\"hex\\":\\"0xe8d4a51000\\"}",
+          "shouldRelay": false,
+        }
+      `);
     });
   });
 });

@@ -64,7 +64,10 @@ export interface routeStatusParams {
 
 const ALL_WORMHOLE_CHAIN_IDS = Object.values(CHAINS);
 export const shouldRelaySchema: ObjectSchema<ShouldRelayParams> = object({
-  targetChain: mixed<ChainId>().oneOf(ALL_WORMHOLE_CHAIN_IDS).required(),
+  targetChain: mixed<ChainId>()
+    .transform((_, originalValue) => Number(originalValue))
+    .oneOf(ALL_WORMHOLE_CHAIN_IDS, 'targetChain is not a valid wormhole chain id')
+    .required(),
   originAsset: string().required(),
   amount: string().required(),
 });

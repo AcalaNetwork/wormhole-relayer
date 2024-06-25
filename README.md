@@ -40,7 +40,7 @@ example
 ```
 # ---------- when should relay ---------- #
 GET /shouldRelay?originAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=10000000000000000000&targetChain=11
-=> {"shouldRelay":true,"msg":""}
+=> { "data": { "shouldRelay":true,"msg":"" } }
 
 # ---------- when should not relay ---------- #
 GET /shouldRelay?originAsset=0x337610d27c682e347c9cd60bd4b3b107c9d34ddd&amount=100000&targetChain=11

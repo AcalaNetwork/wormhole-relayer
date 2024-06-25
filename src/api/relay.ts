@@ -1,7 +1,7 @@
 import { TransactionReceipt } from '@ethersproject/providers';
 import { hexToUint8Array, tryHexToNativeString } from '@certusone/wormhole-sdk';
 
-import { RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS } from '../consts';
+import { RELAY_CONFIG } from '../consts';
 import {
   RelayError,
   RelayParams,
@@ -60,7 +60,7 @@ export const shouldRelay = async (params: ShouldRelayParams) => {
     return _noRelay(`failed to parse amount: ${_amount}`);
   }
 
-  const supported = RELAYER_SUPPORTED_ADDRESSES_AND_THRESHOLDS[targetChain];
+  const supported = RELAY_CONFIG[targetChain];
   if (!supported) {
     return _noRelay(`target chain ${targetChain} is not supported`);
   }
