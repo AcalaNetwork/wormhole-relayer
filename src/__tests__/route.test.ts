@@ -15,7 +15,11 @@ import {
 } from './testConsts';
 import { ETH_RPC, FUJI_TOKEN, GOERLI_USDC, PARA_ID } from '../consts';
 import {
-  encodeXcmDest,
+  VAA_RANDOM_TOKEN_BSC_TO_ACALA,
+  VAA_TINY_AMOUNT_DAI_BSC_TO_ACALA,
+  VAA_TRANSFER_10_USDC_ETH_TO_ACALA,
+} from './vaa';
+import {
   expectError,
   expectErrorData,
   getBasiliskUsdcBalance,
@@ -27,132 +31,94 @@ import {
   shouldRouteWormhole,
   shouldRouteXcm,
   transferFromFujiToKaruraTestnet,
+  transferToRouter,
 } from './testUtils';
 import { getSignedVAAFromSequence } from '../utils';
 
-const destAddr = 'bXmPf7DcVmFuHEmzH3UX8t6AUkfNQW8pnTeXGhFhqbfngjAak';
-const dest = encodeXcmDest({
-  V3: {
-    parents: 1,
-    interior: {
-      X2: [
-        { parachain: 2090 },
-        { accountId32: destAddr },
-      ],
-    },
-  },
-});
+const DAI_ADDR = '0x54A37A01cD75B616D63E0ab665bFfdb0143c52AE';
 
-const providerKarura = new AcalaJsonRpcProvider(ETH_RPC.KARURA_TESTNET);
-const relayerKarura = new Wallet(TEST_KEY.RELAYER, providerKarura);
+const VAA_DAI_HYDRA = '01000000040d00d26a66904e780a5cff85cbc9b9b432eab98cafd7e44d49f1d1bbc36ee086e4086b057bb99e007c79753c39c2b801d88f9a76d6924c3f3284f710f1923c1475bf00016ca27e5fc37e4d2cbd99534dcc8baa57f3a658b4a9c238b2fae100510df897db37ab7166ea5ca0d6925cc908b9e487810f36faf84eb3f43f3c2f9297bc9572c201029a05af272025bad76145d52a5bc32b6ad06551fafa5b805aad0cfa7bcb8d0c6219524d2a10c71ba1393d1f94d9e0672c0b5090ffe225599dfff506c7753a4e870004545063222a09374c174cff07e92aa1823867b9bf59815f929cd8d67aa92dad1a6ddcf78ac9116ce4ae6f0f9d96c3940aa12b028234994e985c8dd8f4db9fd8c9010740fdef738b7fae5f6c5eb90a090dd27bcec1ae9652a14fa2d899bdc1b39563c35785976f12941d51a26adb7eaf64441319634e7bdb4ca5d434e31bc0bf8d3b8701097380e1a231bb02eec28a57fb03cd3a7ecfd675fba64d5d7e1667545ad79011c32f4516739fb4364a4888f1b02de1473aeb241e84963a3a11d3f4f7b6bc49859e010a1f124ecae48acef864556f60ccec8a0549545499ec33b22c3ec30054a1537e04142bc80877b75252d5d67598d18f88c13a7f2e7744d2e75259d0945bbc9c7288000d83817da0a40da3f2939f1d06c531179f7b5f4163180dbd6b3dbee84e44d261f02f07518c5c060af6a88d6efae78bd6f35578cbb7cea81c3d177485c84569f8ec010eaf4f1c3e672d98464eb8a05e13b61426b6c537d3321a7dc7065f5abb8c865cf16bcdd5eb20ea37fa2b4faeaf6feba147b7a213f04370dddd7ab46781bfda1f7c010f731a74b4cc9113741ece7d943619a2cd1b8b2a441a053e098f1344cc7d0028527bd096329da0be902724aa6f4d190a76ac90903d6e822364eaf174de5c2d102a011075156ae84288550bef7d96b929cda6244a14bee24daa2f8eda186375b3fc981d12a23c14f24151160d81f938c52929f66dd9402bca16b8316c84b4bdfc7a3a9100115f101d86b7dc0fa0e4b4a41097ce9369732706c87cd885416e39417f94e87caa71880572c11b1809bdbc5a44746256ef538bf55caeb9a58f18876aa1064f668e0012d30a833350b5408ccd9ede536b6e2a71e985d753583accc2f41f759e88496aed0934ddd8527e0c361871c134b7269534e5e24c9772e1f3b1c3f6d8a18c23b1dc01668646cb2982010000020000000000000000000000003ee18b2214aff97000d974cf647e7c347e8fa585000000000004996b0101000000000000000000000000000000000000000000000000000000003c3360800000000000000000000000006b175474e89094c44da98b954eedeac495271d0f0002000000000000000000000000c5dd20ed342cefece9e013d7d1763c398e987f7d000c0000000000000000000000000000000000000000000000000000000000000000';
+
+const routeArgs = {
+  dest: '0x04010200c91f0100525756d2a8c2bb099f2ac22c669bb5a1e5eaf94f687f7b7c5779b288b05bed75',
+  destParaId: '2034',     // hydra
+  originAddr: '0x6b175474e89094c44da98b954eedeac495271d0f',  // DAI
+};
+
+const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
+const relayer = new Wallet(TEST_KEY.RELAYER, provider);
 
 describe('/routeXcm', () => {
-  const api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
-
-  beforeAll(async () => { await api.isReady; });
-  afterAll(async () => { await api.disconnect(); });
-
   it('when should route', async () => {
-    const routeArgs = {
-      dest,
-      destParaId: PARA_ID.BASILISK,
-      originAddr: GOERLI_USDC,
-    };
-
     const res = await shouldRouteXcm(routeArgs);
     const { routerAddr } = res.data;
 
-    console.log('xcming to router ...');
-    await mockXcmToRouter(routerAddr, relayerKarura);
+    console.log('transferring to router ...');
+    await transferToRouter(routerAddr, relayer);
 
-    const curBalUser = await getBasiliskUsdcBalance(api, destAddr);
-    console.log({ curBalUser });
+    const dai = ERC20__factory.connect(DAI_ADDR, provider);
+    const curBalRelayer = (await dai.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
+    console.log({ curBalRelayer });
 
     console.log('routing ...');
     const routeRes = await routeXcm(routeArgs);
     console.log(`route finished! txHash: ${routeRes.data}`);
 
-    console.log('waiting for token to arrive at basilisk ...');
-    await sleep(25000);
+    const afterBalRelayer = (await dai.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
+    console.log({ afterBalRelayer });
 
-    const afterBalUser = await getBasiliskUsdcBalance(api, destAddr);
-    console.log({ afterBalUser });
+    expect(afterBalRelayer - curBalRelayer).to.eq(40000000000000000n);
+    expect((await dai.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
 
-    // expect(afterBalUser - curBalUser).to.eq(800n);  // 1000 - 200
+    // router should be destroyed
+    const routerCode = await provider.getCode(routerAddr);
+    expect(routerCode).to.eq('0x');
   });
 
   // describe.skip('when should not route', () => {})
 });
 
-describe('/relayAndRoute', () => {
-  const api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
-  const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, providerKarura);
-
-  beforeAll(async () => { await api.isReady; });
-  afterAll(async () => { await api.disconnect(); });
-
+describe.only('/relayAndRoute', () => {
   it('when should route', async () => {
-    const routeArgs = {
-      dest,
-      destParaId: PARA_ID.BASILISK,
-      originAddr: GOERLI_USDC,
-    };
-
-    const curBalUser = await getBasiliskUsdcBalance(api, destAddr);
-    const curBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
-    console.log({ curBalUser, curBalRelayer });
-
     const { routerAddr } = (await shouldRouteXcm(routeArgs)).data;
     console.log({ routerAddr });
 
-    const signedVAA = await transferFromFujiToKaruraTestnet('0.001', FUJI_TOKEN.USDC, routerAddr);
-    console.log({ signedVAA });
-
     const relayAndRouteArgs = {
       ...routeArgs,
-      signedVAA,
+      signedVAA: VAA_DAI_HYDRA,
     };
 
-    const wormholeWithdrawFilter = usdc.filters.Transfer(
+    const dai = ERC20__factory.connect(DAI_ADDR, provider);
+    const curBalRelayer = (await dai.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
+    console.log({ curBalRelayer });
+
+    const wormholeWithdrawFilter = dai.filters.Transfer(
       '0x0000000000000000000000000000000000000000',
       routerAddr,
     );
-    usdc.once(wormholeWithdrawFilter, (_from, _to, _value, event) => {
+    dai.once(wormholeWithdrawFilter, (_from, _to, _value, event) => {
       console.log(`relay finished! txHash: ${event.transactionHash}`);
     });
 
     const res = await relayAndRoute(relayAndRouteArgs);
     console.log(`route finished! txHash: ${res.data}`);
 
-    console.log('waiting for token to arrive at basilisk ...');
-    await sleep(25000);
+    const afterBalRelayer = (await dai.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
+    console.log({ afterBalRelayer });
 
-    const afterBalUser = await getBasiliskUsdcBalance(api, destAddr);
-    const afterBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
-    console.log({ afterBalUser, afterBalRelayer });
-
-    expect(afterBalRelayer - curBalRelayer).to.eq(200n);
-    // expect(afterBalUser - curBalUser).to.eq(800n);  // 1000 - 200
-    expect((await usdc.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
+    expect(afterBalRelayer - curBalRelayer).to.eq(40000000000000000n);
+    expect((await dai.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
 
     // router should be destroyed
-    const routerCode = await providerKarura.getCode(routerAddr);
+    const routerCode = await provider.getCode(routerAddr);
     expect(routerCode).to.eq('0x');
   });
 
   it('when should not route', async () => {
-    const routeArgs = {
-      dest,
-      destParaId: PARA_ID.BASILISK,
-      originAddr: GOERLI_USDC,
-    };
-
     try {
       await relayAndRoute({
         ...routeArgs,
-
-        // bridge 0.000001 USDC
-        signedVAA: '010000000001004ba23fa55bcb370773bdba954523ea305f96f814f51ce259fb327b57d985eec86a0f69bf46c4bb444d09b1d70e3b2aaa434639ec3ae93f5d0671b3e38055cf3501648726ae4d36000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a0900000000000012580f01000000000000000000000000000000000000000000000000000000000000000100000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b0000000000000000000000000000000000000000000000000000000000000000',
+        signedVAA: VAA_TINY_AMOUNT_DAI_BSC_TO_ACALA,    // bridge 0.000001 DAI
       });
 
       expect.fail('relayAndRoute did not throw when it should!');
@@ -163,9 +129,7 @@ describe('/relayAndRoute', () => {
     try {
       await relayAndRoute({
         ...routeArgs,
-
-        // bridge 10 TKN
-        signedVAA: '01000000000100689102e0be499c096acd1ac49a34216a32f8c19f1b053e0ff47e0a994ea302b50261b4c1feab4ae933fa8de83bd86efde12cc3b82da00b9b8ccc2d502e145ad2006487368e8f3a010000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09000000000000125c0f01000000000000000000000000000000000000000000000000000000003b9aca000000000000000000000000009c8bcccdb17545658c6b84591567c6ed9b4d55bb000b0000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b0000000000000000000000000000000000000000000000000000000000000000',
+        signedVAA: VAA_RANDOM_TOKEN_BSC_TO_ACALA,
       });
 
       expect.fail('relayAndRoute did not throw when it should!');
@@ -176,9 +140,7 @@ describe('/relayAndRoute', () => {
     try {
       await relayAndRouteBatch({
         ...routeArgs,
-
-        // invalid VAA
-        signedVAA: '01000000000100565399ecd3485d842c6e8677179e6a909977cf5be5bbce6273a3a5c06abceb9b79adf48f41f99beb852a48e5fec0f89e7465574c7e6e2034244272c7d3d436030164d0c59b2b670100000600000000000000000000000061e44e506ca5659e6c0bba9b678586fa2d7297560000000000001c38010100000000000000000000000000000000000000000000000000000000000003e800000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b000000000000000000000000000000000000000000000000000000000000000' + '12345',
+        signedVAA: VAA_TRANSFER_10_USDC_ETH_TO_ACALA + '12345',   // invalid VAA
       });
 
       expect.fail('relayAndRoute did not throw when it should!');
@@ -191,107 +153,11 @@ describe('/relayAndRoute', () => {
   });
 });
 
-describe('/relayAndRouteBatch', () => {
-  const api = new ApiPromise({ provider: new WsProvider(BASILISK_TESTNET_NODE_URL) });
-  const usdc = ERC20__factory.connect(KARURA_USDC_ADDRESS, providerKarura);
-
-  beforeAll(async () => { await api.isReady; });
-  afterAll(async () => { await api.disconnect(); });
-
-  it('when should route', async () => {
-    const routeArgs = {
-      dest,
-      destParaId: PARA_ID.BASILISK,
-      originAddr: GOERLI_USDC,
-    };
-
-    const curBalUser = await getBasiliskUsdcBalance(api, destAddr);
-    const curBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
-    console.log({ curBalUser, curBalRelayer });
-
-    const { routerAddr } = (await shouldRouteXcm(routeArgs)).data;
-    console.log({ routerAddr });
-
-    const signedVAA = await transferFromFujiToKaruraTestnet('0.001', FUJI_TOKEN.USDC, routerAddr);
-    console.log({ signedVAA });
-
-    const relayAndRouteArgs = {
-      ...routeArgs,
-      signedVAA,
-    };
-
-    const res = await relayAndRouteBatch(relayAndRouteArgs);
-    console.log(`batch relay and route finished! txHash: ${res.data}`);
-
-    console.log('waiting for token to arrive at basilisk ...');
-    await sleep(25000);
-
-    const afterBalUser = await getBasiliskUsdcBalance(api, destAddr);
-    const afterBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
-    console.log({ afterBalUser, afterBalRelayer });
-
-    // expect(afterBalRelayer - curBalRelayer).to.eq(200n);
-    // expect(afterBalUser - curBalUser).to.eq(800n);  // 1000 - 200
-    expect((await usdc.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
-
-    // router should be destroyed
-    const routerCode = await providerKarura.getCode(routerAddr);
-    expect(routerCode).to.eq('0x');
-  });
-
-  it('when should not route', async () => {
-    const routeArgs = {
-      dest,
-      destParaId: PARA_ID.BASILISK,
-      originAddr: GOERLI_USDC,
-    };
-
-    try {
-      await relayAndRouteBatch({
-        ...routeArgs,
-
-        // bridge 0.000001 USDC
-        signedVAA: '010000000001004ba23fa55bcb370773bdba954523ea305f96f814f51ce259fb327b57d985eec86a0f69bf46c4bb444d09b1d70e3b2aaa434639ec3ae93f5d0671b3e38055cf3501648726ae4d36000000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a0900000000000012580f01000000000000000000000000000000000000000000000000000000000000000100000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b0000000000000000000000000000000000000000000000000000000000000000',
-      });
-
-      expect.fail('relayAndRouteBatch did not throw when it should!');
-    } catch (err) {
-      expectError(err, 'token amount too small to relay', 500);
-    }
-
-    try {
-      await relayAndRouteBatch({
-        ...routeArgs,
-
-        // bridge 10 TKN
-        signedVAA: '01000000000100689102e0be499c096acd1ac49a34216a32f8c19f1b053e0ff47e0a994ea302b50261b4c1feab4ae933fa8de83bd86efde12cc3b82da00b9b8ccc2d502e145ad2006487368e8f3a010000040000000000000000000000009dcf9d205c9de35334d646bee44b2d2859712a09000000000000125c0f01000000000000000000000000000000000000000000000000000000003b9aca000000000000000000000000009c8bcccdb17545658c6b84591567c6ed9b4d55bb000b0000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b0000000000000000000000000000000000000000000000000000000000000000',
-      });
-
-      expect.fail('relayAndRouteBatch did not throw when it should!');
-    } catch (err) {
-      expectError(err, 'unsupported token', 500);
-    }
-
-    try {
-      await relayAndRouteBatch({
-        ...routeArgs,
-
-        // invalid VAA
-        signedVAA: '01000000000100565399ecd3485d842c6e8677179e6a909977cf5be5bbce6273a3a5c06abceb9b79adf48f41f99beb852a48e5fec0f89e7465574c7e6e2034244272c7d3d436030164d0c59b2b670100000600000000000000000000000061e44e506ca5659e6c0bba9b678586fa2d7297560000000000001c38010100000000000000000000000000000000000000000000000000000000000003e800000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000008341cd8b7bd360461fe3ce01422fe3e24628262f000b000000000000000000000000000000000000000000000000000000000000000' + '12345',
-      });
-
-      expect.fail('relayAndRouteBatch did not throw when it should!');
-    } catch (err) {
-      expectError(err, 'failed to estimate gas limit', 500);
-      expectErrorData(err, errData => {
-        expect(errData.params.err.reason).to.contain('VM signature invalid');
-      });
-    }
-  });
-});
+// not in use
+describe.skip('/relayAndRouteBatch', () => {});
 
 describe('/routeWormhole', () => {
-  const usdcK = ERC20__factory.connect(KARURA_USDC_ADDRESS, providerKarura);
+  const usdcK = ERC20__factory.connect(KARURA_USDC_ADDRESS, provider);
   const usdcF = ERC20__factory.connect(FUJI_TOKEN.USDC, new JsonRpcProvider(ETH_RPC.FUJI));
 
   it('when should route', async () => {
@@ -306,7 +172,7 @@ describe('/routeWormhole', () => {
     const { routerAddr } = res.data;
 
     console.log('xcming to router ...');
-    await mockXcmToRouter(routerAddr, relayerKarura);
+    await mockXcmToRouter(routerAddr, relayer);
 
     const curBalUser = (await usdcF.balanceOf(TEST_ADDR_USER)).toBigInt();
     const curBalRelayer = (await usdcK.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
@@ -319,11 +185,11 @@ describe('/routeWormhole', () => {
 
     // router should be destroyed
     expect((await usdcK.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
-    const routerCode = await providerKarura.getCode(routerAddr);
+    const routerCode = await provider.getCode(routerAddr);
     expect(routerCode).to.eq('0x');
 
     /*  ---------- should be able to redeem from eth ----------  */
-    const depositReceipt = await providerKarura.getTransactionReceipt(txHash);
+    const depositReceipt = await provider.getTransactionReceipt(txHash);
     const sequence = parseSequenceFromLogEth(
       depositReceipt as ContractReceipt,
       CONTRACTS.TESTNET.karura.core,
@@ -350,7 +216,7 @@ describe('/routeWormhole', () => {
     const afterBalRelayer = (await usdcK.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
     console.log({ afterBalUser, afterBalRelayer });
 
-    expect(afterBalRelayer - curBalRelayer).to.eq(200n);
+    expect(afterBalRelayer - curBalRelayer).to.eq(40000000000000000n);
     expect(afterBalUser - curBalUser).to.eq(800n);  // 1000 - 200
   });
 

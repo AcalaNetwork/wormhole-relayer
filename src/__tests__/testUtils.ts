@@ -38,11 +38,6 @@ export const transferFromFujiToKaruraTestnet = async (
   );
 };
 
-export const encodeXcmDest = (_data: any) => {
-  // TODO: use api to encode
-  return '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
-};
-
 export const getBasiliskUsdcBalance = async (api: ApiPromise, addr: string) => {
   const balance = await api.query.tokens.accounts(addr, 3);
   return (balance as any).free.toBigInt();

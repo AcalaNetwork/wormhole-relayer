@@ -1,21 +1,33 @@
+import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { CHAIN_ID_ACALA } from '@certusone/wormhole-sdk';
+import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { describe, expect, it } from 'vitest';
 
-import { RELAYER_URL } from '../consts';
+import { ETH_RPC } from '../consts';
+import { TEST_ADDR_RELAYER } from './testConsts';
+import { VAA_TRANSFER_10_USDC_ETH_TO_ACALA } from './vaa';
 import { relay } from './testUtils';
 
-const VAA_TRANSFER_10_USDC = '01000000040d000f5a53b35d8e8721a66f7e03bd35dfed45d9879fbc0d16c33e10957a04956d9a4669095edf0bee17cd6425529b95b6e5406176a17477c681376e0c90b527b3fa01024314e57f709f33a630cc298216fac3079ad33934d1851b253d2946d61d7ab63746380f4866b99e2d359323e35276bc98281cabc6bd49b2e33ae3cb490d34660c0004d76d33d7726bc5257bb1f4cc5476435daba0fba24c462cf66042808308114c02685f6468bb8cabfe6f6e09064cd7baf1df261b0cfda93da3e3ad7a0a64a6747301063d3642068ad9b73966ccfb34cf399216a28e9e86ba2d94fa077fd477418167462fb6d69bf49f174671d00d92b63959327151bb22282b12ccbc74e8ea622ea7c70107696a2cac5b9c5e9b8f00e41edb4c224bc7315b2d7b18ad0b22ca9c0e068c17c31a4fff7cfb5512c930d84afc432752704774525cc841001985bc1fc07fce37f900086895a80e8dd2fefb190cda2744c79e8f0bf6e18ccd837d731244bdc7dccbf57b176a1e9c2e3196dbb9e748e1548ae46bb422baba2157d2afb5633ff09dced6ad00094dfabeaa190e53ba9ddf7bdc3faef8563052637939135fc2631d9dbdbac403f61f4861a7ba1dea2445864641e8b069b5ba655a0097dfd17a4bade8cfaabcaaa4010ad534c20b0d91d0fdc0ccc3441faba13a71f4eaac7683c6f3941b21af8233493f25ba3e43f99080565371d621fab70577d913a7c6f28caf928642bf71dd11e46f000cf8e983f8d21aa830e563e41e7f3c4a723bafe6cd01302faeee5ef4d336c0617c38cde3ea4fc0b08bbbe870c6fae1c7437cd589be131c6087bf61e554ac89f499000eaf6e59952fe8cc208f85238a3524302eae5f6742b926518b283fa71a5f4a9ce856399e67e9a9ba7da40ae041516acc36e3d6ed943f7bbc27d19f3107ffab7241000f1ed262dcca1b61b3e5ee0f80e4cecb0bbeef1bd36ca9183c407bfee998164f7c5c0b3753fd99d35035c22dab7b935b6fcfb28ae71129171a57905705d55f3c320111bdb5458a53c75f87e2084c08ecf3eb74b097213b049d17d1a70ac1c5073077d25e07ac99aa1c04379a7211661a4edae6a727681c5ed4e03f05fba37066f19a1900122fb0912cdb5b70eb4a7e825adb4808a6d92a2d890fa9e4542b5ec1ed68eb17930ee63a02d48eab6aa5494ffbb8e16ec4e50952035969e946f6e762b80087d900016683d9bfea6a010000020000000000000000000000003ee18b2214aff97000d974cf647e7c347e8fa58500000000000495e1010100000000000000000000000000000000000000000000000000000000009fba65000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480002000000000000000000000000bbbba9ebe50f9456e106e6ef2992179182889999000c0000000000000000000000000000000000000000000000000000000000000000';
+const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
+
+const USDC_ADDR = '0x07DF96D1341A7d16Ba1AD431E2c847d978BC2bCe';
+const USER_ADDR = '0xBbBBa9Ebe50f9456E106e6ef2992179182889999';
 
 describe('/relay', () => {
-  describe('relay USDC', () => {
-    it('works', async () => {
-      console.log(`relaying with ${RELAYER_URL.RELAY}`);
-      const result = await relay({
-        targetChain: CHAIN_ID_ACALA,
-        signedVAA: VAA_TRANSFER_10_USDC,
-      });
+  it('relay USDC to user', async () => {
+    const dai = ERC20__factory.connect(USDC_ADDR, provider);
+    const curBalRelayer = (await dai.balanceOf(USER_ADDR)).toBigInt();
+    console.log({ curBalRelayer });
 
-      expect(result.data?.status).to.eq(1);
+    const result = await relay({
+      targetChain: CHAIN_ID_ACALA,
+      signedVAA: VAA_TRANSFER_10_USDC_ETH_TO_ACALA,
     });
+    expect(result.data?.status).to.eq(1);
+
+    const afterBalRelayer = (await dai.balanceOf(USER_ADDR)).toBigInt();
+    console.log({ afterBalRelayer });
+
+    expect(afterBalRelayer - curBalRelayer).to.eq(10467941n);   // 10.467941 USDC
   });
 });
