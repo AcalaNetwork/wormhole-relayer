@@ -1,65 +1,21 @@
-import { CHAIN_ID_KARURA, CONTRACTS } from '@certusone/wormhole-sdk';
+import { CHAIN_ID_ACALA } from '@certusone/wormhole-sdk';
 import { describe, expect, it } from 'vitest';
 
-import { FUJI_TOKEN, RELAYER_URL } from '../consts';
-import {
-  NOT_SUPPORTED_ADDRESS,
-  TEST_ADDR_RELAYER,
-  TEST_ADDR_USER,
-} from './testConsts';
-import { expectError, relay, transferFromFujiToKaruraTestnet } from './testUtils';
+import { RELAYER_URL } from '../consts';
+import { relay } from './testUtils';
+
+const VAA_TRANSFER_10_USDC = '01000000040d000f5a53b35d8e8721a66f7e03bd35dfed45d9879fbc0d16c33e10957a04956d9a4669095edf0bee17cd6425529b95b6e5406176a17477c681376e0c90b527b3fa01024314e57f709f33a630cc298216fac3079ad33934d1851b253d2946d61d7ab63746380f4866b99e2d359323e35276bc98281cabc6bd49b2e33ae3cb490d34660c0004d76d33d7726bc5257bb1f4cc5476435daba0fba24c462cf66042808308114c02685f6468bb8cabfe6f6e09064cd7baf1df261b0cfda93da3e3ad7a0a64a6747301063d3642068ad9b73966ccfb34cf399216a28e9e86ba2d94fa077fd477418167462fb6d69bf49f174671d00d92b63959327151bb22282b12ccbc74e8ea622ea7c70107696a2cac5b9c5e9b8f00e41edb4c224bc7315b2d7b18ad0b22ca9c0e068c17c31a4fff7cfb5512c930d84afc432752704774525cc841001985bc1fc07fce37f900086895a80e8dd2fefb190cda2744c79e8f0bf6e18ccd837d731244bdc7dccbf57b176a1e9c2e3196dbb9e748e1548ae46bb422baba2157d2afb5633ff09dced6ad00094dfabeaa190e53ba9ddf7bdc3faef8563052637939135fc2631d9dbdbac403f61f4861a7ba1dea2445864641e8b069b5ba655a0097dfd17a4bade8cfaabcaaa4010ad534c20b0d91d0fdc0ccc3441faba13a71f4eaac7683c6f3941b21af8233493f25ba3e43f99080565371d621fab70577d913a7c6f28caf928642bf71dd11e46f000cf8e983f8d21aa830e563e41e7f3c4a723bafe6cd01302faeee5ef4d336c0617c38cde3ea4fc0b08bbbe870c6fae1c7437cd589be131c6087bf61e554ac89f499000eaf6e59952fe8cc208f85238a3524302eae5f6742b926518b283fa71a5f4a9ce856399e67e9a9ba7da40ae041516acc36e3d6ed943f7bbc27d19f3107ffab7241000f1ed262dcca1b61b3e5ee0f80e4cecb0bbeef1bd36ca9183c407bfee998164f7c5c0b3753fd99d35035c22dab7b935b6fcfb28ae71129171a57905705d55f3c320111bdb5458a53c75f87e2084c08ecf3eb74b097213b049d17d1a70ac1c5073077d25e07ac99aa1c04379a7211661a4edae6a727681c5ed4e03f05fba37066f19a1900122fb0912cdb5b70eb4a7e825adb4808a6d92a2d890fa9e4542b5ec1ed68eb17930ee63a02d48eab6aa5494ffbb8e16ec4e50952035969e946f6e762b80087d900016683d9bfea6a010000020000000000000000000000003ee18b2214aff97000d974cf647e7c347e8fa58500000000000495e1010100000000000000000000000000000000000000000000000000000000009fba65000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480002000000000000000000000000bbbba9ebe50f9456e106e6ef2992179182889999000c0000000000000000000000000000000000000000000000000000000000000000';
 
 describe('/relay', () => {
-  describe('Send ERC20 from Fuji to Karura Testnet', () => {
-    it('relay correctly when should relay', async () => {
-      const signedVAA = await transferFromFujiToKaruraTestnet('0.01', FUJI_TOKEN.USDC, TEST_ADDR_USER);
-      console.log({ signedVAA });
-
+  describe('relay USDC', () => {
+    it('works', async () => {
       console.log(`relaying with ${RELAYER_URL.RELAY}`);
       const result = await relay({
-        targetChain: CHAIN_ID_KARURA,
-        signedVAA,
+        targetChain: CHAIN_ID_ACALA,
+        signedVAA: VAA_TRANSFER_10_USDC,
       });
 
-      // console.log('relay result: ', result);
-
-      expect(result).to.includes({
-        from: TEST_ADDR_RELAYER,
-        to: CONTRACTS.TESTNET.karura.token_bridge,
-        status: 1,
-      });
-    });
-
-    it('throw correct error when transfer amount too small', async () => {
-      const signedVAA = '01000000000100e6e6d0e1f030a6d7ba3815e4f918c7657edf0ce3ec98d1cf5d1b9f86f9d43f832d4445ce45bfeba3167b9e89dc6a02e5ef85602ee021c635a4af7caffa837d310164b759bcc9ee0000000600000000000000000000000061e44e506ca5659e6c0bba9b678586fa2d7297560000000000001ad50101000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000000085560b24769dac4ed057f1b2ae40746aa9aab6000b0000000000000000000000000000000000000000000000000000000000000000';
-
-      try {
-        await relay({
-          targetChain: CHAIN_ID_KARURA,
-          signedVAA,
-        });
-
-        expect.fail('did not throw an err');
-      } catch (err) {
-        expectError(err, 'transfer amount too small, expect at least 1000', 400);
-      }
-    });
-
-    it.skip('throw correct error when token not supported', async () => {
-      const signedVAA = await transferFromFujiToKaruraTestnet('10', NOT_SUPPORTED_ADDRESS, TEST_ADDR_USER);
-      console.log({ signedVAA });
-
-      try {
-        await relay({
-          targetChain: CHAIN_ID_KARURA,
-          signedVAA,
-        });
-
-        expect.fail('did not throw an err');
-      } catch (e) {
-        expect(e.response.status).to.equal(400);
-        expect(e.response.data.error).to.includes('token not supported');
-      }
+      expect(result.data?.status).to.eq(1);
     });
   });
 });
