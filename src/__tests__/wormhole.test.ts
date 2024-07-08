@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ETH_RPC, PARA_ID } from '../consts';
 import {
+  PROD_ADDR,
   TEST_ADDR_RELAYER,
   TEST_ADDR_USER,
 } from './testConsts';
@@ -15,6 +16,7 @@ import {
   shouldRouteWormhole,
   sudoTransferToken,
 } from './testUtils';
+import { parseUnits } from 'ethers/lib/utils';
 
 const USDC_ADDR = ROUTER_TOKEN_INFO.usdc.acalaAddr;
 const USDC_ORIGIN_ADDR = ROUTER_TOKEN_INFO.usdc.originAddr;
@@ -138,8 +140,7 @@ describe('/routeWormhole', () => {
     expect(routerAddr).toBeDefined();
 
     console.log('xcming to router ...');
-    await sudoTransferToken('0xBbBBa9Ebe50f9456E106e6ef2992179182889999', routerAddr, provider, USDC_ADDR, 0.123);
-    // await transferToRouter(routerAddr, relayer, USDC_ADDR, 0.123);
+    await sudoTransferToken(PROD_ADDR, routerAddr, provider, USDC_ADDR, 0.123);
 
     const curBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
     console.log({ curBalRelayer });
@@ -157,7 +158,7 @@ describe('/routeWormhole', () => {
     const afterBalRelayer = (await usdc.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
     console.log({ afterBalRelayer });
 
-    expect(afterBalRelayer - curBalRelayer).to.eq(40000n);
+    expect(afterBalRelayer - curBalRelayer).to.eq(parseUnits('0.04', 6).toBigInt());   // USDC has 6 decimals
   });
 
   // describe.skip('when should not route', () => {})

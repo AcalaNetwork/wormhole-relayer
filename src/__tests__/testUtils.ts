@@ -54,8 +54,8 @@ export const sudoTransferToken = async (
   }
 };
 
-export const transferToRouter = async (
-  routerAddr: string,
+export const transferToken = async (
+  toAddr: string,
   signer: Wallet,
   tokenAddr: string,
   amount: number,
@@ -65,7 +65,7 @@ export const transferToRouter = async (
   const decimals = await token.decimals();
   const routeAmount = parseUnits(String(amount), decimals);
 
-  const routerBal = await token.balanceOf(routerAddr);
+  const routerBal = await token.balanceOf(toAddr);
   if (routerBal.gt(0)) {
     expect(routerBal.toBigInt()).to.eq(routeAmount.toBigInt());
   } else {
@@ -73,10 +73,9 @@ export const transferToRouter = async (
     if (fromTokenBal.lt(routeAmount)) {
       throw new Error(`signer ${signer.address} has no enough token [${tokenAddr}] to transfer! ${fromTokenBal.toBigInt()} < ${routeAmount.toBigInt()}`);
     }
-    await (await token.transfer(routerAddr, routeAmount)).wait();
+    await (await token.transfer(toAddr, routeAmount)).wait();
   }
 };
-export const mockXcmToRouter = transferToRouter;
 
 export const expectError = (err: any, msg: any, code: number) => {
   if (axios.isAxiosError(err)) {

@@ -22,11 +22,11 @@ import {
 } from './testConsts';
 import {
   expectError,
-  mockXcmToRouter,
   routeHoma,
   routeHomaAuto,
   routeStatus,
   shouldRouteHoma,
+  transferToken,
 } from './testUtils';
 
 const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
@@ -214,7 +214,7 @@ describe('/routeHoma', () => {
     const bal0 = await fetchTokenBalances();
 
     console.log('xcming to router ...');
-    await mockXcmToRouter(routerAddr, user, DOT, stakeAmount);
+    await transferToken(routerAddr, user, DOT, stakeAmount);
 
     console.log('routing ...');
     const routeRes = await routeHoma({
@@ -293,7 +293,7 @@ describe('/routeHoma', () => {
     });
 
     console.log('xcming to router ...');
-    await mockXcmToRouter(routerAddr, user, DOT, stakeAmount);
+    await transferToken(routerAddr, user, DOT, stakeAmount);
 
     console.log('waiting for auto routing ...');
     await waitForRoute;

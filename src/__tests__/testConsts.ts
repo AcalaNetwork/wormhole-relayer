@@ -7,5 +7,6 @@ export const TEST_KEY = {
 
 export const TEST_ADDR_USER = new Wallet(TEST_KEY.USER).address;     // 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
 export const TEST_ADDR_RELAYER = new Wallet(TEST_KEY.RELAYER).address;  // 0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3
+export const PROD_ADDR = '0xBbBBa9Ebe50f9456E106e6ef2992179182889999';
 
 export const NOT_SUPPORTED_ADDRESS = '';

@@ -10,6 +10,7 @@ import path from 'path';
 import { BSC_TOKEN, ETH_RPC , RELAYER_URL } from '../src/consts';
 import { RouterChainId, getTokenBalance } from '../src/utils';
 import { transferErc20, transferFromBSC } from './scriptUtils';
+import { transferToken } from '../src/__tests__/testUtils';
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 const key = process.env.KEY;
@@ -89,7 +90,7 @@ const routeWormhole = async (chainId: RouterChainId) => {
   console.log(`token balance: ${bal}`);
 
   console.log('xcming to router ...');
-  const txHash = await transferErc20(token, '0.05', routerAddr, wallet);
+  const txHash = await transferToken(routerAddr, wallet, token, 0.05);
   console.log(`router received token: ${txHash}, waiting for routing ...`);
 
   const routeRes = await axios.post(RELAYER_URL.ROUTE_WORMHOLE, { ...params });

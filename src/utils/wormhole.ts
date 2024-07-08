@@ -1,22 +1,13 @@
-import { BigNumberish, ContractReceipt, Wallet } from 'ethers';
 import {
   CHAIN_ID_KARURA,
   ChainId,
-  getEmitterAddressEth,
-  getSignedVAAWithRetry,
-  hexToUint8Array,
-  parseSequenceFromLogEth,
   parseTransferPayload,
   parseVaa,
-  transferFromEth,
-  tryNativeToHexString,
-  uint8ArrayToHex,
 } from '@certusone/wormhole-sdk';
-import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
 import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 
 import { ChainConfig } from './configureEnv';
-import { ROUTER_TOKEN_INFO_TESTNET, WORMHOLE_GUARDIAN_RPC, ZERO_ADDR } from '../consts';
+import { ROUTER_TOKEN_INFO_TESTNET, ZERO_ADDR } from '../consts';
 
 export interface VaaInfo {
   amount: bigint;
@@ -36,42 +27,6 @@ export const parseVaaPayload = async (bytes: Uint8Array): Promise<VaaInfo> => {
     originChain: payload.originChain as ChainId,
     targetAddress: payload.targetAddress,
     targetChain: payload.targetChain as ChainId,
-  };
-};
-
-export const bridgeToken = async (
-  signer: Wallet,
-  tokenBridgeAddr: string,
-  coreBridgeAddr: string,
-  recipientAddr: string,
-  sourceAssetAddr: string,
-  targetChain: ChainId,
-  amount: BigNumberish,
-): Promise<{
-  receipt: ContractReceipt;
-  sequence: string;
-}> => {
-  const hexString = tryNativeToHexString(recipientAddr, targetChain);
-  if (!hexString) {
-    throw new Error('Invalid recipient');
-  }
-  const vaaCompatibleAddr = hexToUint8Array(hexString);
-
-  console.log(`sending bridging tx with wallet ${signer.address} and amount ${amount} ...`);
-  const receipt = await transferFromEth(
-    tokenBridgeAddr,
-    signer,
-    sourceAssetAddr,
-    amount,
-    targetChain,
-    vaaCompatibleAddr,
-  );
-
-  const sequence = parseSequenceFromLogEth(receipt, coreBridgeAddr);
-
-  return {
-    receipt,
-    sequence,
   };
 };
 
@@ -96,25 +51,4 @@ export const getRouterChainTokenAddr = async (
   }
 
   return routerChainTokenInfo;
-};
-
-export const getSignedVAAFromSequence = async (
-  sequence: string,
-  chainId: ChainId,
-  tokenBridgeAddr: string,
-  isMainnet = false,
-) => {
-  const guardianRpc = isMainnet
-    ? WORMHOLE_GUARDIAN_RPC.MAINNET
-    : WORMHOLE_GUARDIAN_RPC.TESTNET;
-  const emitterAddress = getEmitterAddressEth(tokenBridgeAddr);
-  const { vaaBytes } = await getSignedVAAWithRetry(
-    guardianRpc,
-    chainId,
-    emitterAddress,
-    sequence,
-    { transport: NodeHttpTransport() },
-  );
-
-  return uint8ArrayToHex(vaaBytes);
 };

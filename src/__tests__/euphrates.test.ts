@@ -21,7 +21,7 @@ import {
   expectError,
   routeEuphrates,
   shouldRouteEuphrates,
-  transferToRouter,
+  transferToken,
 } from './testUtils';
 
 const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
@@ -177,7 +177,7 @@ describe('/routeEuphrates', () => {
     const bal0 = await fetchTokenBalances(poolId);
 
     console.log('transferring token to router ...');
-    await transferToRouter(routerAddr, user, inTokenAddr, stakeAmount);
+    await transferToken(routerAddr, user, inTokenAddr, stakeAmount);
 
     console.log('routing ...');
     const routeRes = await routeEuphrates({

@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ETH_RPC, PARA_ID } from '../consts';
 import {
+  PROD_ADDR,
   TEST_ADDR_RELAYER,
 } from './testConsts';
 import {
@@ -22,6 +23,7 @@ import {
   shouldRouteXcm,
   sudoTransferToken,
 } from './testUtils';
+import { parseUnits } from 'ethers/lib/utils';
 
 
 const DAI_ADDR = ROUTER_TOKEN_INFO.dai.acalaAddr;
@@ -130,7 +132,7 @@ describe('/routeXcm', () => {
     const { routerAddr } = res.data;
 
     console.log('transferring to router ...');
-    await sudoTransferToken('0xBbBBa9Ebe50f9456E106e6ef2992179182889999', routerAddr, provider, DAI_ADDR, 1.23);
+    await sudoTransferToken(PROD_ADDR, routerAddr, provider, DAI_ADDR, 1.23);
 
     const dai = ERC20__factory.connect(DAI_ADDR, provider);
     const curBalRelayer = (await dai.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
@@ -143,7 +145,7 @@ describe('/routeXcm', () => {
     const afterBalRelayer = (await dai.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
     console.log({ afterBalRelayer });
 
-    expect(afterBalRelayer - curBalRelayer).to.eq(40000000000000000n);
+    expect(afterBalRelayer - curBalRelayer).to.eq(parseUnits('0.04', 18).toBigInt());    // DAI has 18 decimals
     expect((await dai.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
 
     // router should be destroyed
@@ -182,7 +184,7 @@ describe('/relayAndRoute', () => {
     const afterBalRelayer = (await dai.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
     console.log({ afterBalRelayer });
 
-    expect(afterBalRelayer - curBalRelayer).to.eq(40000000000000000n);
+    expect(afterBalRelayer - curBalRelayer).to.eq(parseUnits('0.04', 18).toBigInt());    // DAI has 18 decimals
     expect((await dai.balanceOf(routerAddr)).toBigInt()).to.eq(0n);
 
     // router should be destroyed

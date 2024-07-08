@@ -1,6 +1,6 @@
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
-import { BigNumber, PopulatedTransaction, Wallet } from 'ethers';
-import { CHAIN_ID_ACALA, CHAIN_ID_AVAX, CHAIN_ID_KARURA, CONTRACTS, hexToUint8Array } from '@certusone/wormhole-sdk';
+import { BigNumber, PopulatedTransaction } from 'ethers';
+import { CHAIN_ID_ACALA, CHAIN_ID_KARURA, hexToUint8Array } from '@certusone/wormhole-sdk';
 import { DispatchError } from '@polkadot/types/interfaces';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { JsonRpcProvider } from '@ethersproject/providers';
@@ -11,9 +11,7 @@ import { decodeEthGas, sleep } from '@acala-network/eth-providers';
 import { options } from '@acala-network/api';
 
 import { RelayerError } from './error';
-import { bridgeToken, getSignedVAAFromSequence } from './wormhole';
 import { logger } from './logger';
-import { parseAmount } from './token';
 
 export const ROUTER_CHAIN_IDS = [CHAIN_ID_KARURA, CHAIN_ID_ACALA] as const;
 export type RouterChainId = typeof ROUTER_CHAIN_IDS[number]
@@ -31,36 +29,6 @@ export const getApi = async (privateKey: string, nodeUrl: string) => {
   api.setSigner(new SubstrateSigner(api.registry, keyPair));
 
   return { substrateAddr, api };
-};
-
-export const transferFromAvax = async (
-  amount: string,
-  sourceAsset: string,
-  recipientAddr: string,
-  dstChainId: RouterChainId,
-  wallet: Wallet,
-  isMainnet = false,
-): Promise<string> => {
-  const tokenBridgeAddr = CONTRACTS[isMainnet ? 'MAINNET' : 'TESTNET'].avalanche.token_bridge;
-  const coreBridgeAddr = CONTRACTS[isMainnet ? 'MAINNET' : 'TESTNET'].avalanche.core;
-  const parsedAmount = await parseAmount(sourceAsset, amount, wallet);
-  const { sequence } = await bridgeToken(
-    wallet,
-    tokenBridgeAddr,
-    coreBridgeAddr,
-    recipientAddr,
-    sourceAsset,
-    dstChainId,
-    parsedAmount,
-  );
-  console.log('transfer from AVAX complete', { sequence }, 'waiting for VAA...');
-
-  return getSignedVAAFromSequence(
-    sequence,
-    CHAIN_ID_AVAX,
-    tokenBridgeAddr,
-    isMainnet,
-  );
 };
 
 // TODO: add exitReason to receipt directly

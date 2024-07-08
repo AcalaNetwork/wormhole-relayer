@@ -1,18 +1,17 @@
 import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
-import { AxiosError } from 'axios';
 import { CHAIN_ID_ACALA } from '@certusone/wormhole-sdk';
 import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import { describe, expect, it } from 'vitest';
 
 import { ETH_RPC, RELAY_CONFIG } from '../consts';
+import { PROD_ADDR } from './testConsts';
 import { VAA_10_USDC_ETH_TO_ACALA } from './vaa';
-import { relay, shouldRelay } from './testUtils';
+import { expectError, relay, shouldRelay } from './testUtils';
 
 const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
 
 const USDC_ADDR = ROUTER_TOKEN_INFO.usdc.acalaAddr;
-const USER_ADDR = '0xBbBBa9Ebe50f9456E106e6ef2992179182889999';
 
 describe('/shouldRelay', () => {
   it('when should relay', async () => {
@@ -55,14 +54,7 @@ describe('/shouldRelay', () => {
 
         expect.fail('should throw error but did not');
       } catch (err) {
-        expect((err as AxiosError).response?.data).toMatchInlineSnapshot(`
-          {
-            "error": [
-              "targetChain is a required field",
-            ],
-            "msg": "invalid request params!",
-          }
-        `);
+        expectError(err, ['targetChain is a required field'], 400);
       }
 
       try {
@@ -73,14 +65,7 @@ describe('/shouldRelay', () => {
 
         expect.fail('should throw error but did not');
       } catch (err) {
-        expect((err as AxiosError).response?.data).toMatchInlineSnapshot(`
-          {
-            "error": [
-              "originAsset is a required field",
-            ],
-            "msg": "invalid request params!",
-          }
-        `);
+        expectError(err, ['originAsset is a required field'], 400);
       }
 
       try {
@@ -91,14 +76,7 @@ describe('/shouldRelay', () => {
 
         expect.fail('should throw error but did not');
       } catch (err) {
-        expect((err as AxiosError).response?.data).toMatchInlineSnapshot(`
-          {
-            "error": [
-              "amount is a required field",
-            ],
-            "msg": "invalid request params!",
-          }
-        `);
+        expectError(err, ['amount is a required field'], 400);
       }
     });
 
@@ -161,7 +139,7 @@ describe('/shouldRelay', () => {
 describe('/relay', () => {
   it('relay USDC to user', async () => {
     const usdc = ERC20__factory.connect(USDC_ADDR, provider);
-    const curBalRelayer = (await usdc.balanceOf(USER_ADDR)).toBigInt();
+    const curBalRelayer = (await usdc.balanceOf(PROD_ADDR)).toBigInt();
     console.log({ curBalRelayer });
 
     const result = await relay({
@@ -170,7 +148,7 @@ describe('/relay', () => {
     });
     expect(result.data?.status).to.eq(1);
 
-    const afterBalRelayer = (await usdc.balanceOf(USER_ADDR)).toBigInt();
+    const afterBalRelayer = (await usdc.balanceOf(PROD_ADDR)).toBigInt();
     console.log({ afterBalRelayer });
 
     expect(afterBalRelayer - curBalRelayer).to.eq(10467941n);   // 10.467941 USDC

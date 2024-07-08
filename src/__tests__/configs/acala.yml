@@ -3,7 +3,7 @@ endpoint:
   - wss://acala-rpc.dwellir.com
 mock-signature-host: true
 # block: ${env.ACALA_BLOCK_NUMBER}
-# block: 6510220
+block: 6535566
 db: ./db.sqlite
 runtime-log-level: 5
 
