@@ -72,6 +72,7 @@ POST /relay
 
 => TX receipt
 {
+  data: {
   to: '0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37',
   from: '0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3',
   contractAddress: '0xd11De1f930eA1F7Dd0290Fe3a2e35b9C91AEFb37',
@@ -89,6 +90,7 @@ POST /relay
   type: 0,
   byzantium: true,
   events: [ [Object] ]
+  }
 }
 ```
 
@@ -594,7 +596,7 @@ yarn test:shouldRoute
 yarn test:route
 ```
 
-### test homa router setup
+### test setup
 first start a local acala fork
 ```
 npx @acala-network/chopsticks@latest -c src/__tests__/configs/acala.yml -p 8000

@@ -11,20 +11,22 @@ import {  describe, expect, it } from 'vitest';
 import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils';
 
 import { ETH_RPC, EUPHRATES_ADDR, EUPHRATES_POOLS } from '../consts';
+import { RouteParamsEuphrates } from '../utils';
 import {
   TEST_ADDR_RELAYER,
   TEST_ADDR_USER,
   TEST_KEY,
 } from './testConsts';
 import {
+  expectError,
   routeEuphrates,
   shouldRouteEuphrates,
   transferToRouter,
 } from './testUtils';
 
-const providerAcalaFork = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
-const relayerAcalaFork = new Wallet(TEST_KEY.RELAYER, providerAcalaFork);   // 0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3
-const userAcalaFork = new Wallet(TEST_KEY.USER, providerAcalaFork);         // 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
+const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
+const relayer = new Wallet(TEST_KEY.RELAYER, provider);   // 0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3
+const user = new Wallet(TEST_KEY.USER, provider);         // 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
 
 // [inToken, outToken]
 const WTDOT = '0xe1bd4306a178f86a9214c39abcd53d021bedb0f9';
@@ -35,10 +37,72 @@ const EUPHRAETS_POOL_INFO = {
   3: [DOT, WTDOT],
 };
 
-describe.skip('/routeEuphrates', () => {
+describe.concurrent('/shouldRouteEuphrates', () => {
+  const recipient = '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6';
+
+  const testShouldRouteEuphrates = async (params: RouteParamsEuphrates) => {
+    let res = await shouldRouteEuphrates(params);
+    expect(res).toMatchSnapshot();
+
+    // should be case insensitive
+    res = await shouldRouteEuphrates({
+      ...params,
+      recipient: params.recipient.toLocaleLowerCase(),
+    });
+    expect(res).toMatchSnapshot();
+  };
+
+  it('when should route', async () => {
+    for (const poolId of EUPHRATES_POOLS) {
+      await testShouldRouteEuphrates({
+        recipient,
+        poolId,
+      });
+    }
+  });
+
+  describe('when should not route', () => {
+    it('when missing params', async () => {
+      try {
+        await shouldRouteEuphrates({
+          recipient,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['poolId is a required field'], 400);
+      }
+
+      try {
+        await shouldRouteEuphrates({
+          poolId: 0,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['recipient is a required field'], 400);
+      }
+    });
+
+    it('when bad params', async () => {
+      const res = await shouldRouteEuphrates({
+        recipient,
+        poolId: 520,
+      });
+      expect(res).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "msg": "euphrates poolId 520 is not supported",
+            "shouldRoute": false,
+          },
+        }
+      `);
+    });
+  });
+});
+
+describe('/routeEuphrates', () => {
   const DOT_DECIMALS = 10;
-  const homa = IHoma__factory.connect(HOMA, providerAcalaFork);
-  const fee = FeeRegistry__factory.connect(ADDRESSES.ACALA_TESTNET.feeAddr, providerAcalaFork);
+  const homa = IHoma__factory.connect(HOMA, provider);
+  const fee = FeeRegistry__factory.connect(ADDRESSES.ACALA.feeAddr, provider);
   const stakeAmount = 6;
   const parsedStakeAmount = parseUnits(String(stakeAmount), DOT_DECIMALS);
   let routerAddr: string;
@@ -47,8 +111,8 @@ describe.skip('/routeEuphrates', () => {
     if (!routerAddr) throw new Error('routerAddr not set');
 
     const [inTokenAddr, outTokenAddr] = EUPHRAETS_POOL_INFO[pooId];
-    const inToken = ERC20__factory.connect(inTokenAddr, providerAcalaFork);
-    const outToken = ERC20__factory.connect(outTokenAddr, providerAcalaFork);
+    const inToken = ERC20__factory.connect(inTokenAddr, provider);
+    const outToken = ERC20__factory.connect(outTokenAddr, provider);
 
     const [
       userBalIn,
@@ -88,11 +152,11 @@ describe.skip('/routeEuphrates', () => {
   const testEuphratesRouter = async (poolId: string) => {
     const [inTokenAddr] = EUPHRAETS_POOL_INFO[poolId];
 
-    const relayerBal = await relayerAcalaFork.getBalance();
+    const relayerBal = await relayer.getBalance();
     expect(relayerBal.gt(parseEther('10'))).to.be.true;
 
     const routeArgs = {
-      recipient: userAcalaFork.address,
+      recipient: user.address,
       poolId,
     };
     const res = await shouldRouteEuphrates(routeArgs);
@@ -106,14 +170,14 @@ describe.skip('/routeEuphrates', () => {
       }
 
       console.log('refilling dot for user ...');
-      const inToken = ERC20__factory.connect(inTokenAddr, relayerAcalaFork);
+      const inToken = ERC20__factory.connect(inTokenAddr, relayer);
       await (await inToken.transfer(TEST_ADDR_USER, parsedStakeAmount)).wait();
     }
 
     const bal0 = await fetchTokenBalances(poolId);
 
     console.log('transferring token to router ...');
-    await transferToRouter(routerAddr, userAcalaFork, inTokenAddr, stakeAmount);
+    await transferToRouter(routerAddr, user, inTokenAddr, stakeAmount);
 
     console.log('routing ...');
     const routeRes = await routeEuphrates({
@@ -126,7 +190,7 @@ describe.skip('/routeEuphrates', () => {
     const bal1 = await fetchTokenBalances(poolId);
 
     // router should be destroyed
-    const routerCode = await providerAcalaFork.getCode(routerAddr);
+    const routerCode = await provider.getCode(routerAddr);
     expect(routerCode).to.eq('0x');
     expect(bal1.routerBalIn.toNumber()).to.eq(0);
 
@@ -152,7 +216,7 @@ describe.skip('/routeEuphrates', () => {
   };
 
   it('worked for all pools', async () => {
-    for (const poolId of EUPHRATES_POOLS) {
+    for (const poolId of EUPHRATES_POOLS.slice(0, 4)) {   // TODO: test pool 7
       await testEuphratesRouter(poolId);
     }
   });
