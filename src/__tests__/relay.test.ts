@@ -1,65 +1,156 @@
-import { CHAIN_ID_KARURA, CONTRACTS } from '@certusone/wormhole-sdk';
+import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
+import { CHAIN_ID_ACALA } from '@certusone/wormhole-sdk';
+import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import { describe, expect, it } from 'vitest';
 
-import { FUJI_TOKEN, RELAYER_URL } from '../consts';
-import {
-  NOT_SUPPORTED_ADDRESS,
-  TEST_ADDR_RELAYER,
-  TEST_ADDR_USER,
-} from './testConsts';
-import { expectError, relay, transferFromFujiToKaruraTestnet } from './testUtils';
+import { ETH_RPC, RELAY_CONFIG } from '../consts';
+import { PROD_ADDR } from './testConsts';
+import { VAA_10_USDC_ETH_TO_ACALA } from './vaa';
+import { expectError, relay, shouldRelay } from './testUtils';
+
+const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
+
+const USDC_ADDR = ROUTER_TOKEN_INFO.usdc.acalaAddr;
+
+describe('/shouldRelay', () => {
+  it('when should relay', async () => {
+    for (const targetChain in RELAY_CONFIG) {
+      const supported = RELAY_CONFIG[targetChain];
+
+      for (const [token, minTransfer] of Object.entries(supported)) {
+        const res = await shouldRelay({
+          targetChain,
+          originAsset: token,
+          amount: minTransfer,
+        });
+
+        expect(res.data).toMatchSnapshot();
+      }
+
+      // if not lower case address
+      for (const [token, minTransfer] of Object.entries(supported)) {
+        const res = await shouldRelay({
+          targetChain,
+          originAsset: token.toUpperCase(),
+          amount: minTransfer,
+        });
+
+        expect(res.data).toMatchSnapshot();
+      }
+    }
+  });
+
+  describe('when should not relay', () => {
+    const targetChain = 12;
+    const JITOSOL = 'j1toso1uck3rlmjorhttrvwy9hj7x8v9yyac6y7kgcpn';
+
+    it('when missing params', async () => {
+      try {
+        await shouldRelay({
+          originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
+          amount: '10000',
+        });
+
+        expect.fail('should throw error but did not');
+      } catch (err) {
+        expectError(err, ['targetChain is a required field'], 400);
+      }
+
+      try {
+        await shouldRelay({
+          targetChain,
+          amount: '10000',
+        });
+
+        expect.fail('should throw error but did not');
+      } catch (err) {
+        expectError(err, ['originAsset is a required field'], 400);
+      }
+
+      try {
+        await shouldRelay({
+          targetChain,
+          originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
+        });
+
+        expect.fail('should throw error but did not');
+      } catch (err) {
+        expectError(err, ['amount is a required field'], 400);
+      }
+    });
+
+    it('when relay condition not met', async () => {
+      let res = await shouldRelay({
+        targetChain: 3104,
+        originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
+        amount: '10000',
+      });
+      expect(res.data).toMatchInlineSnapshot(`
+        {
+          "msg": "target chain 3104 is not supported",
+          "shouldRelay": false,
+        }
+      `);
+
+      const originAsset = '0x111111111191d46ee29420539fc25f0000000000';
+      res = await shouldRelay({
+        targetChain,
+        originAsset,
+        amount: '10000',
+      });
+      expect(res.data).toMatchInlineSnapshot(`
+        {
+          "msg": "originAsset 0x111111111191d46ee29420539fc25f0000000000 not supported",
+          "shouldRelay": false,
+        }
+      `);
+
+      res = await shouldRelay({
+        targetChain,
+        originAsset: JITOSOL,
+        amount: '10',
+      });
+      expect(res.data).toMatchInlineSnapshot(`
+        {
+          "msg": "transfer amount too small, expect at least 1000000",
+          "shouldRelay": false,
+        }
+      `);
+    });
+
+    it('when amount is not number', async () => {
+      const res = await shouldRelay({
+        targetChain,
+        originAsset: JITOSOL,
+        amount: '{"type":"BigNumber","hex":"0xe8d4a51000"}',
+      });
+      expect(res.data).toMatchInlineSnapshot(`
+        {
+          "msg": "failed to parse amount: {\\"type\\":\\"BigNumber\\",\\"hex\\":\\"0xe8d4a51000\\"}",
+          "shouldRelay": false,
+        }
+      `);
+    });
+  });
+});
+
 
 describe('/relay', () => {
-  describe('Send ERC20 from Fuji to Karura Testnet', () => {
-    it('relay correctly when should relay', async () => {
-      const signedVAA = await transferFromFujiToKaruraTestnet('0.01', FUJI_TOKEN.USDC, TEST_ADDR_USER);
-      console.log({ signedVAA });
+  it('relay USDC to user', async () => {
+    const usdc = ERC20__factory.connect(USDC_ADDR, provider);
+    const curBalRelayer = (await usdc.balanceOf(PROD_ADDR)).toBigInt();
+    console.log({ curBalRelayer });
 
-      console.log(`relaying with ${RELAYER_URL.RELAY}`);
-      const result = await relay({
-        targetChain: CHAIN_ID_KARURA,
-        signedVAA,
-      });
-
-      // console.log('relay result: ', result);
-
-      expect(result).to.includes({
-        from: TEST_ADDR_RELAYER,
-        to: CONTRACTS.TESTNET.karura.token_bridge,
-        status: 1,
-      });
+    const result = await relay({
+      targetChain: CHAIN_ID_ACALA,
+      signedVAA: VAA_10_USDC_ETH_TO_ACALA,
     });
+    expect(result.data?.status).to.eq(1);
 
-    it('throw correct error when transfer amount too small', async () => {
-      const signedVAA = '01000000000100e6e6d0e1f030a6d7ba3815e4f918c7657edf0ce3ec98d1cf5d1b9f86f9d43f832d4445ce45bfeba3167b9e89dc6a02e5ef85602ee021c635a4af7caffa837d310164b759bcc9ee0000000600000000000000000000000061e44e506ca5659e6c0bba9b678586fa2d7297560000000000001ad50101000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000007865c6e87b9f70255377e024ace6630c1eaa37f00020000000000000000000000000085560b24769dac4ed057f1b2ae40746aa9aab6000b0000000000000000000000000000000000000000000000000000000000000000';
+    const afterBalRelayer = (await usdc.balanceOf(PROD_ADDR)).toBigInt();
+    console.log({ afterBalRelayer });
 
-      try {
-        await relay({
-          targetChain: CHAIN_ID_KARURA,
-          signedVAA,
-        });
-
-        expect.fail('did not throw an err');
-      } catch (err) {
-        expectError(err, 'transfer amount too small, expect at least 1000', 400);
-      }
-    });
-
-    it.skip('throw correct error when token not supported', async () => {
-      const signedVAA = await transferFromFujiToKaruraTestnet('10', NOT_SUPPORTED_ADDRESS, TEST_ADDR_USER);
-      console.log({ signedVAA });
-
-      try {
-        await relay({
-          targetChain: CHAIN_ID_KARURA,
-          signedVAA,
-        });
-
-        expect.fail('did not throw an err');
-      } catch (e) {
-        expect(e.response.status).to.equal(400);
-        expect(e.response.data.error).to.includes('token not supported');
-      }
-    });
+    expect(afterBalRelayer - curBalRelayer).to.eq(10467941n);   // 10.467941 USDC
   });
 });

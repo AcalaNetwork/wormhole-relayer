@@ -1,0 +1,99 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/shouldRelay > when should relay 1`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 2`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 3`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 4`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 5`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 6`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 7`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 8`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 9`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 10`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 11`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 12`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 13`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;
+
+exports[`/shouldRelay > when should relay 14`] = `
+{
+  "msg": "",
+  "shouldRelay": true,
+}
+`;

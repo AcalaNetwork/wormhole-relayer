@@ -1,76 +1,81 @@
-import { ApiPromise } from '@polkadot/api';
-import { CHAIN_ID_KARURA } from '@certusone/wormhole-sdk';
+import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Wallet } from 'ethers';
 import { expect } from 'vitest';
-import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils';
-import assert from 'assert';
+import { parseUnits } from 'ethers/lib/utils';
 import axios from 'axios';
 import request from 'supertest';
 
-import { ETH_RPC, RELAYER_API, RELAYER_URL } from '../consts';
-import { KARURA_USDC_ADDRESS, TEST_KEY } from './testConsts';
+import { RELAYER_API, RELAYER_URL } from '../consts';
 import { createApp } from '../app';
-import { getTokenBalance, transferFromAvax } from '../utils';
 
-export const transferFromFujiToKaruraTestnet = async (
-  amount: string,
-  sourceAsset: string,
-  recipientAddr: string,
+const keyring = new Keyring({ type: 'sr25519' });
+const alice = keyring.addFromUri('//Alice');
+
+export const sudoTransferToken = async (
+  fromAddr: string,
+  toAddr: string,
+  provider: JsonRpcProvider,
+  tokenAddr: string,
+  humanAmount: number,
 ) => {
-  const provider = new JsonRpcProvider(ETH_RPC.FUJI);
-  const wallet = new Wallet(TEST_KEY.USER, provider);
+  const token = ERC20__factory.connect(tokenAddr, provider);
 
-  const bal = await wallet.getBalance();
-  assert(bal.gte(parseEther('0.03')), `${wallet.address} has insufficient balance on fuji! bal: ${formatEther(bal)}`);
+  const [decimals, routerBal, symbol] = await Promise.all([
+    token.decimals(),
+    token.balanceOf(toAddr),
+    token.symbol(),
+  ]);
+  const amount = parseUnits(String(humanAmount), decimals);
 
-  const tokenBal = await getTokenBalance(sourceAsset, wallet);
-  assert(Number(tokenBal) > Number(amount), `${wallet.address} has insufficient token balance on fuji! ${tokenBal} < ${amount}`);
+  if (routerBal.gt(0)) {
+    expect(routerBal.toBigInt()).to.eq(amount.toBigInt());
+  } else {
+    console.log(`sudo transferring ${humanAmount} ${symbol} from ${fromAddr} to ${toAddr} ...`);
+    const fromTokenBal = await token.balanceOf(fromAddr);
+    if (fromTokenBal.lt(amount)) {
+      throw new Error(`fromAddr ${fromAddr} has no enough token [${tokenAddr}] to transfer! ${fromTokenBal.toBigInt()} < ${amount.toBigInt()}`);
+    }
 
-  return await transferFromAvax(
-    amount,
-    sourceAsset,
-    recipientAddr,
-    CHAIN_ID_KARURA,
-    wallet,
-    false,
-  );
+    const { data } = await token.populateTransaction.transfer(toAddr, amount);
+    const api = await ApiPromise.create({
+      provider: new WsProvider('ws://localhost:8000'),
+    });
+
+    const tx = api.tx.evm.call(tokenAddr, data!, 0, 1000000, 64, []);
+    const extrinsic = api.tx.sudo.sudoAs(fromAddr, tx);
+    const hash = await extrinsic.signAndSend(alice);
+
+    const receipt = await provider.waitForTransaction(hash.toHex());
+    expect(receipt.status).to.eq(1);
+
+    await api.disconnect();
+  }
 };
 
-export const encodeXcmDest = (_data: any) => {
-  // TODO: use api to encode
-  return '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
-};
-
-export const getBasiliskUsdcBalance = async (api: ApiPromise, addr: string) => {
-  const balance = await api.query.tokens.accounts(addr, 3);
-  return (balance as any).free.toBigInt();
-};
-
-export const transferToRouter = async (
-  routerAddr: string,
+export const transferToken = async (
+  toAddr: string,
   signer: Wallet,
-  tokenAddr = KARURA_USDC_ADDRESS,
-  amount = 0.001,
+  tokenAddr: string,
+  amount: number,
 ) => {
   const token = ERC20__factory.connect(tokenAddr, signer);
 
   const decimals = await token.decimals();
   const routeAmount = parseUnits(String(amount), decimals);
 
-  const routerBal = await token.balanceOf(routerAddr);
+  const routerBal = await token.balanceOf(toAddr);
   if (routerBal.gt(0)) {
     expect(routerBal.toBigInt()).to.eq(routeAmount.toBigInt());
   } else {
-    const signerTokenBal = await token.balanceOf(signer.address);
-    if (signerTokenBal.lt(routeAmount)) {
-      throw new Error(`signer ${signer.address} has no enough token [${tokenAddr}] to transfer! ${signerTokenBal.toBigInt()} < ${routeAmount.toBigInt()}`);
+    const fromTokenBal = await token.balanceOf(signer.address);
+    if (fromTokenBal.lt(routeAmount)) {
+      throw new Error(`signer ${signer.address} has no enough token [${tokenAddr}] to transfer! ${fromTokenBal.toBigInt()} < ${routeAmount.toBigInt()}`);
     }
-    await (await token.transfer(routerAddr, routeAmount)).wait();
+    await (await token.transfer(toAddr, routeAmount)).wait();
   }
 };
-export const mockXcmToRouter = transferToRouter;
 
 export const expectError = (err: any, msg: any, code: number) => {
   if (axios.isAxiosError(err)) {

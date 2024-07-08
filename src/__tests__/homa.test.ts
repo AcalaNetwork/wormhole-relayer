@@ -13,6 +13,7 @@ import { parseEther, parseUnits } from 'ethers/lib/utils';
 import assert from 'assert';
 
 import { ETH_RPC, SECOND } from '../consts';
+import { Mainnet } from '../utils';
 import { RouteStatus } from '../api';
 import {
   TEST_ADDR_RELAYER,
@@ -20,24 +21,132 @@ import {
   TEST_KEY,
 } from './testConsts';
 import {
-  mockXcmToRouter,
+  expectError,
   routeHoma,
   routeHomaAuto,
   routeStatus,
   shouldRouteHoma,
+  transferToken,
 } from './testUtils';
 
-const providerAcalaFork = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
-const relayerAcalaFork = new Wallet(TEST_KEY.RELAYER, providerAcalaFork);
-const userAcalaFork = new Wallet(TEST_KEY.USER, providerAcalaFork);
+const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
+const relayer = new Wallet(TEST_KEY.RELAYER, provider);
+const user = new Wallet(TEST_KEY.USER, provider);
 
-describe.skip('/routeHoma', () => {
+describe.concurrent('/shouldRouteHoma', () => {
+  const destAddr = '0x75E480dB528101a381Ce68544611C169Ad7EB342';
+  const destAddrSubstrate = '23AdbsfRysaabyrWS2doCFsKisvt7dGbS3wQFXRS6pNbQY8G';
+
+  describe('when should route', async () => {
+    it('to evm address', async () => {
+      // for (const network of [Object.values(Mainnet)]) {    // TODO: enable this after deploying contract to karura
+      for (const chain of ['acala']) {
+        let res = await shouldRouteHoma({
+          destAddr,
+          chain,
+        });
+
+        expect(res).toMatchInlineSnapshot(`
+          {
+            "data": {
+              "routerAddr": "0x8A4f03B2D615172f0714AaC2E8C399a6f0d9e448",
+              "shouldRoute": true,
+            },
+          }
+        `);
+
+        // should be case insensitive
+        res = await shouldRouteHoma({
+          destAddr: destAddr.toLocaleLowerCase(),
+          chain,
+        });
+
+        expect(res).toMatchInlineSnapshot(`
+          {
+            "data": {
+              "routerAddr": "0x8A4f03B2D615172f0714AaC2E8C399a6f0d9e448",
+              "shouldRoute": true,
+            },
+          }
+        `);
+      }
+    });
+
+    it('to substrate address', async () => {
+      // for (const network of [Object.values(Mainnet)]) {    // TODO: enable this after deploying contract to karura
+      for (const chain of ['acala']) {
+        const res = await shouldRouteHoma({
+          destAddr: destAddrSubstrate,
+          chain,
+        });
+
+        expect(res).toMatchInlineSnapshot(`
+          {
+            "data": {
+              "routerAddr": "0x1140EFc2C45e9307701DA521884F75dDDe28f28f",
+              "shouldRoute": true,
+            },
+          }
+        `);
+      }
+    });
+  });
+
+  describe('when should not route', () => {
+    it('when missing params', async () => {
+      try {
+        await shouldRouteHoma({
+          destAddr,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['chain is a required field'], 400);
+      }
+
+      try {
+        await shouldRouteHoma({
+          chain: Mainnet.Acala,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['destAddr is a required field'], 400);
+      }
+
+      try {
+        await shouldRouteHoma({
+          chain: 'mandala',
+          destAddr,
+        });
+        expect.fail('did not throw an err');
+      } catch (err) {
+        expectError(err, ['chain must be one of the following values: acala, karura'], 400);
+      }
+    });
+
+    it('when bad params', async () => {
+      const res = await shouldRouteHoma({
+        chain: Mainnet.Acala,
+        destAddr: '0xaaaaaaaaaa',
+      });
+      expect(res).toMatchInlineSnapshot(`
+        {
+          "data": {
+            "msg": "address 0xaaaaaaaaaa is not a valid evm or substrate address",
+            "shouldRoute": false,
+          },
+        }
+      `);
+    });
+  });
+});
+
+describe('/routeHoma', () => {
   const DOT_DECIMALS = 10;
-  const dot = ERC20__factory.connect(DOT, providerAcalaFork);
-  const ldot = ERC20__factory.connect(LDOT, providerAcalaFork);
-  const homa = IHoma__factory.connect(HOMA, providerAcalaFork);
-  const evmAccounts = EVMAccounts__factory.connect(EVM_ACCOUNTS, providerAcalaFork);
-  const fee = FeeRegistry__factory.connect(ADDRESSES.ACALA.feeAddr, providerAcalaFork);
+  const dot = ERC20__factory.connect(DOT, provider);
+  const ldot = ERC20__factory.connect(LDOT, provider);
+  const homa = IHoma__factory.connect(HOMA, provider);
+  const evmAccounts = EVMAccounts__factory.connect(EVM_ACCOUNTS, provider);
+  const fee = FeeRegistry__factory.connect(ADDRESSES.ACALA.feeAddr, provider);
   const stakeAmount = 6;
   const parsedStakeAmount = parseUnits(String(stakeAmount), DOT_DECIMALS);
   let routerAddr: string;
@@ -81,8 +190,8 @@ describe.skip('/routeHoma', () => {
   };
 
   const testHomaRouter = async (destAddr: string) => {
-    const relayerBal = await relayerAcalaFork.getBalance();
-    assert(relayerBal.gt(parseEther('10')), `relayer doesn't have enough balance to relay! ${relayerAcalaFork.address}`);
+    const relayerBal = await relayer.getBalance();
+    assert(relayerBal.gt(parseEther('10')), `relayer doesn't have enough balance to relay! ${relayer.address}`);
 
     const routeArgs = {
       destAddr,
@@ -99,13 +208,13 @@ describe.skip('/routeHoma', () => {
       }
 
       console.log('refilling dot for user ...');
-      await (await dot.connect(relayerAcalaFork).transfer(TEST_ADDR_USER, parsedStakeAmount)).wait();
+      await (await dot.connect(relayer).transfer(TEST_ADDR_USER, parsedStakeAmount)).wait();
     }
 
     const bal0 = await fetchTokenBalances();
 
     console.log('xcming to router ...');
-    await mockXcmToRouter(routerAddr, userAcalaFork, DOT, stakeAmount);
+    await transferToken(routerAddr, user, DOT, stakeAmount);
 
     console.log('routing ...');
     const routeRes = await routeHoma({
@@ -118,7 +227,7 @@ describe.skip('/routeHoma', () => {
     const bal1 = await fetchTokenBalances();
 
     // router should be destroyed
-    const routerCode = await providerAcalaFork.getCode(routerAddr);
+    const routerCode = await provider.getCode(routerAddr);
     expect(routerCode).to.eq('0x');
     expect(bal1.routerBalDot.toNumber()).to.eq(0);
     expect(bal1.routerBalLdot.toNumber()).to.eq(0);
@@ -137,8 +246,8 @@ describe.skip('/routeHoma', () => {
   };
 
   const testAutoHomaRouter = async (destAddr: string) => {
-    const relayerBal = await relayerAcalaFork.getBalance();
-    assert(relayerBal.gt(parseEther('10')), `relayer doesn't have enough balance to relay! ${relayerAcalaFork.address}`);
+    const relayerBal = await relayer.getBalance();
+    assert(relayerBal.gt(parseEther('10')), `relayer doesn't have enough balance to relay! ${relayer.address}`);
 
     const routeArgs = {
       destAddr,
@@ -155,7 +264,7 @@ describe.skip('/routeHoma', () => {
       }
 
       console.log('refilling dot for user ...');
-      await (await dot.connect(relayerAcalaFork).transfer(TEST_ADDR_USER, parsedStakeAmount)).wait();
+      await (await dot.connect(relayer).transfer(TEST_ADDR_USER, parsedStakeAmount)).wait();
     }
 
     const bal0 = await fetchTokenBalances();
@@ -184,7 +293,7 @@ describe.skip('/routeHoma', () => {
     });
 
     console.log('xcming to router ...');
-    await mockXcmToRouter(routerAddr, userAcalaFork, DOT, stakeAmount);
+    await transferToken(routerAddr, user, DOT, stakeAmount);
 
     console.log('waiting for auto routing ...');
     await waitForRoute;
@@ -199,7 +308,7 @@ describe.skip('/routeHoma', () => {
     const bal1 = await fetchTokenBalances();
 
     // router should be destroyed
-    const routerCode = await providerAcalaFork.getCode(routerAddr);
+    const routerCode = await provider.getCode(routerAddr);
     expect(routerCode).to.eq('0x');
     expect(bal1.routerBalDot.toNumber()).to.eq(0);
     expect(bal1.routerBalLdot.toNumber()).to.eq(0);
