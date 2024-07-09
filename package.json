@@ -1,6 +1,6 @@
 {
   "name": "acala-wormhole-relayer",
-  "version": "1.8.1-0",
+  "version": "1.8.0",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -11,7 +11,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node-dev --respawn src/index.ts | pino-pretty --singleLine --colorize --ignore time,hostname",
+    "dev": "nodemon --watch \"*\" --ext \"js,ts,json\" --ignore \"src/**/*.{spec,test}.ts\" --exec \"ts-node src/index.ts\" | pino-pretty --singleLine --colorize --ignore time,hostname",
     "test": "vitest src/__tests__/*.test.ts --singleThread",
     "test:relay": "vitest src/__tests__/relay.test.ts",
     "test:shouldRelay": "vitest src/__tests__/shouldRelay.test.ts",
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@acala-network/api": "~6.0.4",
-    "@acala-network/asset-router": "~1.0.18",
+    "@acala-network/asset-router": "~1.0.18-1",
     "@acala-network/bodhi": "~2.7.13",
     "@acala-network/contracts": "^4.5.0",
     "@acala-network/eth-providers": "~2.7.14",
@@ -59,13 +59,12 @@
     "eslint": "^8.9.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
+    "nodemon": "^2.0.15",
     "pino-pretty": "^10.0.0",
     "prettier": "^2.3.2",
     "supertest": "^6.3.3",
     "ts-node": "^10.5.0",
-    "ts-node-dev": "^2.0.0",
     "typescript": "^4.3.5",
-    "vite": "^5.3.3",
     "vitest": "^0.33.0"
   }
 }
