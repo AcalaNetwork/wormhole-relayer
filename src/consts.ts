@@ -254,9 +254,9 @@ export const TESTNET_MODE_WARNING = `
 `;
 
 export const EUPHRATES_ADDR = '0x7Fe92EC600F15cD25253b421bc151c51b0276b7D';
-export const EUPHRATES_POOLS = ['0', '1', '2', '3', '7'];
+export const EUPHRATES_POOLS = ['0', '1', '2', '3', '6'];
 export const SWAP_SUPPLY_TOKENS = [
-  '0xa7fb00459f5896c3bd4df97870b44e868ae663d7',   // jitosol
+  ROUTER_TOKEN_INFO.jitosol.acalaAddr,
 ];
 
 export const RELAYER_ADDR = '0x8B5C2F71eFa2d88A20E0e1c8EDFeA3767B2ab230';
@@ -266,4 +266,4 @@ export const MINUTE = 60 * SECOND;
 export const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 
-export const VERSION = '1.8.0';
+export const VERSION = '1.8.1-0';

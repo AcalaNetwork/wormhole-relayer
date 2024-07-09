@@ -81,7 +81,7 @@ export const swapAndRoute = async (params: SwapAndRouteParams) => {
     throw new RouteError('<token> param is required for swap and route', params);
   }
 
-  if (!SWAP_SUPPLY_TOKENS.includes(params.token)) {
+  if (!SWAP_SUPPLY_TOKENS.includes(params.token as any)) {
     throw new RouteError(`token ${params.token} is not supported for swapping`, params);
   }
 
