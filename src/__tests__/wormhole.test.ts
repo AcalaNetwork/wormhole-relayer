@@ -36,7 +36,7 @@ describe.concurrent('/shouldRouteWormhole', () => {
     expect(res).toMatchInlineSnapshot(`
       {
         "data": {
-          "routerAddr": "0x70197a1E1655070Ea1953695b8a97bbcf4545c1f",
+          "routerAddr": "0x5fB6fD44ba21DFaf5ad99C9722F96371a39B859F",
           "shouldRoute": true,
         },
       }

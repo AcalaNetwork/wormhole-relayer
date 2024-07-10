@@ -165,3 +165,19 @@ export const runWithRetry = async <T>(
 
   throw error;
 };
+
+export const serialize = (params: any) => {
+  try {
+    if (typeof params !== 'object' || params === null) {
+      return params;
+    }
+
+    return JSON.parse(
+      JSON.stringify(params, (_key, value) =>
+        typeof value === 'bigint' ? value.toString() : value
+      )
+    );
+  } catch {
+    return 'failed to serialize';
+  }
+};

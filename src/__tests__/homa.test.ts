@@ -49,7 +49,7 @@ describe.concurrent('/shouldRouteHoma', () => {
         expect(res).toMatchInlineSnapshot(`
           {
             "data": {
-              "routerAddr": "0x8A4f03B2D615172f0714AaC2E8C399a6f0d9e448",
+              "routerAddr": "0x54c85E9005C8Dc055850f36d8D2810aa7Ba85088",
               "shouldRoute": true,
             },
           }
@@ -64,7 +64,7 @@ describe.concurrent('/shouldRouteHoma', () => {
         expect(res).toMatchInlineSnapshot(`
           {
             "data": {
-              "routerAddr": "0x8A4f03B2D615172f0714AaC2E8C399a6f0d9e448",
+              "routerAddr": "0x54c85E9005C8Dc055850f36d8D2810aa7Ba85088",
               "shouldRoute": true,
             },
           }
@@ -83,7 +83,7 @@ describe.concurrent('/shouldRouteHoma', () => {
         expect(res).toMatchInlineSnapshot(`
           {
             "data": {
-              "routerAddr": "0x1140EFc2C45e9307701DA521884F75dDDe28f28f",
+              "routerAddr": "0x904e0Ce034FDCaA122547C0FCe41A171e3F6f4A5",
               "shouldRoute": true,
             },
           }

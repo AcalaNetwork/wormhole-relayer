@@ -3,7 +3,7 @@
 exports[`/shouldRouteEuphrates > when should route 1`] = `
 {
   "data": {
-    "routerAddr": "0x6dd8372A9059254C19F4145556592eD01a5D8c06",
+    "routerAddr": "0x9e7aDd1De1AB0668D9db4508D4653045f311F173",
     "shouldRoute": true,
   },
 }
@@ -12,7 +12,7 @@ exports[`/shouldRouteEuphrates > when should route 1`] = `
 exports[`/shouldRouteEuphrates > when should route 2`] = `
 {
   "data": {
-    "routerAddr": "0x6dd8372A9059254C19F4145556592eD01a5D8c06",
+    "routerAddr": "0x9e7aDd1De1AB0668D9db4508D4653045f311F173",
     "shouldRoute": true,
   },
 }
@@ -21,7 +21,7 @@ exports[`/shouldRouteEuphrates > when should route 2`] = `
 exports[`/shouldRouteEuphrates > when should route 3`] = `
 {
   "data": {
-    "routerAddr": "0x844d07eCe43bF65bf36aa0398AeCE12641755FaA",
+    "routerAddr": "0xC04Fb8c649DD4Ce87634187E5b2325aCf9C56aBb",
     "shouldRoute": true,
   },
 }
@@ -30,7 +30,7 @@ exports[`/shouldRouteEuphrates > when should route 3`] = `
 exports[`/shouldRouteEuphrates > when should route 4`] = `
 {
   "data": {
-    "routerAddr": "0x844d07eCe43bF65bf36aa0398AeCE12641755FaA",
+    "routerAddr": "0xC04Fb8c649DD4Ce87634187E5b2325aCf9C56aBb",
     "shouldRoute": true,
   },
 }
@@ -39,7 +39,7 @@ exports[`/shouldRouteEuphrates > when should route 4`] = `
 exports[`/shouldRouteEuphrates > when should route 5`] = `
 {
   "data": {
-    "routerAddr": "0xCaC1D0397669E71B25410171CE6f77Af750e1B2d",
+    "routerAddr": "0x1e76808C973c86a4e89DF7374bB5Ad8C62110009",
     "shouldRoute": true,
   },
 }
@@ -48,7 +48,7 @@ exports[`/shouldRouteEuphrates > when should route 5`] = `
 exports[`/shouldRouteEuphrates > when should route 6`] = `
 {
   "data": {
-    "routerAddr": "0xCaC1D0397669E71B25410171CE6f77Af750e1B2d",
+    "routerAddr": "0x1e76808C973c86a4e89DF7374bB5Ad8C62110009",
     "shouldRoute": true,
   },
 }
@@ -57,7 +57,7 @@ exports[`/shouldRouteEuphrates > when should route 6`] = `
 exports[`/shouldRouteEuphrates > when should route 7`] = `
 {
   "data": {
-    "routerAddr": "0x274d69D18Ec8d3b9d3E6732013DeB57E4Cf89Be8",
+    "routerAddr": "0xC934FFE7468Ec5fd49677335771BFa45e71824B8",
     "shouldRoute": true,
   },
 }
@@ -66,7 +66,7 @@ exports[`/shouldRouteEuphrates > when should route 7`] = `
 exports[`/shouldRouteEuphrates > when should route 8`] = `
 {
   "data": {
-    "routerAddr": "0x274d69D18Ec8d3b9d3E6732013DeB57E4Cf89Be8",
+    "routerAddr": "0xC934FFE7468Ec5fd49677335771BFa45e71824B8",
     "shouldRoute": true,
   },
 }
@@ -75,7 +75,7 @@ exports[`/shouldRouteEuphrates > when should route 8`] = `
 exports[`/shouldRouteEuphrates > when should route 9`] = `
 {
   "data": {
-    "routerAddr": "0x825E69D8f27010d8e5D4e96913A8571221373789",
+    "routerAddr": "0xa1d73e877D860f327C0b3394Ed0687D5c6ec86B6",
     "shouldRoute": true,
   },
 }
@@ -84,7 +84,7 @@ exports[`/shouldRouteEuphrates > when should route 9`] = `
 exports[`/shouldRouteEuphrates > when should route 10`] = `
 {
   "data": {
-    "routerAddr": "0x825E69D8f27010d8e5D4e96913A8571221373789",
+    "routerAddr": "0xa1d73e877D860f327C0b3394Ed0687D5c6ec86B6",
     "shouldRoute": true,
   },
 }

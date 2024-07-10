@@ -6,12 +6,13 @@ import { describe, expect, it } from 'vitest';
 
 import { ETH_RPC, RELAY_CONFIG } from '../consts';
 import { PROD_ADDR } from './testConsts';
-import { VAA_10_USDC_ETH_TO_ACALA } from './vaa';
+import { VAA_10_USDC_ETH_TO_ACALA, VAA_TINY_JITOSOL_SOL_TO_ACALA } from './vaa';
 import { expectError, relay, shouldRelay } from './testUtils';
 
 const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
 
 const USDC_ADDR = ROUTER_TOKEN_INFO.usdc.acalaAddr;
+const JITOSOL_ADDR = ROUTER_TOKEN_INFO.jitosol.acalaAddr;
 
 describe('/shouldRelay', () => {
   it('when should relay', async () => {
@@ -152,5 +153,18 @@ describe('/relay', () => {
     console.log({ afterBalRelayer });
 
     expect(afterBalRelayer - curBalRelayer).to.eq(10467941n);   // 10.467941 USDC
+  });
+
+  it('when amount too small', async () => {
+    try {
+      await relay({
+        targetChain: CHAIN_ID_ACALA,
+        signedVAA: VAA_TINY_JITOSOL_SOL_TO_ACALA,
+      });
+
+      expect.fail('should throw error but did not');
+    } catch (err) {
+      expectError(err, 'transfer amount too small, expect at least 1000000', 500);
+    }
   });
 });

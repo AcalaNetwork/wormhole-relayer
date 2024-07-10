@@ -9,7 +9,7 @@ import {
   TEST_ADDR_RELAYER,
 } from './testConsts';
 import {
-  VAA_10_DAI_ETH_TO_HYDRA,
+  VAA_10_DAI_BSC_TO_HYDRA,
   VAA_10_USDC_ETH_TO_ACALA,
   VAA_RANDOM_TOKEN_BSC_TO_ACALA,
   VAA_TINY_AMOUNT_DAI_BSC_TO_ACALA,
@@ -44,7 +44,7 @@ describe.concurrent('/shouldRouteXcm', () => {
     expect(res).toMatchInlineSnapshot(`
       {
         "data": {
-          "routerAddr": "0xc5Dd20eD342CEFeCe9E013D7D1763c398E987F7d",
+          "routerAddr": "0xb0D205eB2355795e7F95B02E23e030FacEa1E002",
           "routerChainId": 12,
           "shouldRoute": true,
         },
@@ -163,7 +163,7 @@ describe('/relayAndRoute', () => {
 
     const relayAndRouteXcmArgs = {
       ...routeXcmArgs,
-      signedVAA: VAA_10_DAI_ETH_TO_HYDRA,
+      signedVAA: VAA_10_DAI_BSC_TO_HYDRA,
     };
 
     const dai = ERC20__factory.connect(DAI_ADDR, provider);
