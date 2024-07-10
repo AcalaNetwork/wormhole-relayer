@@ -30,7 +30,7 @@ export class RelayError extends RelayerError {
   constructor(message: string, params?: any) {
     super(message, params);
     this.name = 'RelayError';
-    this.description = 'failed relay this request!';
+    this.description = 'failed to relay this request!';
   }
 };
 
@@ -38,6 +38,6 @@ export class RouteError extends RelayerError {
   constructor(message: string, params?: any) {
     super(message, params);
     this.name = 'RouteError';
-    this.description = 'failed route this request!';
+    this.description = 'failed to route this request!';
   }
 };
