@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ETH_RPC, RELAY_CONFIG } from '../consts';
 import { PROD_ADDR } from './testConsts';
-import { VAA_10_USDC_ETH_TO_ACALA, VAA_TINY_JITOSOL_SOL_TO_ACALA } from './vaa';
+import { VAA_10_USDC_ETH_TO_ACALA, VAA_ALREADY_COMPLETED, VAA_TINY_JITOSOL_SOL_TO_ACALA } from './vaa';
 import { expectError, relay, shouldRelay } from './testUtils';
 
 const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
@@ -165,6 +165,19 @@ describe('/relay', () => {
       expect.fail('should throw error but did not');
     } catch (err) {
       expectError(err, 'transfer amount too small, expect at least 1000000', 500);
+    }
+  });
+
+  it('when contract throws', async () => {
+    try {
+      await relay({
+        targetChain: CHAIN_ID_ACALA,
+        signedVAA: VAA_ALREADY_COMPLETED,
+      });
+
+      expect.fail('should throw error but did not');
+    } catch (err) {
+      expectError(err, 'execution reverted: transfer already completed', 500);
     }
   });
 });

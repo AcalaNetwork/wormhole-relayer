@@ -44,7 +44,8 @@ export const relay = async (params: RelayParams): Promise<TransactionReceipt> =>
 
     return receipt;
   } catch (e) {
-    throw new RelayError('failed to relay', { params, vaaInfo, error: e });
+    const errMsg = e.error?.reason ?? 'no error msg found';
+    throw new RelayError(errMsg, { params, vaaInfo, error: e });
   }
 };
 
