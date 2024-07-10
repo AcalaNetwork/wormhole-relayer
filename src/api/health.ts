@@ -3,7 +3,7 @@ import { formatEther, parseEther } from 'ethers/lib/utils';
 
 import { getChainConfig } from '../utils';
 
-const MIN_BALANCE_ACALA = parseEther('15');
+const MIN_BALANCE_ACALA = parseEther('150');
 const MIN_BALANCE_KARURA = parseEther('10');
 
 export const healthCheck = async () => {
@@ -23,6 +23,8 @@ export const healthCheck = async () => {
   );
 
   return {
+    relayerAddrAcala: chainConfigAcala.wallet.address,
+    relayerAddrKarura: chainConfigKarura.wallet.address,
     relayerBalAcala: formatEther(relayerBalAcala),
     relayerBalKarura: formatEther(relayerBalKarura),
     isHealthy,

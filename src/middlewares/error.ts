@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { ValidationError } from 'yup';
 
-import { NoRouteError, RelayError, RelayerError, RouteError } from '../utils';
+import { NoRouteError, RelayError, RelayerError, RouteError, serialize } from '../utils';
 
 export const errorHandler = (err: unknown, req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof ValidationError) {
@@ -14,24 +14,12 @@ export const errorHandler = (err: unknown, req: Request, res: Response, _next: N
       msg: 'no route found!',
       error: err.message,
     });
-  } else if (err instanceof RelayError) {
-    res.status(500).json({
-      msg: 'cannot relay this request!',
-      error: err.message,
-      params: err.params,
-    });
-  } else if (err instanceof RouteError) {
-    res.status(500).json({
-      msg: 'cannot route this request!',
-      error: err.message,
-      params: err.params,
-    });
-  } else if (err instanceof RelayerError) {
-    res.status(500).json({
-      msg: 'an error occurred!',
-      error: err.message,
-      params: err.params,
-    });
+  } else if (
+    err instanceof RelayError ||
+    err instanceof RouteError ||
+    err instanceof RelayerError
+  ) {
+    res.status(500).json(err.toJson());
   } else if (err instanceof Error) {
     res.status(500).json({
       msg: `internal server error: ${err.name}`,
@@ -40,7 +28,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, _next: N
   } else {
     res.status(500).json({
       msg: 'unknown internal server error',
-      error: JSON.stringify(err),
+      error: serialize(err),
     });
   }
 };

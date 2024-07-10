@@ -12,7 +12,7 @@ const isTestnet = Number(process.env.TESTNET_MODE ?? 1);
 export const enum ETH_RPC {
   LOCAL = 'http://localhost:8545',
 
-  BSC = 'https://endpoints.omniatech.io/v1/bsc/mainnet/public',
+  BSC = 'https://rpc.ankr.com/bsc',
   KARURA = 'https://eth-rpc-karura.aca-api.network',
   ACALA = 'https://eth-rpc-acala.aca-api.network',
 
