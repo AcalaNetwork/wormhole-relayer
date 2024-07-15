@@ -589,11 +589,7 @@ yarn vite preview --outDir ./coverage/
 first start a relayer: `yarn dev`
 
 ```
-yarn test:shouldRelay
-yarn test:relay
-
-yarn test:shouldRoute
-yarn test:route
+yarn test
 ```
 
 ### test setup
@@ -609,7 +605,7 @@ npx @acala-network/eth-rpc-adapter -e ws://localhost:8000
 
 start the relayer
 ```
-mv .env.homa .env
+mv .env.test .env
 yarn dev
 ```
 

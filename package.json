@@ -13,12 +13,10 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn src/index.ts | pino-pretty --singleLine --colorize --ignore time,hostname",
     "test": "vitest src/__tests__/*.test.ts --singleThread",
-    "test:relay": "vitest src/__tests__/relay.test.ts",
-    "test:shouldRelay": "vitest src/__tests__/shouldRelay.test.ts",
-    "test:shouldRoute": "vitest src/__tests__/shouldRoute.test.ts",
-    "test:route": "vitest src/__tests__/route.test.ts",
     "test:coverage": "COVERAGE=1 yarn test --coverage",
-    "relay": "ts-node src/scripts/manual-relay.ts"
+    "test:ci": "yarn start:test-stack; yarn test:coverage",
+    "relay": "ts-node src/scripts/manual-relay.ts",
+    "start:test-stack": "docker compose up"
   },
   "dependencies": {
     "@acala-network/api": "~6.0.4",
