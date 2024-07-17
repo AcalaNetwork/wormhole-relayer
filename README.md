@@ -574,7 +574,18 @@ A complete working flow can be found in [routing e2e tests](./src/__tests__/rout
 4) fetch VAA and redeem on the target evm chain
 
 ## Tests
-### with coverage report
+### test setup
+use the test env file
+```
+mv .env.test .env
+```
+
+start a local test stack
+```
+yarn start:test-stack
+```
+
+### run tests with coverage report
 - run tests and generate coverage data
 ```
 yarn test:coverage
@@ -585,32 +596,15 @@ show coverage report in GUI
 yarn vite preview --outDir ./coverage/
 ```
 
-### with separate relayer (no coverage report)
-first start a relayer: `yarn dev`
-
+### run tests with separate relayer (no coverage report)
+first start a local relayer
 ```
-yarn test:shouldRelay
-yarn test:relay
-
-yarn test:shouldRoute
-yarn test:route
-```
-
-### test setup
-first start a local acala fork
-```
-npx @acala-network/chopsticks@latest -c src/__tests__/configs/acala.yml -p 8000
-```
-
-start an rpc adapter
-```
-npx @acala-network/eth-rpc-adapter -e ws://localhost:8000
-```
-
-start the relayer
-```
-mv .env.homa .env
 yarn dev
+```
+
+run tests
+```
+yarn test
 ```
 
 ## Production Config
