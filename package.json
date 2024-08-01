@@ -12,7 +12,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "start:test-stack": "docker compose up -d",
-    "dev": "ts-node-dev --respawn src/index.ts | pino-pretty --singleLine --colorize --ignore time,hostname",
+    "dev": "ts-node-dev --respawn src/index.ts | pino-pretty --singleLine --colorize --ignore time,hostname,ip",
     "test": "vitest src/__tests__/*.test.ts --singleThread",
     "test:coverage": "COVERAGE=1 yarn test --coverage",
     "test:ci": "yarn start:test-stack; yarn test:coverage",

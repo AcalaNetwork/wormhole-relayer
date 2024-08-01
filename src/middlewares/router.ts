@@ -33,6 +33,7 @@ import {
   shouldRouteXcm,
 } from '../api';
 import { shouldSwapAndRoute, swapAndRoute } from '../api/swapAndRoute';
+import { parseIp } from '../utils/formatter';
 
 interface RouterConfig {
   schema?: Schema;
@@ -128,7 +129,8 @@ const handleRoute = async (req: Request, res: Response) => {
     ? req.body
     : req.query;
 
-  logger.info({ args }, `⬇ ${reqPath}`);
+  const ip = parseIp(req);
+  logger.info({ args, ip }, `⬇ ${reqPath}`);
 
   const config = ROUTER_CONFIGS[method]?.[path];
   if (!config) {
