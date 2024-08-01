@@ -1,8 +1,15 @@
 import { Request } from 'express';
 
 export const parseIp = (req: Request): string => {
-  const rawIp = req.ip
-    ?? req.headers['x-forwarded-for']
+  const forwardedFor = req.headers['x-forwarded-for'];
+  const forwardedIp = typeof forwardedFor === 'string'
+    ? forwardedFor.split(',')[0]
+    : Array.isArray(forwardedFor)
+      ? forwardedFor[0]
+      : undefined;
+
+  const rawIp = forwardedIp
+    ?? req.ip
     ?? req.socket.remoteAddress
     ?? 'unknown';
 
