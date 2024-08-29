@@ -4,6 +4,7 @@ import {
 } from '@certusone/wormhole-sdk';
 import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import dotenv from 'dotenv';
+import { parseUnits } from 'ethers/lib/utils';
 
 dotenv.config({ path: '.env' });
 
@@ -254,16 +255,20 @@ export const TESTNET_MODE_WARNING = `
 `;
 
 export const EUPHRATES_ADDR = '0x7Fe92EC600F15cD25253b421bc151c51b0276b7D';
-export const EUPHRATES_POOLS = ['0', '1', '2', '3', '6'];
+export const EUPHRATES_POOLS = ['0', '1', '2', '3', '6', '7'];
 export const SWAP_SUPPLY_TOKENS = [
   ROUTER_TOKEN_INFO.jitosol.acalaAddr,
 ];
 
 export const RELAYER_ADDR = '0x8B5C2F71eFa2d88A20E0e1c8EDFeA3767B2ab230';
 
+// swap 0.0035 jitosol to 3 ACA for gas drop
+export const DROP_SWAP_AMOUNT_JITOSOL = parseUnits('0.0035', 9);
+export const DROP_AMOUNT_ACA = parseUnits('3', 12);
+
 export const SECOND = 1000;
 export const MINUTE = 60 * SECOND;
 export const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 
-export const VERSION = '1.8.5';
+export const VERSION = '1.9.0-0';

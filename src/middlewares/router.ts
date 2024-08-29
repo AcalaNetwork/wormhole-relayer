@@ -4,6 +4,7 @@ import { Schema } from 'yup';
 import {
   NoRouteError,
   logger,
+  parseIp,
   relayAndRouteSchema,
   relaySchema,
   routeEuphratesSchema,
@@ -12,6 +13,7 @@ import {
   routeWormholeSchema,
   routeXcmSchema,
   shouldRelaySchema,
+  swapAndLpSchema,
   swapAndRouteSchema,
 } from '../utils';
 import {
@@ -24,16 +26,18 @@ import {
   routeEuphrates,
   routeHoma,
   routeHomaAuto,
+  routeSwapAndLp,
   routeWormhole,
   routeXcm,
   shouldRelay,
   shouldRouteEuphrates,
   shouldRouteHoma,
+  shouldRouteSwapAndLp,
   shouldRouteWormhole,
   shouldRouteXcm,
+  shouldSwapAndRoute,
+  swapAndRoute,
 } from '../api';
-import { shouldSwapAndRoute, swapAndRoute } from '../api/swapAndRoute';
-import { parseIp } from '../utils/formatter';
 
 interface RouterConfig {
   schema?: Schema;
@@ -69,6 +73,10 @@ const ROUTER_CONFIGS: {
     '/shouldSwapAndRoute': {
       schema: swapAndRouteSchema,
       handler: shouldSwapAndRoute,
+    },
+    '/shouldRouteSwapAndLp': {
+      schema: swapAndLpSchema,
+      handler: shouldRouteSwapAndLp,
     },
     '/health': {
       handler: healthCheck,
@@ -118,6 +126,10 @@ const ROUTER_CONFIGS: {
     '/swapAndRoute': {
       schema: swapAndRouteSchema,
       handler: swapAndRoute,
+    },
+    '/routeSwapAndLp': {
+      schema: swapAndLpSchema,
+      handler: routeSwapAndLp,
     },
   },
 };

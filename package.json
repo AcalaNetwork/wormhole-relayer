@@ -1,6 +1,6 @@
 {
   "name": "acala-wormhole-relayer",
-  "version": "1.8.5",
+  "version": "1.9.0-0",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@acala-network/api": "~6.0.4",
-    "@acala-network/asset-router": "~1.0.18",
+    "@acala-network/asset-router": "~1.0.19-2",
     "@acala-network/bodhi": "~2.7.13",
     "@acala-network/contracts": "^4.5.0",
     "@acala-network/eth-providers": "~2.7.14",

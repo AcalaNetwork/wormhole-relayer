@@ -53,6 +53,12 @@ export interface RouteParamsEuphrates {
 // does not support general swap yet
 export type SwapAndRouteParams = RouteParamsEuphrates;
 
+// does not support general swap yet
+export interface SwapAndLpParams extends RouteParamsEuphrates {
+  swapAmount: string;
+  minShareAmount?: string;
+}
+
 export interface RelayAndRouteParams extends RouteParamsXcm {
   signedVAA: string;
 }
@@ -112,6 +118,14 @@ export const routeEuphratesSchema: ObjectSchema<RouteParamsEuphrates> = object({
 });
 
 export const swapAndRouteSchema = routeEuphratesSchema;
+
+export const swapAndLpSchema: ObjectSchema<SwapAndLpParams> = object({
+  poolId: string().required(),
+  recipient: string().required(),
+  swapAmount: string().required(),
+  token: string(),
+  minShareAmount: string(),
+});
 
 export const routeStatusSchema: ObjectSchema<routeStatusParams> = object({
   id: string(),
