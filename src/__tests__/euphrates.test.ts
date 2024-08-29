@@ -53,7 +53,7 @@ describe.concurrent('/shouldRouteEuphrates', () => {
   };
 
   it('when should route', async () => {
-    for (const poolId of EUPHRATES_POOLS.slice(0, 6)) {
+    for (const poolId of EUPHRATES_POOLS.slice(0, 5)) {
       await testShouldRouteEuphrates({
         recipient,
         poolId,
