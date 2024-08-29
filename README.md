@@ -292,7 +292,7 @@ GET /shouldRouteWormhole?originAddr=0x07865c6e87b9f70255377e024ace6630c1e00000&t
 
 # ---------- when error ---------- #
 GET /shouldRouteWormhole?originAddr=0x07865c6e87b9f70255377e024ace6630c1e00000&targetChainId=2&destAddr=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
-=> 
+=>
 {
   "error": ["fromParaId is a required field"],
   "msg": "invalid request params!"
@@ -527,7 +527,7 @@ GET /shouldSwapAndRoute?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&poo
 ```
 
 ### `/swapAndRoute`
-swap token and airdrop targetAmount of targetToken to recipient, and route the quest, then returns the txhash
+swap small amount of token and airdrop ACA to recipient, and route the quest, then returns the txhash
 ```
 POST /swapAndRoute
 data: {
@@ -551,6 +551,65 @@ data: {
   data: '0x677cd79963bb4b45c50009f213194397be3081cfb206e958da02b6357c44674e'
 }
 
+
+/* ---------- when error ---------- */
+// similar to /routeXcm
+```
+
+### `/shouldRouteSwapAndLp`
+checks if the relayer can route this request, returns router address
+```
+GET /shouldRouteSwapAndLp
+params: {
+  poolId: string;          // euphrates pool id
+  recipient: string;       // dest evm address
+  swapAmount: string;      // how many token to swap before adding liquidity
+  minShareAmount?: string; // swap min share amount (default: 0)
+}
+```
+
+example
+```
+GET /shouldRouteSwapAndLp?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&swapAmount=100000000&poolId=7
+=>
+{
+  "data": {
+    "shouldRoute": true,
+    "routerAddr": "0xC5a363695957469963c15Bf87B00B25eAbE8D234"
+  }
+}
+```
+
+### `/routeSwapAndLp`
+- swap small amount of token and airdrop ACA to recipient
+- swap `swapAmount` token to LDOT, then add LP, refund the remaining token recipient
+- stake Lp to euphrates for the recipient
+- returns the txhash
+```
+POST /routeSwapAndLp
+data: {
+  poolId: string;          // euphrates pool id
+  recipient: string;       // dest evm address
+  token?: string;          // token to route, not required for `shouldRoute`
+  swapAmount: string;      // how many token to swap before adding liquidity
+  minShareAmount?: string; // swap min share amount (default: 0)
+}
+```
+
+example
+```
+POST /routeSwapAndLp
+data: {
+  "poolId": 7,
+  "recipient": "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
+  "token": "0xa7fb00459f5896c3bd4df97870b44e868ae663d7",
+  "swapAmount": 100000000
+}
+
+=> tx hash
+{
+  data: '0xe1c82c53796d82d87d2e31e289b3cc8ff18e304b8ac95f2bd7548a1706bb8655'
+}
 
 /* ---------- when error ---------- */
 // similar to /routeXcm
