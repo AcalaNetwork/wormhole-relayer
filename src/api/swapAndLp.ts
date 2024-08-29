@@ -31,12 +31,12 @@ const prepareSwapAndLp = async (chain: Mainnet) => {
   const { feeAddr, dropAndSwapStakeFactoryAddr, wallet } = chainConfig;
 
   const factory = DropAndSwapStakeFactory__factory.connect(dropAndSwapStakeFactoryAddr!, wallet);
-  return { factory, feeAddr };
+  return { factory, feeAddr, relayerAddr: wallet.address };
 };
 
 export const shouldRouteSwapAndLp = async (params: SwapAndLpParams) => {
   try {
-    const { factory, feeAddr } = await prepareSwapAndLp(Mainnet.Acala);
+    const { factory, feeAddr, relayerAddr } = await prepareSwapAndLp(Mainnet.Acala);
 
     if (!EUPHRATES_POOLS.includes(params.poolId)) {
       throw new RouteError(`euphrates poolId ${params.poolId} is not supported`, params);
@@ -45,7 +45,7 @@ export const shouldRouteSwapAndLp = async (params: SwapAndLpParams) => {
     const insts = {
       ...DEFAULT_SWAP_AND_LP_PARAMS,
       recipient: params.recipient,
-      feeReceiver: params.recipient,
+      feeReceiver: relayerAddr,
       swapAmount: params.swapAmount,
       poolId: params.poolId,
       minShareAmount: params.minShareAmount ?? 0,
@@ -90,16 +90,16 @@ export const routeSwapAndLp = async (params: SwapAndLpParams) => {
     throw new RouteError(`token ${params.token} is not supported for swapping`, params);
   }
 
+  const { factory, feeAddr, relayerAddr } = await prepareSwapAndLp(Mainnet.Acala);
   const insts = {
     ...DEFAULT_SWAP_AND_LP_PARAMS,
     recipient: params.recipient,
-    feeReceiver: params.recipient,
+    feeReceiver: relayerAddr,
     swapAmount: params.swapAmount,
     poolId: params.poolId,
     minShareAmount: params.minShareAmount ?? 0,
   };
 
-  const { factory, feeAddr } = await prepareSwapAndLp(Mainnet.Acala);
   const tx = await factory.deployDropAndSwapStakeRouterAndRoute(
     feeAddr,
     insts,
