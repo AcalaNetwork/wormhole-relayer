@@ -110,3 +110,31 @@ export const routeSwapAndLp = async (params: SwapAndLpParams) => {
 
   return receipt.transactionHash;
 };
+
+export const rescueSwapAndLp = async (params: SwapAndLpParams) => {
+  if (params.token === undefined) {
+    throw new RouteError('[token] param is required for swap and lp', params);
+  }
+
+  const { factory, feeAddr, relayerAddr } = await prepareSwapAndLp(Mainnet.Acala);
+  const insts = {
+    ...DEFAULT_SWAP_AND_LP_PARAMS,
+    recipient: params.recipient,
+    feeReceiver: relayerAddr,
+    swapAmount: params.swapAmount,
+    poolId: params.poolId,
+    minShareAmount: params.minShareAmount ?? 0,
+  };
+
+  const isGasDrop = true;
+  const tx = await factory.deployDropAndSwapStakeRouterAndRescue(
+    feeAddr,
+    insts,
+    params.token,
+    DROP_AMOUNT_ACA,
+    isGasDrop,
+  );
+  const receipt = await tx.wait();
+
+  return receipt.transactionHash;
+};

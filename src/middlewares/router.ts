@@ -23,6 +23,7 @@ import {
   relay,
   relayAndRoute,
   relayAndRouteBatch,
+  rescueSwapAndLp,
   routeEuphrates,
   routeHoma,
   routeHomaAuto,
@@ -130,6 +131,10 @@ const ROUTER_CONFIGS: {
     '/routeSwapAndLp': {
       schema: swapAndLpSchema,
       handler: routeSwapAndLp,
+    },
+    '/rescueSwapAndLp': {
+      schema: swapAndLpSchema,
+      handler: rescueSwapAndLp,
     },
   },
 };
