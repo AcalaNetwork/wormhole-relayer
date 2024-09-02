@@ -56,7 +56,7 @@ export type SwapAndRouteParams = RouteParamsEuphrates;
 // does not support general swap yet
 export interface SwapAndLpParams extends RouteParamsEuphrates {
   swapAmount: string;         // how many token to swap before adding liquidity
-  minShareAmount?: string;    // swap min share amount
+  minShareAmount?: string;    // add liquidity min share amount
 }
 
 export interface RelayAndRouteParams extends RouteParamsXcm {

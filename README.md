@@ -564,7 +564,7 @@ params: {
   poolId: string;          // euphrates pool id
   recipient: string;       // dest evm address
   swapAmount: string;      // how many token to swap before adding liquidity
-  minShareAmount?: string; // swap min share amount (default: 0)
+  minShareAmount?: string; // add liquidity min share amount (default: 0)
 }
 ```
 
@@ -590,15 +590,49 @@ POST /routeSwapAndLp
 data: {
   poolId: string;          // euphrates pool id
   recipient: string;       // dest evm address
-  token?: string;          // token to route, not required for `shouldRoute`
+  token: string;          // token to route
   swapAmount: string;      // how many token to swap before adding liquidity
-  minShareAmount?: string; // swap min share amount (default: 0)
+  minShareAmount?: string; // add liquidity min share amount (default: 0)
 }
 ```
 
 example
 ```
 POST /routeSwapAndLp
+data: {
+  "poolId": 7,
+  "recipient": "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
+  "token": "0xa7fb00459f5896c3bd4df97870b44e868ae663d7",
+  "swapAmount": 100000000
+}
+
+=> tx hash
+{
+  data: '0xe1c82c53796d82d87d2e31e289b3cc8ff18e304b8ac95f2bd7548a1706bb8655'
+}
+
+/* ---------- when error ---------- */
+// similar to /routeXcm
+```
+
+### `/rescueSwapAndLp`
+- perform gas drop
+- rescue token to recipient
+
+```
+POST /rescueSwapAndLp
+data: {
+  poolId: string;          // euphrates pool id
+  recipient: string;       // dest evm address
+  token: string;          // token to route
+  swapAmount: string;      // how many token to swap before adding liquidity
+  minShareAmount?: string; // add liquidity min share amount (default: 0)
+}
+```
+
+example
+```
+POST /rescueSwapAndLp
 data: {
   "poolId": 7,
   "recipient": "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
