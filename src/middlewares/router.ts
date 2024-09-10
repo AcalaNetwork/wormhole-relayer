@@ -19,6 +19,7 @@ import {
 import {
   getAllRouteStatus,
   getRouteStatus,
+  getRouterInfo,
   healthCheck,
   relay,
   relayAndRoute,
@@ -88,6 +89,9 @@ const ROUTER_CONFIGS: {
     },
     '/allRouteStatus': {
       handler: getAllRouteStatus,
+    },
+    '/routerInfo': {
+      handler: getRouterInfo,
     },
   },
 

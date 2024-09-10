@@ -8,3 +8,4 @@ export * from './euphrates';
 export * from './health';
 export * from './swapAndRoute';
 export * from './swapAndLp';
+export * from './routerInfo';

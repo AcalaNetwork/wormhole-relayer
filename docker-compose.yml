@@ -1,6 +1,14 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:12-alpine
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+
   node:
     container_name: node
     image: oven/bun:1
@@ -56,5 +64,7 @@ services:
     restart: on-failure
     depends_on:
       eth-rpc:
+        condition: service_healthy
+      db:
         condition: service_healthy
     command: echo "test stack ready 🚀"

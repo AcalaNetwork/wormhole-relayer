@@ -15,6 +15,7 @@ import {
   getChainConfig,
   getMainnetChainId,
 } from '../utils';
+import { db } from '../db';
 
 const JITOSOL_ADDR = ROUTER_TOKEN_INFO.jitosol.acalaAddr;
 const DEFAULT_SWAP_AND_LP_PARAMS = {
@@ -68,6 +69,14 @@ export const shouldRouteSwapAndLp = async (params: SwapAndLpParams) => {
       insts,
       DROP_AMOUNT_ACA,
     );
+
+    await db.insertRouterInfo({
+      params: JSON.stringify(params),
+      routerAddr,
+      factoryAddr: factory.address,
+      recipient: params.recipient,
+      feeAddr,
+    });
 
     return {
       shouldRoute: true,

@@ -16,7 +16,10 @@
     "test": "vitest src/__tests__/*.test.ts --singleThread",
     "test:coverage": "COVERAGE=1 yarn test --coverage",
     "test:ci": "yarn start:test-stack; yarn test:coverage",
-    "relay": "ts-node src/scripts/manual-relay.ts"
+    "relay": "ts-node src/scripts/manual-relay.ts",
+    "db:init": "prisma init",
+    "db:gen": "prisma generate",
+    "db:migrate": "prisma migrate dev"
   },
   "dependencies": {
     "@acala-network/api": "~6.0.4",
@@ -28,6 +31,7 @@
     "@improbable-eng/grpc-web": "^0.14.0",
     "@improbable-eng/grpc-web-node-http-transport": "^0.15.0",
     "@polkadot/api": "^10.9.1",
+    "@prisma/client": "^5.19.1",
     "axios": "^0.26.1",
     "bech32": "^2.0.0",
     "cors": "^2.8.5",
@@ -37,6 +41,7 @@
     "express": "^4.17.1",
     "js-base64": "^3.6.1",
     "pino": "^8.11.0",
+    "prisma": "^5.19.1",
     "protobufjs": "^6.11.2",
     "rxjs": "^7.3.0",
     "yup": "^1.0.2"
