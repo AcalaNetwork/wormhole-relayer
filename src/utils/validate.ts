@@ -68,6 +68,10 @@ export interface routeStatusParams {
   destAddr?: string;
 }
 
+export interface routerInfoQuery {
+  routerAddr: string;
+}
+
 const ALL_WORMHOLE_CHAIN_IDS = Object.values(CHAINS);
 export const shouldRelaySchema: ObjectSchema<ShouldRelayParams> = object({
   targetChain: mixed<ChainId>()
@@ -137,3 +141,7 @@ export const routeStatusSchema: ObjectSchema<routeStatusParams> = object({
     (!!value.id && !value.destAddr) ||
     (!value.id && !!value.destAddr)
 );
+
+export const routerInfoSchema: ObjectSchema<routerInfoQuery> = object({
+  routerAddr: string().required(),
+});

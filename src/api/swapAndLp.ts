@@ -70,7 +70,7 @@ export const shouldRouteSwapAndLp = async (params: SwapAndLpParams) => {
       DROP_AMOUNT_ACA,
     );
 
-    await db.insertRouterInfo({
+    await db.upsertRouterInfo({
       params: JSON.stringify(params),
       routerAddr,
       factoryAddr: factory.address,

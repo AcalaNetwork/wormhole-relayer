@@ -629,7 +629,6 @@ GET /routerInfo
 example
 ```
 GET /routerInfo?routerAddr=0x1F191013BE290CD0A89074A3946f1aEF58Eacc7f
-GET /routerInfo?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
 
 =>
 data: [{

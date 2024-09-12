@@ -9,8 +9,15 @@ export interface RouterInfo {
   routerAddr: string;
 }
 
-const insertRouterInfo = async (data: RouterInfo) => {
-  const record = await prisma.routerInfo.create({ data });
+const upsertRouterInfo = async (data: RouterInfo) => {
+  const record = await prisma.routerInfo.upsert({
+    where: {
+      routerAddr: data.routerAddr,
+    },
+    update: {},
+    create: data,
+  });
+
   return record;
 };
 
@@ -34,7 +41,7 @@ const removeRouterInfo = async (daysOld: number) => {
 };
 
 export const db = {
-  insertRouterInfo,
+  upsertRouterInfo,
   getRouterInfo,
   removeRouterInfo,
 };

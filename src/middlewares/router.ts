@@ -12,6 +12,7 @@ import {
   routeStatusSchema,
   routeWormholeSchema,
   routeXcmSchema,
+  routerInfoSchema,
   shouldRelaySchema,
   swapAndLpSchema,
   swapAndRouteSchema,
@@ -91,6 +92,7 @@ const ROUTER_CONFIGS: {
       handler: getAllRouteStatus,
     },
     '/routerInfo': {
+      schema: routerInfoSchema,
       handler: getRouterInfo,
     },
   },

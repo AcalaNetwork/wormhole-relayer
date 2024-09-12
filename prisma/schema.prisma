@@ -14,5 +14,5 @@ model RouterInfo {
   factoryAddr String
   feeAddr     String
   recipient   String
-  routerAddr  String
+  routerAddr  String   @unique
 }
