@@ -701,4 +701,5 @@ yarn test
 ```
 
 ## Production Config
-`cp .env.example .env` and replace the test keys with real private keys for relayers
+- setup env: `cp .env.example .env` and fill in the blanks
+- setup db: `docker run --env-file .env acala/relayer:latest yarn db:migrate:prod`

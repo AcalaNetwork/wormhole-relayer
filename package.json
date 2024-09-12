@@ -19,7 +19,8 @@
     "relay": "ts-node src/scripts/manual-relay.ts",
     "db:init": "prisma init",
     "db:gen": "prisma generate",
-    "db:migrate": "prisma migrate dev"
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:prod": "prisma migrate deploy"
   },
   "dependencies": {
     "@acala-network/api": "~6.0.4",
