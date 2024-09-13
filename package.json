@@ -16,7 +16,7 @@
     "dev": "ts-node-dev --respawn src/index.ts | pino-pretty --singleLine --colorize --ignore time,hostname,ip",
     "test": "vitest src/__tests__/*.test.ts --singleThread",
     "test:coverage": "COVERAGE=1 yarn test --coverage",
-    "test:ci": "yarn start:test-stack; yarn test:coverage --test-timeout 180000",
+    "test:ci": "yarn start:test-stack; yarn test:coverage --test-timeout 60000",
     "relay": "ts-node src/scripts/manual-relay.ts",
     "db:init": "prisma init",
     "db:gen": "prisma generate",
