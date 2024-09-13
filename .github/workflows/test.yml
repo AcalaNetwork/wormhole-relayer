@@ -34,4 +34,6 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-
+      - name: dump docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2
