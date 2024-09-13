@@ -26,8 +26,14 @@ jobs:
       - name: setup test env
         run: cp .env.test .env
 
-      - name: run tests
-        run: yarn test:ci
+      - name: check docker logs
+        run: docker compose logs
+
+      - name: setup test infra
+        run: yarn start:test-stack
+
+      - name: run tests with coverage
+        run: yarn test:coverage
 
       - name: upload coverage reports
         uses: codecov/codecov-action@v3

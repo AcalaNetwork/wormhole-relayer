@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:12-alpine
-    container_name: postgres
+    container_name: db
     ports:
       - 5432:5432
     environment:
@@ -59,8 +59,7 @@ services:
       - ENDPOINT_URL=ws://node:8000
     healthcheck:
       test: |
-        wget -q -O- --post-data='{"id": 1, "jsonrpc": "2.0", "method": "eth_chainId", "params": []}' --header='Content-Type: application/json' http://localhost:8545 | jq -e '.result == "0x313"' || exit 1
-
+        wget -q -O- --post-data='{"id": 1, "jsonrpc": "2.0", "method": "eth_chainId", "params": []}' --header='Content-Type: application/json' http://localhost:8545 || exit 1
       interval: 2s
       timeout: 5s
       retries: 100
