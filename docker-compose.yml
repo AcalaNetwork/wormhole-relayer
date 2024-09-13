@@ -1,19 +1,18 @@
 version: '3.8'
 
 services:
-  # db:
-  #   image: postgres:12-alpine
-  #   container_name: db
-  #   ports:
-  #     - 5432:5432
-  #   environment:
-  #     POSTGRES_PASSWORD: postgres
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 2s
-  #     timeout: 5s
-  #     start_period: 60s
-  #     retries: 100
+  db:
+    image: postgres:12-alpine
+    container_name: db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 100
 
   node:
     container_name: node
@@ -43,7 +42,6 @@ services:
         '
       interval: 2s
       timeout: 5s
-      start_period: 60s
       retries: 100
 
   eth-rpc:
@@ -64,7 +62,6 @@ services:
         wget -q -O- --post-data='{"id": 1, "jsonrpc": "2.0", "method": "eth_chainId", "params": []}' --header='Content-Type: application/json' http://localhost:8545 || exit 1
       interval: 2s
       timeout: 5s
-      start_period: 60s
       retries: 100
 
   test-stack-ready:
@@ -73,6 +70,6 @@ services:
     depends_on:
       eth-rpc:
         condition: service_healthy
-      # db:
-      #   condition: service_healthy
+      db:
+        condition: service_healthy
     command: echo "test stack ready 🚀"
