@@ -43,6 +43,7 @@ services:
         '
       interval: 2s
       timeout: 5s
+      start_period: 60s
       retries: 100
 
   eth-rpc:
@@ -63,6 +64,7 @@ services:
         wget -q -O- --post-data='{"id": 1, "jsonrpc": "2.0", "method": "eth_chainId", "params": []}' --header='Content-Type: application/json' http://localhost:8545 || exit 1
       interval: 2s
       timeout: 5s
+      start_period: 60s
       retries: 100
 
   test-stack-ready:
