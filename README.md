@@ -683,8 +683,9 @@ yarn vite preview --outDir ./coverage/
 ```
 
 ### run tests with separate relayer (no coverage report)
-first start a local relayer
+first start a local relayer with db
 ```
+yarn start:db
 yarn dev
 ```
 
