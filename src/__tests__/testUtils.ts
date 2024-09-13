@@ -40,7 +40,7 @@ export const sudoTransferToken = async (
 
     const { data } = await token.populateTransaction.transfer(toAddr, amount);
     const api = await ApiPromise.create({
-      provider: new WsProvider('ws://localhost:8000'),
+      provider: new WsProvider('ws://0.0.0.0:8000'),
     });
 
     const tx = api.tx.evm.call(tokenAddr, data!, 0, 1000000, 64, []);
