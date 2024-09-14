@@ -1,6 +1,8 @@
 import { CHAINS, CHAIN_ID_ACALA, CHAIN_ID_KARURA, ChainId } from '@certusone/wormhole-sdk';
 import { ObjectSchema, mixed, number, object, string } from 'yup';
 
+import { RouterInfo } from '../db';
+
 export enum Mainnet {
   Acala = 'acala',
   Karura = 'karura',
@@ -68,9 +70,8 @@ export interface routeStatusParams {
   destAddr?: string;
 }
 
-export interface routerInfoQuery {
-  routerAddr: string;
-}
+export type RouterInfoUpdate = Omit<RouterInfo, 'factoryAddr' | 'feeAddr'>;
+export type RouterInfoQuery = Partial<RouterInfo>;
 
 const ALL_WORMHOLE_CHAIN_IDS = Object.values(CHAINS);
 export const shouldRelaySchema: ObjectSchema<ShouldRelayParams> = object({
@@ -142,6 +143,16 @@ export const routeStatusSchema: ObjectSchema<routeStatusParams> = object({
     (!value.id && !!value.destAddr)
 );
 
-export const routerInfoSchema: ObjectSchema<routerInfoQuery> = object({
+export const routerInfoUpdateSchema: ObjectSchema<RouterInfoUpdate> = object({
+  params: string().required(),
+  recipient: string().required(),
   routerAddr: string().required(),
+});
+
+export const routerInfoQuerySchema: ObjectSchema<RouterInfoQuery> = object({
+  params: string(),
+  recipient: string(),
+  routerAddr: string(),
+  factoryAddr: string(),
+  feeAddr: string(),
 });

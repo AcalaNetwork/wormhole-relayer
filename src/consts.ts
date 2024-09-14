@@ -5,6 +5,7 @@ import {
 import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import { parseUnits } from 'ethers/lib/utils';
 import dotenv from 'dotenv';
+import { BaseRouter__factory } from '@acala-network/asset-router/dist/typechain-types';
 
 dotenv.config({ path: '.env' });
 

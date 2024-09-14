@@ -1,6 +1,6 @@
 import { ACA, LDOT } from '@acala-network/contracts/utils/AcalaTokens';
 import { DEX } from '@acala-network/contracts/utils/Predeploy';
-import { DropAndSwapStakeFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { BaseRouter__factory, DropAndSwapStakeFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import { constants } from 'ethers';
@@ -70,14 +70,6 @@ export const shouldRouteSwapAndLp = async (params: SwapAndLpParams) => {
       DROP_AMOUNT_ACA,
     );
 
-    await db.upsertRouterInfo({
-      params: JSON.stringify(params),
-      routerAddr,
-      factoryAddr: factory.address,
-      recipient: params.recipient,
-      feeAddr,
-    });
-
     return {
       shouldRoute: true,
       routerAddr,
@@ -117,7 +109,27 @@ export const routeSwapAndLp = async (params: SwapAndLpParams) => {
   );
   const receipt = await tx.wait();
 
-  return receipt.transactionHash;
+  if (receipt.status !== 1) {
+    throw new RouteError('swap and lp failed', { ...params, txHash: receipt.transactionHash });
+  }
+
+  // parse receipit log to get router addr
+  const iface = BaseRouter__factory.createInterface();
+  const routerDeployedEventSig = iface.getEventTopic('RouterCreated');
+  const routerDeployedLog = receipt.logs.find(log => log.topics[0] === routerDeployedEventSig);
+  if (!routerDeployedLog) {
+    throw new RouteError('router deployed log not found', { ...params, txHash: receipt.transactionHash });
+  }
+
+  const parsedLog = iface.parseLog(routerDeployedLog);
+  const routerAddr = parsedLog.args.addr;
+
+  const removed = await db.removeRouterInfo({ routerAddr });
+
+  return {
+    txHash: receipt.transactionHash,
+    removed,
+  };
 };
 
 export const rescueSwapAndLp = async (params: SwapAndLpParams) => {

@@ -12,7 +12,8 @@ import {
   routeStatusSchema,
   routeWormholeSchema,
   routeXcmSchema,
-  routerInfoSchema,
+  routerInfoQuerySchema,
+  routerInfoUpdateSchema,
   shouldRelaySchema,
   swapAndLpSchema,
   swapAndRouteSchema,
@@ -32,6 +33,7 @@ import {
   routeSwapAndLp,
   routeWormhole,
   routeXcm,
+  saveRouterInfo,
   shouldRelay,
   shouldRouteEuphrates,
   shouldRouteHoma,
@@ -92,7 +94,7 @@ const ROUTER_CONFIGS: {
       handler: getAllRouteStatus,
     },
     '/routerInfo': {
-      schema: routerInfoSchema,
+      schema: routerInfoQuerySchema,
       handler: getRouterInfo,
     },
   },
@@ -141,6 +143,10 @@ const ROUTER_CONFIGS: {
     '/rescueSwapAndLp': {
       schema: swapAndLpSchema,
       handler: rescueSwapAndLp,
+    },
+    '/saveRouterInfo': {
+      schema: routerInfoUpdateSchema,
+      handler: saveRouterInfo,
     },
   },
 };
