@@ -7,5 +7,5 @@
   "sourceMap": true,
   "instrument": true,
   "require": ["ts-node/register"],
-  "report-dir": ".coverage-e2e"
+  "report-dir": ".coverage"
 }
