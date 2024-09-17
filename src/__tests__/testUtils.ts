@@ -206,3 +206,23 @@ export const shouldRouteEuphrates = process.env.COVERAGE
 export const routeEuphrates = process.env.COVERAGE
   ? _supertestPost(RELAYER_API.ROUTE_EUPHRATES)
   : _axiosPost(RELAYER_URL.ROUTE_EUPHRATES);
+
+export const shouldRouteSwapAndLp = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.SHOULD_ROUTER_SWAP_AND_LP)
+  : _axiosGet(RELAYER_URL.SHOULD_ROUTER_SWAP_AND_LP);
+
+export const routeSwapAndLp = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.ROUTE_SWAP_AND_LP)
+  : _axiosPost(RELAYER_URL.ROUTE_SWAP_AND_LP);
+
+export const routerInfo = process.env.COVERAGE
+  ? _supertestGet(RELAYER_API.ROUTER_INFO)
+  : _axiosGet(RELAYER_URL.ROUTER_INFO);
+
+export const saveRouterInfo = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.SAVE_ROUTER_INFO)
+  : _axiosPost(RELAYER_URL.SAVE_ROUTER_INFO);
+
+export const removeRouterInfo = process.env.COVERAGE
+  ? _supertestPost(RELAYER_API.REMOVE_ROUTER_INFO)
+  : _axiosPost(RELAYER_URL.REMOVE_ROUTER_INFO);
