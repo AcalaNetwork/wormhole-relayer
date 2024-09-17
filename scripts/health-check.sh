@@ -12,6 +12,8 @@ while [ $attempt -lt $MAX_ATTEMPTS ]; do
         exit 0
     fi
 
+    echo "waiting for relayer starting up... ($attempt\s)"
+
     sleep $INTERVAL
     attempt=$((attempt+1))
 done
