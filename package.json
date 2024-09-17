@@ -11,12 +11,14 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "start:test-stack": "docker compose up -d",
+    "start:coverage": "pm2 start --name relayer 'nyc node -r ts-node/register src/index.ts' && ./scripts/health-check.sh",
+    "stop:coverage": "pm2 stop relayer && pm2 delete relayer",
+    "start:test-infra": "docker compose up",
     "dev": "ts-node-dev --respawn src/index.ts | pino-pretty --singleLine --colorize --ignore time,hostname,ip",
-    "test": "vitest src/__tests__/*.test.ts --singleThread",
-    "test:coverage": "COVERAGE=1 yarn test --coverage",
+    "test": "vitest src/__tests__/*.test.ts --singleThread --run",
+    "test:e2e": "yarn start:coverage && yarn test && yarn stop:coverage",
     "test:ci": "yarn start:test-stack; yarn test:coverage",
-    "relay": "ts-node src/scripts/manual-relay.ts"
+    "clean": "rm -rf .coverage-e2e .nyc_output dist/"
   },
   "dependencies": {
     "@acala-network/api": "~6.0.4",
@@ -57,7 +59,9 @@
     "eslint": "^8.9.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
+    "nyc": "^17.0.0",
     "pino-pretty": "^10.0.0",
+    "pm2": "^5.4.2",
     "prettier": "^2.3.2",
     "supertest": "^6.3.3",
     "ts-node": "^10.5.0",
