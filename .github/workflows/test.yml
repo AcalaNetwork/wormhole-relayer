@@ -31,9 +31,9 @@ jobs:
 
       - name: upload coverage reports
         uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          files: .coverage/*
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: .coverage/lcov.info
           verbose: true
 
 
