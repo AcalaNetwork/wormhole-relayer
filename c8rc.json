@@ -4,5 +4,7 @@
   "exclude": ["**/*.test.ts"],
   "reporter": ["html", "text", "lcov"],
   "all": true,
-  "require": ["ts-node/register"]
+  "require": ["ts-node/register"],
+  "report-dir": "./coverage",
+  "output": "./coverage/lcov.info"
 }

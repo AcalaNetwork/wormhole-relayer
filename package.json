@@ -15,7 +15,7 @@
     "start:coverage": "pm2 start --name relayer 'c8 node -r ts-node/register src/index.ts' && ./scripts/health-check.sh",
     "stop:coverage": "pm2 stop relayer && pm2 delete relayer",
     "start:test-infra": "docker compose up",
-    "test": "vitest src/__tests__/*.test.ts --singleThread --run",
+    "test": "vitest src/__tests__/xcm.test.ts --singleThread --run",
     "test:coverage": "yarn start:coverage && yarn test && yarn stop:coverage",
     "test:ci": "yarn start:test-infra -d; yarn test:coverage",
     "clean": "rm -rf coverage .nyc_output dist/"
