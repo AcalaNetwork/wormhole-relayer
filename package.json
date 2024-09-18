@@ -16,9 +16,9 @@
     "stop:coverage": "pm2 stop relayer && pm2 delete relayer",
     "start:test-infra": "docker compose up",
     "test": "vitest src/__tests__/homa.test.ts --singleThread --run",
-    "test:coverage": "yarn start:coverage && yarn test",
+    "test:coverage": "yarn start:coverage && yarn test && yarn stop:coverage",
     "test:ci": "yarn start:test-infra -d; yarn test:coverage",
-    "clean": "rm -rf .coverage .nyc_output dist/"
+    "clean": "rm -rf coverage .nyc_output dist/"
   },
   "dependencies": {
     "@acala-network/api": "~6.0.4",
