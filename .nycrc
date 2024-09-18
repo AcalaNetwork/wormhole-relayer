@@ -3,7 +3,6 @@
   "include": ["src/**/*.ts"],
   "exclude": ["**/*.test.ts"],
   "reporter": ["html", "text", "lcov"],
-  "all": true,
   "sourceMap": true,
   "instrument": true,
   "require": ["ts-node/register"]
