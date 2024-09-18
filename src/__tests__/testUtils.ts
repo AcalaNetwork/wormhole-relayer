@@ -106,21 +106,23 @@ const _axiosPost = (url: string) => async (params: any) => {
   return res.data;
 };
 
-export const shouldRouteXcm = _axiosGet(RELAYER_URL.SHOULD_ROUTE_XCM);
-export const shouldRouteWormhole = _axiosGet(RELAYER_URL.SHOULD_ROUTE_WORMHOLE);
-export const shouldRelay = _axiosGet(RELAYER_URL.SHOULD_RELAY);
-export const relay = _axiosPost(RELAYER_URL.RELAY);
-export const routeXcm = _axiosPost(RELAYER_URL.ROUTE_XCM);
-export const relayAndRoute = _axiosPost(RELAYER_URL.RELAY_AND_ROUTE);
-export const relayAndRouteBatch = _axiosPost(RELAYER_URL.RELAY_AND_ROUTE_BATCH);
-export const routeWormhole = _axiosPost(RELAYER_URL.ROUTE_WORMHOLE);
-export const noRoute = _axiosPost(RELAYER_URL.NO_ROUTE);
-export const version = _axiosGet(RELAYER_URL.VERSION);
-export const testTimeout = _axiosPost(RELAYER_URL.TEST_TIMEOUT);
-export const health = _axiosGet(RELAYER_URL.HEALTH);
-export const shouldRouteHoma = _axiosGet(RELAYER_URL.SHOULD_ROUTER_HOMA);
-export const routeHoma = _axiosPost(RELAYER_URL.ROUTE_HOMA);
-export const routeHomaAuto = _axiosPost(RELAYER_URL.ROUTE_HOMA_AUTO);
-export const routeStatus = _axiosGet(RELAYER_URL.ROUTE_STATUS);
-export const shouldRouteEuphrates = _axiosGet(RELAYER_URL.SHOULD_ROUTER_EUPHRATES);
-export const routeEuphrates = _axiosPost(RELAYER_URL.ROUTE_EUPHRATES);
+export const api = {
+  shouldRouteXcm: _axiosGet(RELAYER_URL.SHOULD_ROUTE_XCM),
+  shouldRouteWormhole: _axiosGet(RELAYER_URL.SHOULD_ROUTE_WORMHOLE),
+  shouldRelay: _axiosGet(RELAYER_URL.SHOULD_RELAY),
+  relay: _axiosPost(RELAYER_URL.RELAY),
+  routeXcm: _axiosPost(RELAYER_URL.ROUTE_XCM),
+  relayAndRoute: _axiosPost(RELAYER_URL.RELAY_AND_ROUTE),
+  relayAndRouteBatch: _axiosPost(RELAYER_URL.RELAY_AND_ROUTE_BATCH),
+  routeWormhole: _axiosPost(RELAYER_URL.ROUTE_WORMHOLE),
+  noRoute: _axiosPost(RELAYER_URL.NO_ROUTE),
+  version: _axiosGet(RELAYER_URL.VERSION),
+  testTimeout: _axiosPost(RELAYER_URL.TEST_TIMEOUT),
+  health: _axiosGet(RELAYER_URL.HEALTH),
+  shouldRouteHoma: _axiosGet(RELAYER_URL.SHOULD_ROUTER_HOMA),
+  routeHoma: _axiosPost(RELAYER_URL.ROUTE_HOMA),
+  routeHomaAuto: _axiosPost(RELAYER_URL.ROUTE_HOMA_AUTO),
+  routeStatus: _axiosGet(RELAYER_URL.ROUTE_STATUS),
+  shouldRouteEuphrates: _axiosGet(RELAYER_URL.SHOULD_ROUTER_EUPHRATES),
+  routeEuphrates: _axiosPost(RELAYER_URL.ROUTE_EUPHRATES),
+};

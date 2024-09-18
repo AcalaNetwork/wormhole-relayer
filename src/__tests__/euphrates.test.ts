@@ -18,9 +18,8 @@ import {
   TEST_KEY,
 } from './testConsts';
 import {
+  api,
   expectError,
-  routeEuphrates,
-  shouldRouteEuphrates,
   transferToken,
 } from './testUtils';
 
@@ -41,11 +40,11 @@ describe.concurrent('/shouldRouteEuphrates', () => {
   const recipient = '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6';
 
   const testShouldRouteEuphrates = async (params: RouteParamsEuphrates) => {
-    let res = await shouldRouteEuphrates(params);
+    let res = await api.shouldRouteEuphrates(params);
     expect(res).toMatchSnapshot();
 
     // should be case insensitive
-    res = await shouldRouteEuphrates({
+    res = await api.shouldRouteEuphrates({
       ...params,
       recipient: params.recipient.toLocaleLowerCase(),
     });
@@ -64,7 +63,7 @@ describe.concurrent('/shouldRouteEuphrates', () => {
   describe('when should not route', () => {
     it('when missing params', async () => {
       try {
-        await shouldRouteEuphrates({
+        await api.shouldRouteEuphrates({
           recipient,
         });
         expect.fail('did not throw an err');
@@ -73,7 +72,7 @@ describe.concurrent('/shouldRouteEuphrates', () => {
       }
 
       try {
-        await shouldRouteEuphrates({
+        await api.shouldRouteEuphrates({
           poolId: 0,
         });
         expect.fail('did not throw an err');
@@ -83,7 +82,7 @@ describe.concurrent('/shouldRouteEuphrates', () => {
     });
 
     it('when bad params', async () => {
-      const res = await shouldRouteEuphrates({
+      const res = await api.shouldRouteEuphrates({
         recipient,
         poolId: 520,
       });
@@ -159,7 +158,7 @@ describe('/routeEuphrates', () => {
       recipient: user.address,
       poolId,
     };
-    const res = await shouldRouteEuphrates(routeArgs);
+    const res = await api.shouldRouteEuphrates(routeArgs);
     ({ routerAddr } = res.data);
 
     // make sure user has enough DOT/LCDOT to transfer to router
@@ -180,7 +179,7 @@ describe('/routeEuphrates', () => {
     await transferToken(routerAddr, user, inTokenAddr, stakeAmount);
 
     console.log('routing ...');
-    const routeRes = await routeEuphrates({
+    const routeRes = await api.routeEuphrates({
       ...routeArgs,
       token: inTokenAddr,
     });
