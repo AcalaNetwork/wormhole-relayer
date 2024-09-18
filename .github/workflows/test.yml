@@ -29,9 +29,6 @@ jobs:
       - name: run tests
         run: yarn test:ci
 
-      - name: list coverage directory
-        run: ls coverage
-
       - name: upload coverage reports
         uses: codecov/codecov-action@v4
         with:
