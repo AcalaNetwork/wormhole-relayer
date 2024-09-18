@@ -33,7 +33,7 @@ const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
 const relayer = new Wallet(TEST_KEY.RELAYER, provider);
 const user = new Wallet(TEST_KEY.USER, provider);
 
-describe.concurrent.only('/shouldRouteHoma', () => {
+describe.concurrent('/shouldRouteHoma', () => {
   const destAddr = '0x75E480dB528101a381Ce68544611C169Ad7EB342';
   const destAddrSubstrate = '23AdbsfRysaabyrWS2doCFsKisvt7dGbS3wQFXRS6pNbQY8G';
 
