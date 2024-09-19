@@ -3,7 +3,7 @@ version: '3.8'
 services:
   node:
     container_name: node
-    image: oven/bun:1
+    image: oven/bun:1.1.26
     working_dir: /app
     volumes:
       - ./src/__tests__/configs/acala.yml:/app/acala.yml

@@ -15,12 +15,9 @@ import {
   VAA_TINY_AMOUNT_DAI_BSC_TO_ACALA,
 } from './vaa';
 import {
+  api,
   expectError,
   expectErrorData,
-  relayAndRoute,
-  relayAndRouteBatch,
-  routeXcm,
-  shouldRouteXcm,
   sudoTransferToken,
 } from './testUtils';
 import { parseUnits } from 'ethers/lib/utils';
@@ -40,7 +37,7 @@ describe.concurrent('/shouldRouteXcm', () => {
   const dest = '0x03010200a9200100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
 
   it('when should route', async () => {
-    const res = await shouldRouteXcm(routeXcmArgs);
+    const res = await api.shouldRouteXcm(routeXcmArgs);
     expect(res).toMatchInlineSnapshot(`
       {
         "data": {
@@ -55,7 +52,7 @@ describe.concurrent('/shouldRouteXcm', () => {
   describe('when should not route', () => {
     it('when missing params', async () => {
       try {
-        await shouldRouteXcm({
+        await api.shouldRouteXcm({
           destParaId: PARA_ID.BASILISK,
           originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
         });
@@ -65,7 +62,7 @@ describe.concurrent('/shouldRouteXcm', () => {
       }
 
       try {
-        await shouldRouteXcm({
+        await api.shouldRouteXcm({
           dest,
           originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
         });
@@ -75,7 +72,7 @@ describe.concurrent('/shouldRouteXcm', () => {
       }
 
       try {
-        await shouldRouteXcm({
+        await api.shouldRouteXcm({
           dest,
           destParaId: PARA_ID.BASILISK,
         });
@@ -92,7 +89,7 @@ describe.concurrent('/shouldRouteXcm', () => {
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
       };
 
-      let res = await shouldRouteXcm({
+      let res = await api.shouldRouteXcm({
         ...validArgs,
         destParaId: 1111,
       });
@@ -104,7 +101,7 @@ describe.concurrent('/shouldRouteXcm', () => {
       });
 
       const unsupportedToken = '0x07865c6e87b9f70255377e024ace6630c1e00000';
-      res = await shouldRouteXcm({
+      res = await api.shouldRouteXcm({
         ...validArgs,
         originAddr: unsupportedToken,
       });
@@ -128,7 +125,7 @@ describe.concurrent('/shouldRouteXcm', () => {
 
 describe('/routeXcm', () => {
   it('when should route', async () => {
-    const res = await shouldRouteXcm(routeXcmArgs);
+    const res = await api.shouldRouteXcm(routeXcmArgs);
     const { routerAddr } = res.data;
 
     console.log('transferring to router ...');
@@ -139,7 +136,7 @@ describe('/routeXcm', () => {
     console.log({ curBalRelayer });
 
     console.log('routing ...');
-    const routeRes = await routeXcm(routeXcmArgs);
+    const routeRes = await api.routeXcm(routeXcmArgs);
     console.log(`route finished! txHash: ${routeRes.data}`);
 
     const afterBalRelayer = (await dai.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
@@ -158,7 +155,7 @@ describe('/routeXcm', () => {
 
 describe('/relayAndRoute', () => {
   it('when should route', async () => {
-    const { routerAddr } = (await shouldRouteXcm(routeXcmArgs)).data;
+    const { routerAddr } = (await api.shouldRouteXcm(routeXcmArgs)).data;
     console.log({ routerAddr });
 
     const relayAndRouteXcmArgs = {
@@ -178,7 +175,7 @@ describe('/relayAndRoute', () => {
       console.log(`relay finished! txHash: ${event.transactionHash}`);
     });
 
-    const res = await relayAndRoute(relayAndRouteXcmArgs);
+    const res = await api.relayAndRoute(relayAndRouteXcmArgs);
     console.log(`route finished! txHash: ${res.data}`);
 
     const afterBalRelayer = (await dai.balanceOf(TEST_ADDR_RELAYER)).toBigInt();
@@ -194,7 +191,7 @@ describe('/relayAndRoute', () => {
 
   it('when should not route', async () => {
     try {
-      await relayAndRoute({
+      await api.relayAndRoute({
         ...routeXcmArgs,
         signedVAA: VAA_TINY_AMOUNT_DAI_BSC_TO_ACALA,    // bridge 0.000001 DAI
       });
@@ -205,7 +202,7 @@ describe('/relayAndRoute', () => {
     }
 
     try {
-      await relayAndRoute({
+      await api.relayAndRoute({
         ...routeXcmArgs,
         signedVAA: VAA_RANDOM_TOKEN_BSC_TO_ACALA,
       });
@@ -216,7 +213,7 @@ describe('/relayAndRoute', () => {
     }
 
     try {
-      await relayAndRouteBatch({
+      await api.relayAndRouteBatch({
         ...routeXcmArgs,
         signedVAA: VAA_10_USDC_ETH_TO_ACALA + '12345',   // invalid VAA
       });

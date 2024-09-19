@@ -21,11 +21,8 @@ import {
   TEST_KEY,
 } from './testConsts';
 import {
+  api,
   expectError,
-  routeHoma,
-  routeHomaAuto,
-  routeStatus,
-  shouldRouteHoma,
   transferToken,
 } from './testUtils';
 
@@ -41,7 +38,7 @@ describe.concurrent('/shouldRouteHoma', () => {
     it('to evm address', async () => {
       // for (const network of [Object.values(Mainnet)]) {    // TODO: enable this after deploying contract to karura
       for (const chain of ['acala']) {
-        let res = await shouldRouteHoma({
+        let res = await api.shouldRouteHoma({
           destAddr,
           chain,
         });
@@ -56,7 +53,7 @@ describe.concurrent('/shouldRouteHoma', () => {
         `);
 
         // should be case insensitive
-        res = await shouldRouteHoma({
+        res = await api.shouldRouteHoma({
           destAddr: destAddr.toLocaleLowerCase(),
           chain,
         });
@@ -75,7 +72,7 @@ describe.concurrent('/shouldRouteHoma', () => {
     it('to substrate address', async () => {
       // for (const network of [Object.values(Mainnet)]) {    // TODO: enable this after deploying contract to karura
       for (const chain of ['acala']) {
-        const res = await shouldRouteHoma({
+        const res = await api.shouldRouteHoma({
           destAddr: destAddrSubstrate,
           chain,
         });
@@ -95,7 +92,7 @@ describe.concurrent('/shouldRouteHoma', () => {
   describe('when should not route', () => {
     it('when missing params', async () => {
       try {
-        await shouldRouteHoma({
+        await api.shouldRouteHoma({
           destAddr,
         });
         expect.fail('did not throw an err');
@@ -104,7 +101,7 @@ describe.concurrent('/shouldRouteHoma', () => {
       }
 
       try {
-        await shouldRouteHoma({
+        await api.shouldRouteHoma({
           chain: Mainnet.Acala,
         });
         expect.fail('did not throw an err');
@@ -113,7 +110,7 @@ describe.concurrent('/shouldRouteHoma', () => {
       }
 
       try {
-        await shouldRouteHoma({
+        await api.shouldRouteHoma({
           chain: 'mandala',
           destAddr,
         });
@@ -124,7 +121,7 @@ describe.concurrent('/shouldRouteHoma', () => {
     });
 
     it('when bad params', async () => {
-      const res = await shouldRouteHoma({
+      const res = await api.shouldRouteHoma({
         chain: Mainnet.Acala,
         destAddr: '0xaaaaaaaaaa',
       });
@@ -197,7 +194,7 @@ describe('/routeHoma', () => {
       destAddr,
       chain: 'acala',
     };
-    const res = await shouldRouteHoma(routeArgs);
+    const res = await api.shouldRouteHoma(routeArgs);
     ({ routerAddr } = res.data);
 
     // make sure user has enough DOT to transfer to router
@@ -217,7 +214,7 @@ describe('/routeHoma', () => {
     await transferToken(routerAddr, user, DOT, stakeAmount);
 
     console.log('routing ...');
-    const routeRes = await routeHoma({
+    const routeRes = await api.routeHoma({
       ...routeArgs,
       token: DOT,
     });
@@ -253,7 +250,7 @@ describe('/routeHoma', () => {
       destAddr,
       chain: 'acala',
     };
-    const res = await shouldRouteHoma(routeArgs);
+    const res = await api.shouldRouteHoma(routeArgs);
     ({ routerAddr } = res.data);
 
     // make sure user has enough DOT to transfer to router
@@ -270,7 +267,7 @@ describe('/routeHoma', () => {
     const bal0 = await fetchTokenBalances();
 
     console.log('sending auto routing request ...');
-    const routeRes = await routeHomaAuto({
+    const routeRes = await api.routeHomaAuto({
       ...routeArgs,
       token: DOT,
     });
@@ -279,7 +276,7 @@ describe('/routeHoma', () => {
 
     const waitForRoute = new Promise<void>((resolve, reject) => {
       const pollRouteStatus = setInterval(async () => {
-        const res = await routeStatus({ id: reqId });
+        const res = await api.routeStatus({ id: reqId });
         const { status } = res.data[0];
         console.log(`current status: ${status}`);
 
@@ -299,7 +296,7 @@ describe('/routeHoma', () => {
     await waitForRoute;
 
     // query status by destAddr should also returns same result
-    const { data } = await routeStatus({ destAddr });
+    const { data } = await api.routeStatus({ destAddr });
     const reqInfo = data.find(info => info.reqId === reqId);
     expect(reqInfo).not.to.be.undefined;
     expect(reqInfo.status).to.eq(RouteStatus.Complete);

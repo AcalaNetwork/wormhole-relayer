@@ -32,8 +32,8 @@ import {
   shouldRouteWormhole,
   shouldRouteXcm,
 } from '../api';
-import { shouldSwapAndRoute, swapAndRoute } from '../api/swapAndRoute';
 import { parseIp } from '../utils/formatter';
+import { shouldSwapAndRoute, swapAndRoute } from '../api/swapAndRoute';
 
 interface RouterConfig {
   schema?: Schema;

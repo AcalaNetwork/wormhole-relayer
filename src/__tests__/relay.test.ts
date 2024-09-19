@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { ETH_RPC, RELAY_CONFIG } from '../consts';
 import { PROD_ADDR } from './testConsts';
 import { VAA_10_USDC_ETH_TO_ACALA, VAA_ALREADY_COMPLETED, VAA_TINY_JITOSOL_SOL_TO_ACALA } from './vaa';
-import { expectError, relay, shouldRelay } from './testUtils';
+import { api, expectError } from './testUtils';
 
 const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
 
@@ -20,7 +20,7 @@ describe('/shouldRelay', () => {
       const supported = RELAY_CONFIG[targetChain];
 
       for (const [token, minTransfer] of Object.entries(supported)) {
-        const res = await shouldRelay({
+        const res = await api.shouldRelay({
           targetChain,
           originAsset: token,
           amount: minTransfer,
@@ -31,7 +31,7 @@ describe('/shouldRelay', () => {
 
       // if not lower case address
       for (const [token, minTransfer] of Object.entries(supported)) {
-        const res = await shouldRelay({
+        const res = await api.shouldRelay({
           targetChain,
           originAsset: token.toUpperCase(),
           amount: minTransfer,
@@ -48,7 +48,7 @@ describe('/shouldRelay', () => {
 
     it('when missing params', async () => {
       try {
-        await shouldRelay({
+        await api.shouldRelay({
           originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
           amount: '10000',
         });
@@ -59,7 +59,7 @@ describe('/shouldRelay', () => {
       }
 
       try {
-        await shouldRelay({
+        await api.shouldRelay({
           targetChain,
           amount: '10000',
         });
@@ -70,7 +70,7 @@ describe('/shouldRelay', () => {
       }
 
       try {
-        await shouldRelay({
+        await api.shouldRelay({
           targetChain,
           originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
         });
@@ -82,7 +82,7 @@ describe('/shouldRelay', () => {
     });
 
     it('when relay condition not met', async () => {
-      let res = await shouldRelay({
+      let res = await api.shouldRelay({
         targetChain: 3104,
         originAsset: '0xddb64fe46a91d46ee29420539fc25fd07c5fea3e',
         amount: '10000',
@@ -95,7 +95,7 @@ describe('/shouldRelay', () => {
       `);
 
       const originAsset = '0x111111111191d46ee29420539fc25f0000000000';
-      res = await shouldRelay({
+      res = await api.shouldRelay({
         targetChain,
         originAsset,
         amount: '10000',
@@ -107,7 +107,7 @@ describe('/shouldRelay', () => {
         }
       `);
 
-      res = await shouldRelay({
+      res = await api.shouldRelay({
         targetChain,
         originAsset: JITOSOL,
         amount: '10',
@@ -121,7 +121,7 @@ describe('/shouldRelay', () => {
     });
 
     it('when amount is not number', async () => {
-      const res = await shouldRelay({
+      const res = await api.shouldRelay({
         targetChain,
         originAsset: JITOSOL,
         amount: '{"type":"BigNumber","hex":"0xe8d4a51000"}',
@@ -136,14 +136,13 @@ describe('/shouldRelay', () => {
   });
 });
 
-
 describe('/relay', () => {
   it('relay USDC to user', async () => {
     const usdc = ERC20__factory.connect(USDC_ADDR, provider);
     const curBalRelayer = (await usdc.balanceOf(PROD_ADDR)).toBigInt();
     console.log({ curBalRelayer });
 
-    const result = await relay({
+    const result = await api.relay({
       targetChain: CHAIN_ID_ACALA,
       signedVAA: VAA_10_USDC_ETH_TO_ACALA,
     });
@@ -157,7 +156,7 @@ describe('/relay', () => {
 
   it('when amount too small', async () => {
     try {
-      await relay({
+      await api.relay({
         targetChain: CHAIN_ID_ACALA,
         signedVAA: VAA_TINY_JITOSOL_SOL_TO_ACALA,
       });
@@ -170,7 +169,7 @@ describe('/relay', () => {
 
   it('when contract throws', async () => {
     try {
-      await relay({
+      await api.relay({
         targetChain: CHAIN_ID_ACALA,
         signedVAA: VAA_ALREADY_COMPLETED,
       });
