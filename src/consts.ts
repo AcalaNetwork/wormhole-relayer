@@ -42,58 +42,39 @@ const RELAYER_BASE_URL = 'http://localhost:3111';
 // const RELAYER_BASE_URL = 'https://relayer.aca-dev.network';
 // const RELAYER_BASE_URL = 'https://relayer.aca-api.network';
 
-export const RELAYER_API = {
-  SHOULD_RELAY: '/shouldRelay',
-  RELAY: '/relay',
+export const getRelayerUrl = (path: string) => `${RELAYER_BASE_URL}${path}`;
 
-  SHOULD_ROUTE_XCM: '/shouldRouteXcm',
-  ROUTE_XCM: '/routeXcm',
+export const apiUrl = {
+  shouldRelay: getRelayerUrl('/shouldRelay'),
+  relay: getRelayerUrl('/relay'),
 
-  SHOULD_ROUTE_WORMHOLE: '/shouldRouteWormhole',
-  ROUTE_WORMHOLE: '/routeWormhole',
-  RELAY_AND_ROUTE: '/relayAndRoute',
-  RELAY_AND_ROUTE_BATCH: '/relayAndRouteBatch',
+  shouldRouteXcm: getRelayerUrl('/shouldRouteXcm'),
+  routeXcm: getRelayerUrl('/routeXcm'),
 
-  SHOULD_ROUTER_HOMA: '/shouldRouteHoma',
-  ROUTE_HOMA: '/routeHoma',
-  ROUTE_HOMA_AUTO: '/routeHomaAuto',
-  ROUTE_STATUS: '/routeStatus',
+  shouldRouteWormhole: getRelayerUrl('/shouldRouteWormhole'),
+  routeWormhole: getRelayerUrl('/routeWormhole'),
+  relayAndRoute: getRelayerUrl('/relayAndRoute'),
+  relayAndRouteBatch: getRelayerUrl('/relayAndRouteBatch'),
 
-  SHOULD_ROUTER_EUPHRATES: '/shouldRouteEuphrates',
-  ROUTE_EUPHRATES: '/routeEuphrates',
+  shouldRouteHoma: getRelayerUrl('/shouldRouteHoma'),
+  routeHoma: getRelayerUrl('/routeHoma'),
+  routeHomaAuto: getRelayerUrl('/routeHomaAuto'),
+  routeStatus: getRelayerUrl('/routeStatus'),
 
-  NO_ROUTE: '/noRoute',
-  VERSION: '/version',
-  TEST_TIMEOUT: '/testTimeout',
-  HEALTH: '/health',
-} as const;
+  shouldRouteEuphrates: getRelayerUrl('/shouldRouteEuphrates'),
+  routeEuphrates: getRelayerUrl('/routeEuphrates'),
 
-// TODO: make this getRelayerUrl()
-export const RELAYER_URL = {
-  SHOULD_RELAY: `${RELAYER_BASE_URL}${RELAYER_API.SHOULD_RELAY}`,
-  RELAY: `${RELAYER_BASE_URL}${RELAYER_API.RELAY}`,
+  shouldRouteSwapAndLp: getRelayerUrl('/shouldRouteSwapAndLp'),
+  routeSwapAndLp: getRelayerUrl('/routeSwapAndLp'),
 
-  SHOULD_ROUTE_XCM: `${RELAYER_BASE_URL}${RELAYER_API.SHOULD_ROUTE_XCM}`,
-  ROUTE_XCM: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_XCM}`,
+  routerInfo: getRelayerUrl('/routerInfo'),
+  saveRouterInfo: getRelayerUrl('/saveRouterInfo'),
 
-  SHOULD_ROUTE_WORMHOLE: `${RELAYER_BASE_URL}${RELAYER_API.SHOULD_ROUTE_WORMHOLE}`,
-  ROUTE_WORMHOLE: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_WORMHOLE}`,
-  RELAY_AND_ROUTE: `${RELAYER_BASE_URL}${RELAYER_API.RELAY_AND_ROUTE}`,
-  RELAY_AND_ROUTE_BATCH: `${RELAYER_BASE_URL}${RELAYER_API.RELAY_AND_ROUTE_BATCH}`,
-
-  SHOULD_ROUTER_HOMA: `${RELAYER_BASE_URL}${RELAYER_API.SHOULD_ROUTER_HOMA}`,
-  ROUTE_HOMA: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_HOMA}`,
-  ROUTE_HOMA_AUTO: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_HOMA_AUTO}`,
-  ROUTE_STATUS: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_STATUS}`,
-
-  SHOULD_ROUTER_EUPHRATES: `${RELAYER_BASE_URL}${RELAYER_API.SHOULD_ROUTER_EUPHRATES}`,
-  ROUTE_EUPHRATES: `${RELAYER_BASE_URL}${RELAYER_API.ROUTE_EUPHRATES}`,
-
-  NO_ROUTE: `${RELAYER_BASE_URL}${RELAYER_API.NO_ROUTE}`,
-  VERSION: `${RELAYER_BASE_URL}${RELAYER_API.VERSION}`,
-  TEST_TIMEOUT: `${RELAYER_BASE_URL}${RELAYER_API.TEST_TIMEOUT}`,
-  HEALTH: `${RELAYER_BASE_URL}${RELAYER_API.HEALTH}`,
-} as const;
+  noRoute: getRelayerUrl('/noRoute'),
+  version: getRelayerUrl('/version'),
+  testTimeout: getRelayerUrl('/testTimeout'),
+  health: getRelayerUrl('/health'),
+};
 
 /* ---------------
    thredhold amount is defined as "amount that will show on VAA"

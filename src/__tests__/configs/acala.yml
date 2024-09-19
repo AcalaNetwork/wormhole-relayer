@@ -1,9 +1,11 @@
 endpoint:
-  - wss://acala-rpc.aca-api.network
-  - wss://acala-rpc.dwellir.com
+  # - wss://acala-rpc.aca-api.network
+  # - wss://acala-rpc.dwellir.com
+  - wss://crosschain-dev.polkawallet.io:9915
 mock-signature-host: true
 # block: ${env.ACALA_BLOCK_NUMBER}
-block: 6548800
+# block: 6548800
+block: 6987959
 db: ./db.sqlite
 runtime-log-level: 5
 

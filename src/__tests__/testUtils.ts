@@ -5,8 +5,7 @@ import { Wallet } from 'ethers';
 import { expect } from 'vitest';
 import { parseUnits } from 'ethers/lib/utils';
 import axios from 'axios';
-
-import { RELAYER_URL } from '../consts';
+import { apiUrl } from '../consts';
 
 const keyring = new Keyring({ type: 'sr25519' });
 const alice = keyring.addFromUri('//Alice');
@@ -80,7 +79,7 @@ export const expectError = (err: any, msg: any, code: number) => {
     expect(err.response?.status).to.equal(code);
     expect(err.response?.data.error).to.deep.equal(msg);
   } else {
-    throw new Error('not an axios error');
+    throw err;
   }
 };
 
@@ -107,22 +106,33 @@ const _axiosPost = (url: string) => async (params: any) => {
 };
 
 export const api = {
-  shouldRouteXcm: _axiosGet(RELAYER_URL.SHOULD_ROUTE_XCM),
-  shouldRouteWormhole: _axiosGet(RELAYER_URL.SHOULD_ROUTE_WORMHOLE),
-  shouldRelay: _axiosGet(RELAYER_URL.SHOULD_RELAY),
-  relay: _axiosPost(RELAYER_URL.RELAY),
-  routeXcm: _axiosPost(RELAYER_URL.ROUTE_XCM),
-  relayAndRoute: _axiosPost(RELAYER_URL.RELAY_AND_ROUTE),
-  relayAndRouteBatch: _axiosPost(RELAYER_URL.RELAY_AND_ROUTE_BATCH),
-  routeWormhole: _axiosPost(RELAYER_URL.ROUTE_WORMHOLE),
-  noRoute: _axiosPost(RELAYER_URL.NO_ROUTE),
-  version: _axiosGet(RELAYER_URL.VERSION),
-  testTimeout: _axiosPost(RELAYER_URL.TEST_TIMEOUT),
-  health: _axiosGet(RELAYER_URL.HEALTH),
-  shouldRouteHoma: _axiosGet(RELAYER_URL.SHOULD_ROUTER_HOMA),
-  routeHoma: _axiosPost(RELAYER_URL.ROUTE_HOMA),
-  routeHomaAuto: _axiosPost(RELAYER_URL.ROUTE_HOMA_AUTO),
-  routeStatus: _axiosGet(RELAYER_URL.ROUTE_STATUS),
-  shouldRouteEuphrates: _axiosGet(RELAYER_URL.SHOULD_ROUTER_EUPHRATES),
-  routeEuphrates: _axiosPost(RELAYER_URL.ROUTE_EUPHRATES),
+  shouldRelay: _axiosGet(apiUrl.shouldRelay),
+  relay: _axiosPost(apiUrl.relay),
+
+  shouldRouteXcm: _axiosGet(apiUrl.shouldRouteXcm),
+  routeXcm: _axiosPost(apiUrl.routeXcm),
+
+  shouldRouteWormhole: _axiosGet(apiUrl.shouldRouteWormhole ),
+  routeWormhole: _axiosPost(apiUrl.routeWormhole),
+  relayAndRoute: _axiosPost(apiUrl.relayAndRoute),
+  relayAndRouteBatch: _axiosPost(apiUrl.relayAndRouteBatch),
+
+  shouldRouteHoma: _axiosGet(apiUrl.shouldRouteHoma),
+  routeHoma: _axiosPost(apiUrl.routeHoma),
+  routeHomaAuto: _axiosPost(apiUrl.routeHomaAuto),
+  routeStatus: _axiosGet(apiUrl.routeStatus),
+
+  shouldRouteEuphrates: _axiosGet(apiUrl.shouldRouteEuphrates),
+  routeEuphrates: _axiosPost(apiUrl.routeEuphrates),
+
+  shouldRouteSwapAndLp: _axiosGet(apiUrl.shouldRouteSwapAndLp),
+  routeSwapAndLp: _axiosPost(apiUrl.routeSwapAndLp),
+
+  routerInfo: _axiosGet(apiUrl.routerInfo),
+  saveRouterInfo: _axiosPost(apiUrl.saveRouterInfo),
+
+  noRoute: _axiosPost(apiUrl.noRoute),
+  version: _axiosGet(apiUrl.version),
+  testTimeout: _axiosPost(apiUrl.testTimeout),
+  health: _axiosGet(apiUrl.health),
 };
