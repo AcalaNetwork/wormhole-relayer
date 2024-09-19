@@ -5,10 +5,8 @@ import { Wallet } from 'ethers';
 import { expect } from 'vitest';
 import { parseUnits } from 'ethers/lib/utils';
 import axios from 'axios';
-import request from 'supertest';
 
-import { RELAYER_API, RELAYER_URL } from '../consts';
-import { createApp } from '../app';
+import { RELAYER_URL } from '../consts';
 
 const keyring = new Keyring({ type: 'sr25519' });
 const alice = keyring.addFromUri('//Alice');
@@ -81,9 +79,8 @@ export const expectError = (err: any, msg: any, code: number) => {
   if (axios.isAxiosError(err)) {
     expect(err.response?.status).to.equal(code);
     expect(err.response?.data.error).to.deep.equal(msg);
-  } else {    // HttpError from supertest
-    expect(err.status).to.equal(code);
-    expect(JSON.parse(err.text).error).to.deep.equal(msg);
+  } else {
+    throw new Error('not an axios error');
   }
 };
 
@@ -98,32 +95,6 @@ export const expectErrorData = (err: any, expectFn: any) => {
 /* ------------------------------------------------------------------ */
 /* ----------------------    test endpoints    ---------------------- */
 /* ------------------------------------------------------------------ */
-const app = createApp();
-const appReq = request(app);
-
-const _supertestGet = (endpoint: string) => async (params: any) => {
-  const res = await appReq.get(endpoint).query(params);
-  if (res.error) {
-    throw res.error;
-  };
-  try {
-    return JSON.parse(res.text);
-  } catch {
-    return res.text;
-  }
-};
-
-const _supertestPost = (endpoint: string) => async (params: any) => {
-  const res = await appReq.post(endpoint).send(params);
-  if (res.error) {
-    throw res.error;
-  };
-  try {
-    return JSON.parse(res.text);
-  } catch {
-    return res.text;
-  }
-};
 
 const _axiosGet = (url: string) => async (params: any) => {
   const res = await axios.get(url, { params });
@@ -135,74 +106,23 @@ const _axiosPost = (url: string) => async (params: any) => {
   return res.data;
 };
 
-export const shouldRouteXcm = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_ROUTE_XCM)
-  : _axiosGet(RELAYER_URL.SHOULD_ROUTE_XCM);
-
-export const shouldRouteWormhole = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_ROUTE_WORMHOLE)
-  : _axiosGet(RELAYER_URL.SHOULD_ROUTE_WORMHOLE);
-
-export const shouldRelay = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_RELAY)
-  : _axiosGet(RELAYER_URL.SHOULD_RELAY);
-
-export const relay = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.RELAY)
-  : _axiosPost(RELAYER_URL.RELAY);
-
-export const routeXcm = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_XCM)
-  : _axiosPost(RELAYER_URL.ROUTE_XCM);
-
-export const relayAndRoute = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.RELAY_AND_ROUTE)
-  : _axiosPost(RELAYER_URL.RELAY_AND_ROUTE);
-
-export const relayAndRouteBatch = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.RELAY_AND_ROUTE_BATCH)
-  : _axiosPost(RELAYER_URL.RELAY_AND_ROUTE_BATCH);
-
-export const routeWormhole = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_WORMHOLE)
-  : _axiosPost(RELAYER_URL.ROUTE_WORMHOLE);
-
-export const noRoute = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.NO_ROUTE)
-  : _axiosPost(RELAYER_URL.NO_ROUTE);
-
-export const version = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.VERSION)
-  : _axiosGet(RELAYER_URL.VERSION);
-
-export const testTimeout = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.TEST_TIMEOUT)
-  : _axiosPost(RELAYER_URL.TEST_TIMEOUT);
-
-export const health = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.HEALTH)
-  : _axiosGet(RELAYER_URL.HEALTH);
-
-export const shouldRouteHoma = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_ROUTER_HOMA)
-  : _axiosGet(RELAYER_URL.SHOULD_ROUTER_HOMA);
-
-export const routeHoma = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_HOMA)
-  : _axiosPost(RELAYER_URL.ROUTE_HOMA);
-
-export const routeHomaAuto = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_HOMA_AUTO)
-  : _axiosPost(RELAYER_URL.ROUTE_HOMA_AUTO);
-
-export const routeStatus = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.ROUTE_STATUS)
-  : _axiosGet(RELAYER_URL.ROUTE_STATUS);
-
-export const shouldRouteEuphrates = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_ROUTER_EUPHRATES)
-  : _axiosGet(RELAYER_URL.SHOULD_ROUTER_EUPHRATES);
-
-export const routeEuphrates = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_EUPHRATES)
-  : _axiosPost(RELAYER_URL.ROUTE_EUPHRATES);
+export const api = {
+  shouldRouteXcm: _axiosGet(RELAYER_URL.SHOULD_ROUTE_XCM),
+  shouldRouteWormhole: _axiosGet(RELAYER_URL.SHOULD_ROUTE_WORMHOLE),
+  shouldRelay: _axiosGet(RELAYER_URL.SHOULD_RELAY),
+  relay: _axiosPost(RELAYER_URL.RELAY),
+  routeXcm: _axiosPost(RELAYER_URL.ROUTE_XCM),
+  relayAndRoute: _axiosPost(RELAYER_URL.RELAY_AND_ROUTE),
+  relayAndRouteBatch: _axiosPost(RELAYER_URL.RELAY_AND_ROUTE_BATCH),
+  routeWormhole: _axiosPost(RELAYER_URL.ROUTE_WORMHOLE),
+  noRoute: _axiosPost(RELAYER_URL.NO_ROUTE),
+  version: _axiosGet(RELAYER_URL.VERSION),
+  testTimeout: _axiosPost(RELAYER_URL.TEST_TIMEOUT),
+  health: _axiosGet(RELAYER_URL.HEALTH),
+  shouldRouteHoma: _axiosGet(RELAYER_URL.SHOULD_ROUTER_HOMA),
+  routeHoma: _axiosPost(RELAYER_URL.ROUTE_HOMA),
+  routeHomaAuto: _axiosPost(RELAYER_URL.ROUTE_HOMA_AUTO),
+  routeStatus: _axiosGet(RELAYER_URL.ROUTE_STATUS),
+  shouldRouteEuphrates: _axiosGet(RELAYER_URL.SHOULD_ROUTER_EUPHRATES),
+  routeEuphrates: _axiosPost(RELAYER_URL.ROUTE_EUPHRATES),
+};
