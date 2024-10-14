@@ -3,6 +3,7 @@ import { Schema } from 'yup';
 
 import {
   NoRouteError,
+  dropAndBootstrapSchema,
   logger,
   parseIp,
   relayAndRouteSchema,
@@ -39,6 +40,7 @@ import {
   shouldSwapAndRoute,
   swapAndRoute,
 } from '../api';
+import { rescueDropAndBoostrap, routeDropAndBoostrap, shouldRouteDropAndBoostrap } from '../api/dropAndBootstrap';
 
 interface RouterConfig {
   schema?: Schema;
@@ -78,6 +80,10 @@ const ROUTER_CONFIGS: {
     '/shouldRouteSwapAndLp': {
       schema: swapAndLpSchema,
       handler: shouldRouteSwapAndLp,
+    },
+    '/shouldRouteDropAndBootstrap': {
+      schema: dropAndBootstrapSchema,
+      handler: shouldRouteDropAndBoostrap,
     },
     '/health': {
       handler: healthCheck,
@@ -136,6 +142,14 @@ const ROUTER_CONFIGS: {
       schema: swapAndLpSchema,
       handler: rescueSwapAndLp,
     },
+    '/routeDropAndBootstrap': {
+      schema: dropAndBootstrapSchema,
+      handler: routeDropAndBoostrap,
+    },
+    '/rescueDropAndBootstrap': {
+      schema: dropAndBootstrapSchema,
+      handler: rescueDropAndBoostrap,
+    },
   },
 };
 
@@ -154,8 +168,8 @@ const handleRoute = async (req: Request, res: Response) => {
     throw new NoRouteError(`${reqPath} not supported`);
   }
 
-  await config.schema?.validate(args, { abortEarly: false });
-  const data = await config.handler(args);
+  const validatedArgs = await config.schema?.validate(args, { abortEarly: false });
+  const data = await config.handler(validatedArgs);
 
   logger.info({ data }, `✨ ${reqPath}`);
   res.end(JSON.stringify({ data }));

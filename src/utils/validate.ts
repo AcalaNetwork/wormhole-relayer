@@ -1,5 +1,5 @@
 import { CHAINS, CHAIN_ID_ACALA, CHAIN_ID_KARURA, ChainId } from '@certusone/wormhole-sdk';
-import { ObjectSchema, mixed, number, object, string } from 'yup';
+import { ObjectSchema, boolean, mixed, number, object, string } from 'yup';
 
 export enum Mainnet {
   Acala = 'acala',
@@ -57,6 +57,11 @@ export type SwapAndRouteParams = RouteParamsEuphrates;
 export interface SwapAndLpParams extends RouteParamsEuphrates {
   swapAmount: string;         // how many token to swap before adding liquidity
   minShareAmount?: string;    // add liquidity min share amount
+}
+
+export interface DropAndBootstrapParams {
+  recipient: string;   // dest evm address
+  gasDrop: boolean;    // swap jitosol for aca gas drop?
 }
 
 export interface RelayAndRouteParams extends RouteParamsXcm {
@@ -125,6 +130,11 @@ export const swapAndLpSchema: ObjectSchema<SwapAndLpParams> = object({
   swapAmount: string().required(),
   token: string(),
   minShareAmount: string(),
+});
+
+export const dropAndBootstrapSchema: ObjectSchema<DropAndBootstrapParams> = object({
+  recipient: string().required(),
+  gasDrop: boolean().required(),
 });
 
 export const routeStatusSchema: ObjectSchema<routeStatusParams> = object({

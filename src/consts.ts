@@ -3,8 +3,8 @@ import {
   CHAIN_ID_KARURA,
 } from '@certusone/wormhole-sdk';
 import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
-import dotenv from 'dotenv';
 import { parseUnits } from 'ethers/lib/utils';
+import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env' });
 

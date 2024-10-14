@@ -52,9 +52,8 @@ export const shouldRouteSwapAndLp = async (params: SwapAndLpParams) => {
     };
 
     /* ---------- TODO: remove this check later after approved max ---------- */
-    const signerAddr = await factory.signer.getAddress();
     const aca = ERC20__factory.connect(ACA, factory.signer);
-    const allowance = await aca.allowance(signerAddr, factory.address);
+    const allowance = await aca.allowance(relayerAddr, factory.address);
     if (allowance.lt(DROP_AMOUNT_ACA)) {
       console.log('granting allowance');
       await (await aca.approve(factory.address, constants.MaxUint256)).wait();
