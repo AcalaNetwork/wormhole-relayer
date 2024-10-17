@@ -655,13 +655,14 @@ checks if the relayer can route this request, returns router address
 GET /shouldRouteDropAndBootstrap
 params: {
   recipient: string;       // dest evm address
-  gasDrop: boolean;        // whether to perform gas drop
+  gasDrop: boolean;        // whether to perform gas drop, only available when feeToken is 'jitosol'
+  feeToken: string;        // token to pay for router fee, either 'jitosol' or 'ldot'
 }
 ```
 
 example
 ```
-GET /shouldRouteDropAndBootstrap?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&gasDrop=1
+GET /shouldRouteDropAndBootstrap?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&gasDrop=1&feeToken=jitosol
 =>
 {
   "data": {
@@ -681,7 +682,8 @@ returns the txhash
 POST /routeDropAndBootstrap
 params: {
   recipient: string;       // dest evm address
-  gasDrop: boolean;        // whether to perform gas drop
+  gasDrop: boolean;        // whether to perform gas drop, only available when feeToken is 'jitosol'
+  feeToken: string;        // token to pay for router fee, either 'jitosol' or 'ldot'
 }
 ```
 
@@ -690,7 +692,8 @@ example
 POST /routeDropAndBootstrap
 {
     "recipient":"0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
-    "gasDrop": true
+    "gasDrop": true,
+    "feeToken": "jitosol"
 }
 
 => tx hash

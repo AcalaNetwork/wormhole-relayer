@@ -20,7 +20,6 @@ const DEFAULT_DROP_AND_BOOTSTRAP_PARAMS = {
   euphrates: EUPHRATES_ADDR,
   dex: DEX,
   dropToken: ACA,
-  otherContributionToken: LDOT,
   poolId: 7,
 };
 
@@ -42,12 +41,14 @@ export const shouldRouteDropAndBoostrap = async (params: DropAndBootstrapParams)
     console.log({ gasDrop: params.gasDrop });
     const dropFee = params.gasDrop ? DROP_SWAP_AMOUNT_JITOSOL : 0;
     const dropAmountAca = params.gasDrop ? DROP_AMOUNT_ACA : 0;
+    const otherContributionToken = params.feeToken === 'jitosol' ? LDOT : JITOSOL_ADDR;
 
     const insts = {
       ...DEFAULT_DROP_AND_BOOTSTRAP_PARAMS,
       recipient: params.recipient,
       feeReceiver: relayerAddr,
       dropFee,
+      otherContributionToken,
     };
 
     /* ---------- TODO: remove this check later after approved max ---------- */
@@ -84,18 +85,22 @@ export const routeDropAndBoostrap = async (params: DropAndBootstrapParams) => {
 
   const dropFee = params.gasDrop ? DROP_SWAP_AMOUNT_JITOSOL : 0;
   const dropAmountAca = params.gasDrop ? DROP_AMOUNT_ACA : 0;
+  const [tokenAddr, otherContributionToken] = params.feeToken === 'jitosol'
+    ? [JITOSOL_ADDR, LDOT]
+    : [LDOT, JITOSOL_ADDR];
 
   const insts = {
     ...DEFAULT_DROP_AND_BOOTSTRAP_PARAMS,
     recipient: params.recipient,
     feeReceiver: relayerAddr,
     dropFee,
+    otherContributionToken,
   };
 
   const tx = await factory.deployDropAndBootstrapStakeRouterAndRoute(
     feeAddr,
     insts,
-    JITOSOL_ADDR,
+    tokenAddr,
     dropAmountAca,
   );
   const receipt = await tx.wait();
@@ -108,18 +113,22 @@ export const rescueDropAndBoostrap = async (params: DropAndBootstrapParams) => {
 
   const dropFee = params.gasDrop ? DROP_SWAP_AMOUNT_JITOSOL : 0;
   const dropAmountAca = params.gasDrop ? DROP_AMOUNT_ACA : 0;
+  const [tokenAddr, otherContributionToken] = params.feeToken === 'jitosol'
+    ? [JITOSOL_ADDR, LDOT]
+    : [LDOT, JITOSOL_ADDR];
 
   const insts = {
     ...DEFAULT_DROP_AND_BOOTSTRAP_PARAMS,
     recipient: params.recipient,
     feeReceiver: relayerAddr,
     dropFee,
+    otherContributionToken,
   };
 
   const tx = await factory.deployDropAndBootstrapStakeRouterAndRescue(
     feeAddr,
     insts,
-    JITOSOL_ADDR,
+    tokenAddr,
     dropAmountAca,
     params.gasDrop,
   );
