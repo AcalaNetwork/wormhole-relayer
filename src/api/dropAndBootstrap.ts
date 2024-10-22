@@ -38,7 +38,6 @@ export const shouldRouteDropAndBoostrap = async (params: DropAndBootstrapParams)
   try {
     const { factory, feeAddr, relayerAddr } = await prepareDropAndBoostrap();
 
-    console.log({ gasDrop: params.gasDrop });
     const dropFee = params.gasDrop ? DROP_SWAP_AMOUNT_JITOSOL : 0;
     const dropAmountAca = params.gasDrop ? DROP_AMOUNT_ACA : 0;
     const otherContributionToken = params.feeToken === 'jitosol' ? LDOT : JITOSOL_ADDR;
@@ -102,35 +101,6 @@ export const routeDropAndBoostrap = async (params: DropAndBootstrapParams) => {
     insts,
     tokenAddr,
     dropAmountAca,
-  );
-  const receipt = await tx.wait();
-
-  return receipt.transactionHash;
-};
-
-export const rescueDropAndBoostrap = async (params: DropAndBootstrapParams) => {
-  const { factory, feeAddr, relayerAddr } = await prepareDropAndBoostrap();
-
-  const dropFee = params.gasDrop ? DROP_SWAP_AMOUNT_JITOSOL : 0;
-  const dropAmountAca = params.gasDrop ? DROP_AMOUNT_ACA : 0;
-  const [tokenAddr, otherContributionToken] = params.feeToken === 'jitosol'
-    ? [JITOSOL_ADDR, LDOT]
-    : [LDOT, JITOSOL_ADDR];
-
-  const insts = {
-    ...DEFAULT_DROP_AND_BOOTSTRAP_PARAMS,
-    recipient: params.recipient,
-    feeReceiver: relayerAddr,
-    dropFee,
-    otherContributionToken,
-  };
-
-  const tx = await factory.deployDropAndBootstrapStakeRouterAndRescue(
-    feeAddr,
-    insts,
-    tokenAddr,
-    dropAmountAca,
-    params.gasDrop,
   );
   const receipt = await tx.wait();
 

@@ -130,10 +130,6 @@ const ROUTER_CONFIGS: {
       schema: dropAndBootstrapSchema,
       handler: routeDropAndBoostrap,
     },
-    '/rescueDropAndBootstrap': {
-      schema: dropAndBootstrapSchema,
-      handler: rescueDropAndBoostrap,
-    },
   },
 };
 
