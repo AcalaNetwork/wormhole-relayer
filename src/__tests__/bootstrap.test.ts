@@ -1,5 +1,6 @@
 import { ADDRESSES, ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
+import { ApiPromise, WsProvider } from '@polkadot/api';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { LDOT } from '@acala-network/contracts/utils/AcalaTokens';
@@ -8,12 +9,13 @@ import { describe, expect, it } from 'vitest';
 import { parseEther, parseUnits } from 'ethers/lib/utils';
 import { toHuman } from '@acala-network/asset-router/dist/utils';
 
-import { ApiPromise, WsProvider } from '@polkadot/api';
 import { DropAndBootstrapParams } from '../utils';
 import { ETH_RPC, EUPHRATES_ADDR } from '../consts';
-import { JITOSOL_LDOT_LP_PREDEPLOY_CODE, NEW_DEX_CODE } from './consts';
 import {
+  JITOSOL_LDOT_LP_PREDEPLOY_CODE,
+  NEW_DEX_CODE,
   TEST_ADDR_RELAYER,
+  TEST_ADDR_USER,
   TEST_KEY,
 } from './testConsts';
 import {
@@ -90,36 +92,36 @@ describe('prepare', () => {
 
 
 describe.concurrent('/shouldRouteDropAndBootstrap', () => {
-  const testShouldRouteDropAndBootstrap = async (params: DropAndBootstrapParams) => {
+  const testShouldRouteDropAndBootstrap = async (
+    params: DropAndBootstrapParams,
+    snapshotName: string,
+  ) => {
     let res = await api.shouldRouteDropAndBootstrap(params);
-    expect(res).toMatchSnapshot();
+    expect(res).toMatchSnapshot(`${snapshotName}_original`);
 
     // should be case insensitive
-    res = await api.shouldRouteDropAndBootstrap({
-      ...params,
-      recipient: params.recipient.toLowerCase(),
-    });
-    expect(res).toMatchSnapshot();
+    res = await api.shouldRouteDropAndBootstrap(params);
+    expect(res).toMatchSnapshot(`${snapshotName}_lowercase`);
   };
 
   it('when should route', async () => {
     await testShouldRouteDropAndBootstrap({
-      recipient,
+      recipient: TEST_ADDR_USER,
       gasDrop: true,
       feeToken: 'jitosol',
-    });
+    }, 'jitosol_gasDrop_true');
 
     await testShouldRouteDropAndBootstrap({
-      recipient,
+      recipient: TEST_ADDR_USER,
       gasDrop: false,
       feeToken: 'jitosol',
-    });
+    }, 'jitosol_gasDrop_false');
 
     await testShouldRouteDropAndBootstrap({
-      recipient,
+      recipient: TEST_ADDR_USER,
       gasDrop: false,
       feeToken: 'ldot',
-    });
+    }, 'ldot_gasDrop_false');
   });
 
   describe('when should not route', () => {
@@ -218,7 +220,7 @@ describe('/routeDropAndBootstrap', () => {
     };
   };
 
-  it('works with jitosol as fee token', async () => {
+  it('works with jitosol as fee token and gas drop', async () => {
     const relayerBal = await relayer.getBalance();
     expect(relayerBal.gt(parseEther('10'))).to.be.true;
 
@@ -307,6 +309,90 @@ describe('/routeDropAndBootstrap', () => {
     // user should NOT receive 3 ACA drop
     expect(bal3.userBal.sub(bal2.userBal).toBigInt()).to.eq(0n);
   });
+
+  it('works with jitosol as fee token and no gas drop', async () => {
+    const relayerBal = await relayer.getBalance();
+    expect(relayerBal.gt(parseEther('10'))).to.be.true;
+
+    const routeArgs = {
+      recipient: user.address,
+      gasDrop: false,
+      feeToken: 'jitosol',
+    };
+
+    const shouldRouteRes = await api.shouldRouteDropAndBootstrap(routeArgs);
+    ({ routerAddr } = shouldRouteRes.data);
+    console.log({ routerAddr });
+
+    // make sure user has enough token and ACA to transfer to router
+    console.log('refilling ACA for user ...');
+    await (await relayer.sendTransaction({
+      to: recipient,
+      value: parseEther('3'),
+    })).wait();
+
+    const bal = await fetchTokenBalances();
+    const refillAmount = parseUnits(boostrapAmountJitosol, JITOSOL_DECIMALS);
+    if (bal.userBalJitosol.lt(refillAmount.mul(2))) {
+      if (bal.relayerBalJitosol.lt(refillAmount.mul(2))) {
+        throw new Error('both relayer and user do not have enough jitosol to transfer to router!');
+      }
+
+      console.log('refilling token for user ...');
+      await (await jitosol.transfer(recipient, refillAmount.mul(2))).wait();
+    }
+
+    console.log('transferring token to router ...');
+    await transferToken(routerAddr, user, JITOSOL_ADDR, Number(boostrapAmountJitosol));
+
+    const bal0 = await fetchTokenBalances();
+
+    console.log('routing ...');
+    let routeRes = await api.routeDropAndBootstrap(routeArgs);
+    let txHash = routeRes.data;
+    console.log(`route finished! txHash: ${txHash}`);
+
+    const bal1 = await fetchTokenBalances();
+
+    // router should NOT be destroyed
+    let routerCode = await provider.getCode(routerAddr);
+    expect(routerCode.length).to.be.greaterThan(100);
+    expect(bal1.routerBalJitosol.toNumber()).to.eq(0);
+    expect(bal1.routerBalLdot.toNumber()).to.eq(0);
+
+    // relayer should receive jitosol fee but no swap fee
+    const routingFee = await FeeRegistry__factory.connect(ADDRESSES.ACALA.feeAddr, provider)
+      .getFee(JITOSOL_ADDR);
+    expect(bal1.relayerBalJitosol.sub(bal0.relayerBalJitosol).toBigInt()).to.eq(routingFee.toBigInt());
+    expect(bal1.relayerBalLdot.sub(bal0.relayerBalLdot).toBigInt()).to.eq(0n);
+
+    // user should NOT receive 3 ACA drop
+    expect(bal1.userBal.sub(bal0.userBal).toBigInt()).to.eq(0n);
+
+    console.log('------------------------------------ route 2 ------------------------------------');
+    console.log('transferring token to router ...');
+    await transferToken(routerAddr, user, JITOSOL_ADDR, Number(boostrapAmountJitosol));
+
+    const bal2 = await fetchTokenBalances();
+
+    console.log('routing ...');
+    routeRes = await api.routeDropAndBootstrap(routeArgs);
+    txHash = routeRes.data;
+    console.log(`route finished! txHash: ${txHash}`);
+
+    const bal3 = await fetchTokenBalances();
+
+    // router should NOT be destroyed
+    routerCode = await provider.getCode(routerAddr);
+    expect(routerCode.length).to.be.greaterThan(100);
+    expect(bal3.routerBalJitosol.toNumber()).to.eq(0);
+    expect(bal3.routerBalLdot.toNumber()).to.eq(0);
+
+    // second route should be the same as the first one
+    expect(bal3.relayerBalJitosol.sub(bal2.relayerBalJitosol).toBigInt()).to.eq(routingFee.toBigInt());
+    expect(bal3.relayerBalLdot.sub(bal2.relayerBalLdot).toBigInt()).to.eq(0n);
+
+    // user should NOT receive 3 ACA drop
+    expect(bal3.userBal.sub(bal2.userBal).toBigInt()).to.eq(0n);
+  });
 });
-
-

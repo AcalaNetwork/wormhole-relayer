@@ -1,54 +1,54 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`/shouldRouteDropAndBootstrap > when should route 1`] = `
+exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_false_lowercase 1`] = `
 {
   "data": {
-    "routerAddr": "0xFE755553f703C5e199C88706c376fbC16350f75e",
+    "routerAddr": "0x7dD4A59B255e13F2eb5cF0297574e5fb9e89576b",
     "shouldRoute": true,
   },
 }
 `;
 
-exports[`/shouldRouteDropAndBootstrap > when should route 2`] = `
+exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_false_original 1`] = `
 {
   "data": {
-    "routerAddr": "0xFE755553f703C5e199C88706c376fbC16350f75e",
+    "routerAddr": "0x7dD4A59B255e13F2eb5cF0297574e5fb9e89576b",
     "shouldRoute": true,
   },
 }
 `;
 
-exports[`/shouldRouteDropAndBootstrap > when should route 3`] = `
+exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_true_lowercase 1`] = `
 {
   "data": {
-    "routerAddr": "0x73D12a016Ba9A036aE7fA549e690E09B1C88A92B",
+    "routerAddr": "0x9A1100129688460930096d7E1204A2989321B113",
     "shouldRoute": true,
   },
 }
 `;
 
-exports[`/shouldRouteDropAndBootstrap > when should route 4`] = `
+exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_true_original 1`] = `
 {
   "data": {
-    "routerAddr": "0x73D12a016Ba9A036aE7fA549e690E09B1C88A92B",
+    "routerAddr": "0x9A1100129688460930096d7E1204A2989321B113",
     "shouldRoute": true,
   },
 }
 `;
 
-exports[`/shouldRouteDropAndBootstrap > when should route 5`] = `
+exports[`/shouldRouteDropAndBootstrap > when should route > ldot_gasDrop_false_lowercase 1`] = `
 {
   "data": {
-    "routerAddr": "0x1268E251957F559deaE8Dee00dcb2FE7e977db20",
+    "routerAddr": "0x6046DD5F660818f9D64Af4536A061D8C3BCE01b9",
     "shouldRoute": true,
   },
 }
 `;
 
-exports[`/shouldRouteDropAndBootstrap > when should route 6`] = `
+exports[`/shouldRouteDropAndBootstrap > when should route > ldot_gasDrop_false_original 1`] = `
 {
   "data": {
-    "routerAddr": "0x1268E251957F559deaE8Dee00dcb2FE7e977db20",
+    "routerAddr": "0x6046DD5F660818f9D64Af4536A061D8C3BCE01b9",
     "shouldRoute": true,
   },
 }

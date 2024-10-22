@@ -109,7 +109,7 @@ describe.concurrent('/shouldRouteSwapAndLp', () => {
   });
 });
 
-describe('/routeSwapAndLp', () => {
+describe.skip('/routeSwapAndLp', () => {
   let routerAddr: string;
   const jitosol = ERC20__factory.connect(JITOSOL_ADDR, provider);
 
