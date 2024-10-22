@@ -396,7 +396,7 @@ describe('/routeDropAndBootstrap', () => {
     expect(bal3.userBal.sub(bal2.userBal).toBigInt()).to.eq(0n);
   });
 
-  it.only('works with ldot as fee token and no gas drop', async () => {
+  it('works with ldot as fee token and no gas drop', async () => {
     const relayerBal = await relayer.getBalance();
     expect(relayerBal.gt(parseEther('10'))).to.be.true;
 
