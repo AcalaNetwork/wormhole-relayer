@@ -36,7 +36,7 @@ import {
   shouldSwapAndRoute,
   swapAndRoute,
 } from '../api';
-import { rescueDropAndBoostrap, routeDropAndBoostrap, shouldRouteDropAndBoostrap } from '../api/dropAndBootstrap';
+import { routeDropAndBoostrap, shouldRouteDropAndBoostrap } from '../api/dropAndBootstrap';
 
 interface RouterConfig {
   schema?: Schema;
