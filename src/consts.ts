@@ -67,6 +67,9 @@ export const apiUrl = {
   shouldRouteSwapAndLp: getRelayerUrl('/shouldRouteSwapAndLp'),
   routeSwapAndLp: getRelayerUrl('/routeSwapAndLp'),
 
+  shouldRouteDropAndBootstrap: getRelayerUrl('/shouldRouteDropAndBootstrap'),
+  routeDropAndBootstrap: getRelayerUrl('/routeDropAndBootstrap'),
+
   routerInfo: getRelayerUrl('/routerInfo'),
   saveRouterInfo: getRelayerUrl('/saveRouterInfo'),
 

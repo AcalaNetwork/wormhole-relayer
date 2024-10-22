@@ -1,10 +1,12 @@
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import { Wallet } from 'ethers';
 import { expect } from 'vitest';
 import { parseUnits } from 'ethers/lib/utils';
 import axios from 'axios';
+
 import { apiUrl } from '../consts';
 
 const keyring = new Keyring({ type: 'sr25519' });
@@ -40,27 +42,50 @@ export const sudoTransferToken = async (
       provider: new WsProvider('ws://localhost:8000'),
     });
 
-    const tx = api.tx.evm.call(tokenAddr, data!, 0, 1000000, 64, []);
+    const tx = api.tx.evm.call(tokenAddr, data!, 0, 1000000, 100000, []);
     const extrinsic = api.tx.sudo.sudoAs(fromAddr, tx);
     const hash = await extrinsic.signAndSend(alice);
 
-    const receipt = await provider.waitForTransaction(hash.toHex());
+    const receipt = await provider.waitForTransaction(hash.toHex(), 1, 30000);
     expect(receipt.status).to.eq(1);
 
     await api.disconnect();
   }
 };
 
+export const sudoSendAndWait = (
+  api: ApiPromise,
+  tx: SubmittableExtrinsic,
+) => new Promise((resolve, reject) => {
+  api.tx.sudo.sudo(tx).signAndSend(alice, ({ status, events }) => {
+    if (status.isInBlock || status.isFinalized) {
+      events.forEach(({ event }) => {
+        const { data, method, section } = event;
+        if (section === 'system' && method === 'ExtrinsicFailed') {
+          reject(new Error(`Transaction failed: ${data.toString()}`));
+        }
+      });
+
+      // FIXME: should not wait for 3s, chopsticks issue?
+      setTimeout(() => {
+        resolve(status.hash.toString());
+      }, 3000);
+    }
+  }).catch(error => {
+    reject(error);
+  });
+});
+
 export const transferToken = async (
   toAddr: string,
   signer: Wallet,
   tokenAddr: string,
-  amount: number,
+  humanAmount: number,
 ) => {
   const token = ERC20__factory.connect(tokenAddr, signer);
 
   const decimals = await token.decimals();
-  const routeAmount = parseUnits(String(amount), decimals);
+  const routeAmount = parseUnits(String(humanAmount), decimals);
 
   const routerBal = await token.balanceOf(toAddr);
   if (routerBal.gt(0)) {
@@ -127,6 +152,9 @@ export const api = {
 
   shouldRouteSwapAndLp: _axiosGet(apiUrl.shouldRouteSwapAndLp),
   routeSwapAndLp: _axiosPost(apiUrl.routeSwapAndLp),
+
+  shouldRouteDropAndBootstrap: _axiosGet(apiUrl.shouldRouteDropAndBootstrap),
+  routeDropAndBootstrap: _axiosPost(apiUrl.routeDropAndBootstrap),
 
   routerInfo: _axiosGet(apiUrl.routerInfo),
   saveRouterInfo: _axiosPost(apiUrl.saveRouterInfo),

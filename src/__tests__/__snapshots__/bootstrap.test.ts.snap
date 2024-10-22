@@ -1,0 +1,55 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/shouldRouteDropAndBootstrap > when should route 1`] = `
+{
+  "data": {
+    "routerAddr": "0xFE755553f703C5e199C88706c376fbC16350f75e",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteDropAndBootstrap > when should route 2`] = `
+{
+  "data": {
+    "routerAddr": "0xFE755553f703C5e199C88706c376fbC16350f75e",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteDropAndBootstrap > when should route 3`] = `
+{
+  "data": {
+    "routerAddr": "0x73D12a016Ba9A036aE7fA549e690E09B1C88A92B",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteDropAndBootstrap > when should route 4`] = `
+{
+  "data": {
+    "routerAddr": "0x73D12a016Ba9A036aE7fA549e690E09B1C88A92B",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteDropAndBootstrap > when should route 5`] = `
+{
+  "data": {
+    "routerAddr": "0x1268E251957F559deaE8Dee00dcb2FE7e977db20",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteDropAndBootstrap > when should route 6`] = `
+{
+  "data": {
+    "routerAddr": "0x1268E251957F559deaE8Dee00dcb2FE7e977db20",
+    "shouldRoute": true,
+  },
+}
+`;
