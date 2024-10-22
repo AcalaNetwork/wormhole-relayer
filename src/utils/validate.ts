@@ -53,6 +53,12 @@ export interface RouteParamsEuphrates {
 // does not support general swap yet
 export type SwapAndRouteParams = RouteParamsEuphrates;
 
+// does not support general swap yet
+export interface SwapAndLpParams extends RouteParamsEuphrates {
+  swapAmount: string;         // how many token to swap before adding liquidity
+  minShareAmount?: string;    // add liquidity min share amount
+}
+
 export interface DropAndBootstrapParams {
   recipient: string;   // dest evm address
   gasDrop: boolean;    // swap jitosol for aca gas drop?
@@ -118,6 +124,14 @@ export const routeEuphratesSchema: ObjectSchema<RouteParamsEuphrates> = object({
 });
 
 export const swapAndRouteSchema = routeEuphratesSchema;
+
+export const swapAndLpSchema: ObjectSchema<SwapAndLpParams> = object({
+  poolId: string().required(),
+  recipient: string().required(),
+  swapAmount: string().required(),
+  token: string(),
+  minShareAmount: string(),
+});
 
 export const dropAndBootstrapSchema: ObjectSchema<DropAndBootstrapParams> = object({
   recipient: string().required(),
