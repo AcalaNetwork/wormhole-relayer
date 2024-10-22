@@ -7,4 +7,3 @@ export * from './homa';
 export * from './euphrates';
 export * from './health';
 export * from './swapAndRoute';
-export * from './swapAndLp';

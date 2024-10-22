@@ -150,9 +150,6 @@ export const api = {
   shouldRouteEuphrates: _axiosGet(apiUrl.shouldRouteEuphrates),
   routeEuphrates: _axiosPost(apiUrl.routeEuphrates),
 
-  shouldRouteSwapAndLp: _axiosGet(apiUrl.shouldRouteSwapAndLp),
-  routeSwapAndLp: _axiosPost(apiUrl.routeSwapAndLp),
-
   shouldRouteDropAndBootstrap: _axiosGet(apiUrl.shouldRouteDropAndBootstrap),
   routeDropAndBootstrap: _axiosPost(apiUrl.routeDropAndBootstrap),
 

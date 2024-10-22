@@ -14,7 +14,6 @@ import {
   routeWormholeSchema,
   routeXcmSchema,
   shouldRelaySchema,
-  swapAndLpSchema,
   swapAndRouteSchema,
 } from '../utils';
 import {
@@ -24,17 +23,14 @@ import {
   relay,
   relayAndRoute,
   relayAndRouteBatch,
-  rescueSwapAndLp,
   routeEuphrates,
   routeHoma,
   routeHomaAuto,
-  routeSwapAndLp,
   routeWormhole,
   routeXcm,
   shouldRelay,
   shouldRouteEuphrates,
   shouldRouteHoma,
-  shouldRouteSwapAndLp,
   shouldRouteWormhole,
   shouldRouteXcm,
   shouldSwapAndRoute,
@@ -76,10 +72,6 @@ const ROUTER_CONFIGS: {
     '/shouldSwapAndRoute': {
       schema: swapAndRouteSchema,
       handler: shouldSwapAndRoute,
-    },
-    '/shouldRouteSwapAndLp': {
-      schema: swapAndLpSchema,
-      handler: shouldRouteSwapAndLp,
     },
     '/shouldRouteDropAndBootstrap': {
       schema: dropAndBootstrapSchema,
@@ -133,14 +125,6 @@ const ROUTER_CONFIGS: {
     '/swapAndRoute': {
       schema: swapAndRouteSchema,
       handler: swapAndRoute,
-    },
-    '/routeSwapAndLp': {
-      schema: swapAndLpSchema,
-      handler: routeSwapAndLp,
-    },
-    '/rescueSwapAndLp': {
-      schema: swapAndLpSchema,
-      handler: rescueSwapAndLp,
     },
     '/routeDropAndBootstrap': {
       schema: dropAndBootstrapSchema,
