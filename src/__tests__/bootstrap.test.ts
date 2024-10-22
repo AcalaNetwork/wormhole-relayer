@@ -395,4 +395,90 @@ describe('/routeDropAndBootstrap', () => {
     // user should NOT receive 3 ACA drop
     expect(bal3.userBal.sub(bal2.userBal).toBigInt()).to.eq(0n);
   });
+
+  it.only('works with ldot as fee token and no gas drop', async () => {
+    const relayerBal = await relayer.getBalance();
+    expect(relayerBal.gt(parseEther('10'))).to.be.true;
+
+    const routeArgs = {
+      recipient: user.address,
+      gasDrop: false,
+      feeToken: 'ldot',
+    };
+
+    const shouldRouteRes = await api.shouldRouteDropAndBootstrap(routeArgs);
+    ({ routerAddr } = shouldRouteRes.data);
+    console.log({ routerAddr });
+
+    // make sure user has enough token and ACA to transfer to router
+    console.log('refilling ACA for user ...');
+    await (await relayer.sendTransaction({
+      to: recipient,
+      value: parseEther('3'),
+    })).wait();
+
+    const bal = await fetchTokenBalances();
+    const refillAmount = parseUnits(boostrapAmountLdot, LDOT_DECIMALS).mul(2);
+    if (bal.userBalLdot.lt(refillAmount)) {
+      if (bal.relayerBalLdot.lt(refillAmount)) {
+        throw new Error('both relayer and user do not have enough ldot to transfer to router!');
+      }
+
+      console.log('refilling token for user ...');
+      await (await ldot.transfer(recipient, refillAmount)).wait();
+    }
+
+    console.log('transferring token to router ...');
+    await transferToken(routerAddr, user, LDOT, Number(boostrapAmountLdot));
+
+    const bal0 = await fetchTokenBalances();
+
+    console.log('routing ...');
+    let routeRes = await api.routeDropAndBootstrap(routeArgs);
+    let txHash = routeRes.data;
+    console.log(`route finished! txHash: ${txHash}`);
+
+    const bal1 = await fetchTokenBalances();
+
+    // router should NOT be destroyed
+    let routerCode = await provider.getCode(routerAddr);
+    expect(routerCode.length).to.be.greaterThan(100);
+    expect(bal1.routerBalJitosol.toNumber()).to.eq(0);
+    expect(bal1.routerBalLdot.toNumber()).to.eq(0);
+
+    // relayer should receive ldot fee but no swap fee
+    const routingFee = await FeeRegistry__factory.connect(ADDRESSES.ACALA.feeAddr, provider)
+      .getFee(LDOT);
+    expect(bal1.relayerBalJitosol.sub(bal0.relayerBalJitosol).toBigInt()).to.eq(0n);
+    expect(bal1.relayerBalLdot.sub(bal0.relayerBalLdot).toBigInt()).to.eq(routingFee.toBigInt());
+
+    // user should NOT receive 3 ACA drop
+    expect(bal1.userBal.sub(bal0.userBal).toBigInt()).to.eq(0n);
+
+    console.log('------------------------------------ route 2 ------------------------------------');
+    console.log('transferring token to router ...');
+    await transferToken(routerAddr, user, LDOT, Number(boostrapAmountLdot));
+
+    const bal2 = await fetchTokenBalances();
+
+    console.log('routing ...');
+    routeRes = await api.routeDropAndBootstrap(routeArgs);
+    txHash = routeRes.data;
+    console.log(`route finished! txHash: ${txHash}`);
+
+    const bal3 = await fetchTokenBalances();
+
+    // router should NOT be destroyed
+    routerCode = await provider.getCode(routerAddr);
+    expect(routerCode.length).to.be.greaterThan(100);
+    expect(bal3.routerBalJitosol.toNumber()).to.eq(0);
+    expect(bal3.routerBalLdot.toNumber()).to.eq(0);
+
+    // second route should be the same as the first one
+    expect(bal3.relayerBalJitosol.sub(bal2.relayerBalJitosol).toBigInt()).to.eq(0n);
+    expect(bal3.relayerBalLdot.sub(bal2.relayerBalLdot).toBigInt()).to.eq(routingFee.toBigInt());
+
+    // user should NOT receive 3 ACA drop
+    expect(bal3.userBal.sub(bal2.userBal).toBigInt()).to.eq(0n);
+  });
 });

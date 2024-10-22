@@ -71,6 +71,11 @@ import-storage:
         - free: 1000000000000000
       -
         -
+          - 246gNkjCexYRsCpdjtVhz35sHjcb21jpqipzT9u4uwKV8iEE
+          - token: LDOT
+        - free: 1000000000000000
+      -
+        -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - liquidCrowdloan: 13
         - free: 1000000000000000
