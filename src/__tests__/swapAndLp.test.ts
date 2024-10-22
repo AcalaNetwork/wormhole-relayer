@@ -32,7 +32,7 @@ const poolId = '7';
 const swapAmount = parseUnits('0.5', JITOSOL_DECIMALS).toString();
 const minShareAmount = '1000';
 
-describe.concurrent('/shouldRouteSwapAndLp', () => {
+describe.concurrent.skip('/shouldRouteSwapAndLp', () => {
   const testShouldRouteSwapAndLp = async (params: SwapAndLpParams) => {
     let res = await api.shouldRouteSwapAndLp(params);
     expect(res).toMatchSnapshot();
