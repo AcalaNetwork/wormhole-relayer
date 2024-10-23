@@ -1,3 +1,4 @@
+import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { JsonRpcProvider } from '@ethersproject/providers';
@@ -7,10 +8,15 @@ import { expect } from 'vitest';
 import { parseUnits } from 'ethers/lib/utils';
 import axios from 'axios';
 
-import { apiUrl } from '../consts';
+import { ETH_RPC, apiUrl } from '../consts';
+import { TEST_KEY } from './testConsts';
 
 const keyring = new Keyring({ type: 'sr25519' });
-const alice = keyring.addFromUri('//Alice');
+export const alice = keyring.addFromUri('//Alice');
+
+export const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
+export const relayer = new Wallet(TEST_KEY.RELAYER, provider);   // 0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3
+export const user = new Wallet(TEST_KEY.USER, provider);         // 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
 
 export const sudoTransferToken = async (
   fromAddr: string,
@@ -152,6 +158,10 @@ export const api = {
 
   shouldRouteDropAndBootstrap: _axiosGet(apiUrl.shouldRouteDropAndBootstrap),
   routeDropAndBootstrap: _axiosPost(apiUrl.routeDropAndBootstrap),
+
+  shouldRouteSwapAndLp: _axiosGet(apiUrl.shouldRouteSwapAndLp),
+  routeSwapAndLp: _axiosPost(apiUrl.routeSwapAndLp),
+  rescueSwapAndLp: _axiosPost(apiUrl.rescueSwapAndLp),
 
   routerInfo: _axiosGet(apiUrl.routerInfo),
   saveRouterInfo: _axiosPost(apiUrl.saveRouterInfo),

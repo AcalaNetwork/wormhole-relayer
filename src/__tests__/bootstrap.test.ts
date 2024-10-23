@@ -1,5 +1,4 @@
-import { ADDRESSES, ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
-import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
+import { ADDRESSES } from '@acala-network/asset-router/dist/consts';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
@@ -10,29 +9,28 @@ import { parseEther, parseUnits } from 'ethers/lib/utils';
 import { toHuman } from '@acala-network/asset-router/dist/utils';
 
 import { DropAndBootstrapParams } from '../utils';
-import { ETH_RPC, EUPHRATES_ADDR } from '../consts';
+import { EUPHRATES_ADDR } from '../consts';
 import {
+  JITOSOL_ADDR,
+  JITOSOL_DECIMALS,
   JITOSOL_LDOT_LP_PREDEPLOY_CODE,
+  LDOT_DECIMALS,
   NEW_DEX_CODE,
   TEST_ADDR_RELAYER,
   TEST_ADDR_USER,
-  TEST_KEY,
 } from './testConsts';
 import {
+  alice,
   api,
   expectError,
+  provider,
+  relayer,
   sudoSendAndWait,
   sudoTransferToken,
   transferToken,
 } from './testUtils';
 
-const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
-const relayer = new Wallet(TEST_KEY.RELAYER, provider);
 const user = Wallet.createRandom().connect(provider);
-
-const JITOSOL_DECIMALS = 9;
-const LDOT_DECIMALS = 10;
-const JITOSOL_ADDR = ROUTER_TOKEN_INFO.jitosol.acalaAddr;
 
 const recipient = user.address;
 const boostrapAmountJitosol = '0.1';
@@ -73,8 +71,8 @@ describe('prepare', () => {
       { Erc20: JITOSOL_ADDR },
       1,
       1,
-      parseUnits('10', 10).toBigInt(),
-      parseUnits('10', 9).toBigInt(),
+      parseUnits('0.1', 10).toBigInt(),
+      parseUnits('0.1', 9).toBigInt(),
       0,
     );
     await sudoSendAndWait(api, tx);
@@ -87,6 +85,8 @@ describe('prepare', () => {
       JITOSOL_ADDR,
       5,
     );
+
+    await api.disconnect();
   });
 });
 
@@ -480,5 +480,36 @@ describe('/routeDropAndBootstrap', () => {
 
     // user should NOT receive 3 ACA drop
     expect(bal3.userBal.sub(bal2.userBal).toBigInt()).to.eq(0n);
+  });
+});
+
+describe('end bootstrap', () => {
+  it('end bootstrap', async () => {
+    const api = await ApiPromise.create({
+      provider: new WsProvider('ws://localhost:8000'),
+    });
+
+    console.log('end provisioning ...');
+    const endProvisionTx = api.tx.dex.endProvisioning(
+      { Token: 'LDOT' },
+      { Erc20: JITOSOL_ADDR },
+    );
+    const tx = api.tx.sudo.sudoAs(alice.address, endProvisionTx);
+    await sudoSendAndWait(api, tx);
+
+    // console.log('enable trading pair ...');
+    // tx = api.tx.dex.enableTradingPair(
+    //   { Token: 'LDOT' },
+    //   { Erc20: JITOSOL_ADDR },
+    // );
+    // await sudoSendAndWait(api, tx);
+
+    const tradingPairStatus = await api.query.dex.tradingPairStatuses([
+      { Token: 'LDOT' },
+      { Erc20: JITOSOL_ADDR },
+    ]);
+    expect(tradingPairStatus.toHuman()).to.eq('Enabled');
+
+    await api.disconnect();
   });
 });
