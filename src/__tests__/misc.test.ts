@@ -1,11 +1,11 @@
+import { api, expectError } from './testUtils';
 import { describe, expect, it } from 'vitest';
-import { expectError, health, noRoute, testTimeout, version } from './testUtils';
 
 describe.concurrent('/miscellaneous', () => {
   describe('when no route for the request', () => {
     it('throws correct error', async () => {
       try {
-        await noRoute({});
+        await api.noRoute({});
 
         expect.fail('/noRoute did not throw when it should!');
       } catch (err) {
@@ -16,7 +16,7 @@ describe.concurrent('/miscellaneous', () => {
 
   describe('/version', () => {
     it('works', async () => {
-      const res = await version({});
+      const res = await api.version({});
       expect(res).to.not.be.undefined;
     });
   });
@@ -24,7 +24,7 @@ describe.concurrent('/miscellaneous', () => {
   describe('/testTimeout', () => {
     it('works', async () => {
       const startTime = Date.now();
-      await testTimeout({
+      await api.testTimeout({
         timeout: 1000,
       });
       const endTime = Date.now();
@@ -35,7 +35,7 @@ describe.concurrent('/miscellaneous', () => {
 
   describe('/health', () => {
     it('works', async () => {
-      const res = await health({});
+      const res = await api.health({});
 
       expect(Number(res.data.relayerBalAcala)).to.be.gt(0);
       // expect(Number(res.data.relayerBalKarura)).to.be.gt(0);

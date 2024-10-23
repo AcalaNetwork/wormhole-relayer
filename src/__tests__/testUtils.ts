@@ -1,17 +1,22 @@
+import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import { Wallet } from 'ethers';
 import { expect } from 'vitest';
 import { parseUnits } from 'ethers/lib/utils';
 import axios from 'axios';
-import request from 'supertest';
 
-import { RELAYER_API, RELAYER_URL } from '../consts';
-import { createApp } from '../app';
+import { ETH_RPC, apiUrl } from '../consts';
+import { TEST_KEY } from './testConsts';
 
 const keyring = new Keyring({ type: 'sr25519' });
-const alice = keyring.addFromUri('//Alice');
+export const alice = keyring.addFromUri('//Alice');
+
+export const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
+export const relayer = new Wallet(TEST_KEY.RELAYER, provider);   // 0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3
+export const user = new Wallet(TEST_KEY.USER, provider);         // 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
 
 export const sudoTransferToken = async (
   fromAddr: string,
@@ -43,27 +48,50 @@ export const sudoTransferToken = async (
       provider: new WsProvider('ws://0.0.0.0:8000'),
     });
 
-    const tx = api.tx.evm.call(tokenAddr, data!, 0, 1000000, 64, []);
+    const tx = api.tx.evm.call(tokenAddr, data!, 0, 1000000, 100000, []);
     const extrinsic = api.tx.sudo.sudoAs(fromAddr, tx);
     const hash = await extrinsic.signAndSend(alice);
 
-    const receipt = await provider.waitForTransaction(hash.toHex());
+    const receipt = await provider.waitForTransaction(hash.toHex(), 1, 30000);
     expect(receipt.status).to.eq(1);
 
     await api.disconnect();
   }
 };
 
+export const sudoSendAndWait = (
+  api: ApiPromise,
+  tx: SubmittableExtrinsic,
+) => new Promise((resolve, reject) => {
+  api.tx.sudo.sudo(tx).signAndSend(alice, ({ status, events }) => {
+    if (status.isInBlock || status.isFinalized) {
+      events.forEach(({ event }) => {
+        const { data, method, section } = event;
+        if (section === 'system' && method === 'ExtrinsicFailed') {
+          reject(new Error(`Transaction failed: ${data.toString()}`));
+        }
+      });
+
+      // FIXME: should not wait for 3s, chopsticks issue?
+      setTimeout(() => {
+        resolve(status.hash.toString());
+      }, 3000);
+    }
+  }).catch(error => {
+    reject(error);
+  });
+});
+
 export const transferToken = async (
   toAddr: string,
   signer: Wallet,
   tokenAddr: string,
-  amount: number,
+  humanAmount: number,
 ) => {
   const token = ERC20__factory.connect(tokenAddr, signer);
 
   const decimals = await token.decimals();
-  const routeAmount = parseUnits(String(amount), decimals);
+  const routeAmount = parseUnits(String(humanAmount), decimals);
 
   const routerBal = await token.balanceOf(toAddr);
   if (routerBal.gt(0)) {
@@ -81,9 +109,8 @@ export const expectError = (err: any, msg: any, code: number) => {
   if (axios.isAxiosError(err)) {
     expect(err.response?.status).to.equal(code);
     expect(err.response?.data.error).to.deep.equal(msg);
-  } else {    // HttpError from supertest
-    expect(err.status).to.equal(code);
-    expect(JSON.parse(err.text).error).to.deep.equal(msg);
+  } else {
+    throw err;
   }
 };
 
@@ -98,32 +125,6 @@ export const expectErrorData = (err: any, expectFn: any) => {
 /* ------------------------------------------------------------------ */
 /* ----------------------    test endpoints    ---------------------- */
 /* ------------------------------------------------------------------ */
-const app = createApp();
-const appReq = request(app);
-
-const _supertestGet = (endpoint: string) => async (params: any) => {
-  const res = await appReq.get(endpoint).query(params);
-  if (res.error) {
-    throw res.error;
-  };
-  try {
-    return JSON.parse(res.text);
-  } catch {
-    return res.text;
-  }
-};
-
-const _supertestPost = (endpoint: string) => async (params: any) => {
-  const res = await appReq.post(endpoint).send(params);
-  if (res.error) {
-    throw res.error;
-  };
-  try {
-    return JSON.parse(res.text);
-  } catch {
-    return res.text;
-  }
-};
 
 const _axiosGet = (url: string) => async (params: any) => {
   const res = await axios.get(url, { params });
@@ -135,94 +136,38 @@ const _axiosPost = (url: string) => async (params: any) => {
   return res.data;
 };
 
-export const shouldRouteXcm = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_ROUTE_XCM)
-  : _axiosGet(RELAYER_URL.SHOULD_ROUTE_XCM);
+export const api = {
+  shouldRelay: _axiosGet(apiUrl.shouldRelay),
+  relay: _axiosPost(apiUrl.relay),
 
-export const shouldRouteWormhole = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_ROUTE_WORMHOLE)
-  : _axiosGet(RELAYER_URL.SHOULD_ROUTE_WORMHOLE);
+  shouldRouteXcm: _axiosGet(apiUrl.shouldRouteXcm),
+  routeXcm: _axiosPost(apiUrl.routeXcm),
 
-export const shouldRelay = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_RELAY)
-  : _axiosGet(RELAYER_URL.SHOULD_RELAY);
+  shouldRouteWormhole: _axiosGet(apiUrl.shouldRouteWormhole ),
+  routeWormhole: _axiosPost(apiUrl.routeWormhole),
+  relayAndRoute: _axiosPost(apiUrl.relayAndRoute),
+  relayAndRouteBatch: _axiosPost(apiUrl.relayAndRouteBatch),
 
-export const relay = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.RELAY)
-  : _axiosPost(RELAYER_URL.RELAY);
+  shouldRouteHoma: _axiosGet(apiUrl.shouldRouteHoma),
+  routeHoma: _axiosPost(apiUrl.routeHoma),
+  routeHomaAuto: _axiosPost(apiUrl.routeHomaAuto),
+  routeStatus: _axiosGet(apiUrl.routeStatus),
 
-export const routeXcm = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_XCM)
-  : _axiosPost(RELAYER_URL.ROUTE_XCM);
+  shouldRouteEuphrates: _axiosGet(apiUrl.shouldRouteEuphrates),
+  routeEuphrates: _axiosPost(apiUrl.routeEuphrates),
 
-export const relayAndRoute = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.RELAY_AND_ROUTE)
-  : _axiosPost(RELAYER_URL.RELAY_AND_ROUTE);
+  shouldRouteDropAndBootstrap: _axiosGet(apiUrl.shouldRouteDropAndBootstrap),
+  routeDropAndBootstrap: _axiosPost(apiUrl.routeDropAndBootstrap),
 
-export const relayAndRouteBatch = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.RELAY_AND_ROUTE_BATCH)
-  : _axiosPost(RELAYER_URL.RELAY_AND_ROUTE_BATCH);
+  shouldRouteSwapAndLp: _axiosGet(apiUrl.shouldRouteSwapAndLp),
+  routeSwapAndLp: _axiosPost(apiUrl.routeSwapAndLp),
+  rescueSwapAndLp: _axiosPost(apiUrl.rescueSwapAndLp),
 
-export const routeWormhole = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_WORMHOLE)
-  : _axiosPost(RELAYER_URL.ROUTE_WORMHOLE);
+  routerInfo: _axiosGet(apiUrl.routerInfo),
+  saveRouterInfo: _axiosPost(apiUrl.saveRouterInfo),
 
-export const noRoute = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.NO_ROUTE)
-  : _axiosPost(RELAYER_URL.NO_ROUTE);
-
-export const version = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.VERSION)
-  : _axiosGet(RELAYER_URL.VERSION);
-
-export const testTimeout = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.TEST_TIMEOUT)
-  : _axiosPost(RELAYER_URL.TEST_TIMEOUT);
-
-export const health = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.HEALTH)
-  : _axiosGet(RELAYER_URL.HEALTH);
-
-export const shouldRouteHoma = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_ROUTER_HOMA)
-  : _axiosGet(RELAYER_URL.SHOULD_ROUTER_HOMA);
-
-export const routeHoma = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_HOMA)
-  : _axiosPost(RELAYER_URL.ROUTE_HOMA);
-
-export const routeHomaAuto = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_HOMA_AUTO)
-  : _axiosPost(RELAYER_URL.ROUTE_HOMA_AUTO);
-
-export const routeStatus = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.ROUTE_STATUS)
-  : _axiosGet(RELAYER_URL.ROUTE_STATUS);
-
-export const shouldRouteEuphrates = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_ROUTER_EUPHRATES)
-  : _axiosGet(RELAYER_URL.SHOULD_ROUTER_EUPHRATES);
-
-export const routeEuphrates = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_EUPHRATES)
-  : _axiosPost(RELAYER_URL.ROUTE_EUPHRATES);
-
-export const shouldRouteSwapAndLp = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.SHOULD_ROUTER_SWAP_AND_LP)
-  : _axiosGet(RELAYER_URL.SHOULD_ROUTER_SWAP_AND_LP);
-
-export const routeSwapAndLp = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.ROUTE_SWAP_AND_LP)
-  : _axiosPost(RELAYER_URL.ROUTE_SWAP_AND_LP);
-
-export const routerInfo = process.env.COVERAGE
-  ? _supertestGet(RELAYER_API.ROUTER_INFO)
-  : _axiosGet(RELAYER_URL.ROUTER_INFO);
-
-export const saveRouterInfo = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.SAVE_ROUTER_INFO)
-  : _axiosPost(RELAYER_URL.SAVE_ROUTER_INFO);
-
-export const removeRouterInfo = process.env.COVERAGE
-  ? _supertestPost(RELAYER_API.REMOVE_ROUTER_INFO)
-  : _axiosPost(RELAYER_URL.REMOVE_ROUTER_INFO);
+  noRoute: _axiosPost(apiUrl.noRoute),
+  version: _axiosGet(apiUrl.version),
+  testTimeout: _axiosPost(apiUrl.testTimeout),
+  health: _axiosGet(apiUrl.health),
+};

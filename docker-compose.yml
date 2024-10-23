@@ -21,7 +21,7 @@ services:
     volumes:
       - ./src/__tests__/configs/acala.yml:/app/acala.yml
     command:
-      bunx @acala-network/chopsticks@latest -c /app/acala.yml
+      bunx @acala-network/chopsticks@0.15.0 -c /app/acala.yml
     ports:
       - 8000:8000
     healthcheck:

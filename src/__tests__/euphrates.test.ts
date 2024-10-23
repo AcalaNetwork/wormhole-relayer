@@ -1,32 +1,27 @@
 import { ADDRESSES } from '@acala-network/asset-router/dist/consts';
-import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
 import { DOT, LCDOT_13 as LCDOT, LDOT } from '@acala-network/contracts/utils/AcalaTokens';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { HOMA } from '@acala-network/contracts/utils/Predeploy';
 import { IHoma__factory } from '@acala-network/contracts/typechain';
 import { ONE_ACA, almostEq, toHuman } from '@acala-network/asset-router/dist/utils';
-import { Wallet } from 'ethers';
-import {  describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { formatEther, parseEther, parseUnits } from 'ethers/lib/utils';
 
-import { ETH_RPC, EUPHRATES_ADDR, EUPHRATES_POOLS } from '../consts';
+import { EUPHRATES_ADDR, EUPHRATES_POOLS } from '../consts';
 import { RouteParamsEuphrates } from '../utils';
 import {
   TEST_ADDR_RELAYER,
   TEST_ADDR_USER,
-  TEST_KEY,
 } from './testConsts';
 import {
+  api,
   expectError,
-  routeEuphrates,
-  shouldRouteEuphrates,
+  provider,
+  relayer,
   transferToken,
+  user,
 } from './testUtils';
-
-const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
-const relayer = new Wallet(TEST_KEY.RELAYER, provider);   // 0xe3234f433914d4cfCF846491EC5a7831ab9f0bb3
-const user = new Wallet(TEST_KEY.USER, provider);         // 0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
 
 // [inToken, outToken]
 const WTDOT = '0xe1bd4306a178f86a9214c39abcd53d021bedb0f9';
@@ -41,11 +36,11 @@ describe.concurrent('/shouldRouteEuphrates', () => {
   const recipient = '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6';
 
   const testShouldRouteEuphrates = async (params: RouteParamsEuphrates) => {
-    let res = await shouldRouteEuphrates(params);
+    let res = await api.shouldRouteEuphrates(params);
     expect(res).toMatchSnapshot();
 
     // should be case insensitive
-    res = await shouldRouteEuphrates({
+    res = await api.shouldRouteEuphrates({
       ...params,
       recipient: params.recipient.toLocaleLowerCase(),
     });
@@ -64,7 +59,7 @@ describe.concurrent('/shouldRouteEuphrates', () => {
   describe('when should not route', () => {
     it('when missing params', async () => {
       try {
-        await shouldRouteEuphrates({
+        await api.shouldRouteEuphrates({
           recipient,
         });
         expect.fail('did not throw an err');
@@ -73,7 +68,7 @@ describe.concurrent('/shouldRouteEuphrates', () => {
       }
 
       try {
-        await shouldRouteEuphrates({
+        await api.shouldRouteEuphrates({
           poolId: 0,
         });
         expect.fail('did not throw an err');
@@ -83,7 +78,7 @@ describe.concurrent('/shouldRouteEuphrates', () => {
     });
 
     it('when bad params', async () => {
-      const res = await shouldRouteEuphrates({
+      const res = await api.shouldRouteEuphrates({
         recipient,
         poolId: 520,
       });
@@ -159,7 +154,7 @@ describe('/routeEuphrates', () => {
       recipient: user.address,
       poolId,
     };
-    const res = await shouldRouteEuphrates(routeArgs);
+    const res = await api.shouldRouteEuphrates(routeArgs);
     ({ routerAddr } = res.data);
 
     // make sure user has enough DOT/LCDOT to transfer to router
@@ -180,7 +175,7 @@ describe('/routeEuphrates', () => {
     await transferToken(routerAddr, user, inTokenAddr, stakeAmount);
 
     console.log('routing ...');
-    const routeRes = await routeEuphrates({
+    const routeRes = await api.routeEuphrates({
       ...routeArgs,
       token: inTokenAddr,
     });

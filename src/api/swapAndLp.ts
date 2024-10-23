@@ -1,6 +1,6 @@
 import { ACA, LDOT } from '@acala-network/contracts/utils/AcalaTokens';
-import { DEX } from '@acala-network/contracts/utils/Predeploy';
 import { BaseRouter__factory, DropAndSwapStakeFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { DEX } from '@acala-network/contracts/utils/Predeploy';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import { constants } from 'ethers';
@@ -53,9 +53,8 @@ export const shouldRouteSwapAndLp = async (params: SwapAndLpParams) => {
     };
 
     /* ---------- TODO: remove this check later after approved max ---------- */
-    const signerAddr = await factory.signer.getAddress();
     const aca = ERC20__factory.connect(ACA, factory.signer);
-    const allowance = await aca.allowance(signerAddr, factory.address);
+    const allowance = await aca.allowance(relayerAddr, factory.address);
     if (allowance.lt(DROP_AMOUNT_ACA)) {
       console.log('granting allowance');
       await (await aca.approve(factory.address, constants.MaxUint256)).wait();
@@ -130,6 +129,7 @@ export const routeSwapAndLp = async (params: SwapAndLpParams) => {
     txHash: receipt.transactionHash,
     removed,
   };
+  return receipt.transactionHash;
 };
 
 export const rescueSwapAndLp = async (params: SwapAndLpParams) => {

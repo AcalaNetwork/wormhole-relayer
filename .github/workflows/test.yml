@@ -36,9 +36,11 @@ jobs:
         run: yarn test:coverage
 
       - name: upload coverage reports
-        uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          # files: ./coverage/lcov.info
+          fail_ci_if_error: true
 
       - name: dump docker logs on failure
         if: failure()

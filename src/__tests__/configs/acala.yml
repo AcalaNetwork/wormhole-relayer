@@ -1,9 +1,8 @@
 endpoint:
-  - wss://acala-rpc.aca-api.network
   - wss://acala-rpc.dwellir.com
+  - wss://acala-rpc.aca-api.network
 mock-signature-host: true
 # block: ${env.ACALA_BLOCK_NUMBER}
-block: 6548800
 db: ./db.sqlite
 runtime-log-level: 5
 
@@ -68,6 +67,11 @@ import-storage:
       -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: LDOT
+        - free: 1000000000000000
+      -
+        -
+          - 246gNkjCexYRsCpdjtVhz35sHjcb21jpqipzT9u4uwKV8iEE
           - token: LDOT
         - free: 1000000000000000
       -

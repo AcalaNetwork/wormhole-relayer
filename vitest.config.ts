@@ -4,13 +4,6 @@ export default defineConfig({
   test: {
     root: './',
     environment: 'node',
-    testTimeout: 500000,
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      reportsDirectory: './coverage',
-      enabled: false,
-      exclude: ['**/__tests__'],
-    },
+    testTimeout: 1_200_000,   // 20 mins
   },
 });

@@ -11,9 +11,8 @@ import {
   TEST_ADDR_USER,
 } from './testConsts';
 import {
+  api,
   expectError,
-  routeWormhole,
-  shouldRouteWormhole,
   sudoTransferToken,
 } from './testUtils';
 import { parseUnits } from 'ethers/lib/utils';
@@ -25,7 +24,7 @@ const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
 
 describe.concurrent('/shouldRouteWormhole', () => {
   it('when should route', async () => {
-    const res = await shouldRouteWormhole({
+    const res = await api.shouldRouteWormhole({
       originAddr: USDC_ORIGIN_ADDR,
       targetChainId: String(CHAIN_ID_ETH),
       destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
@@ -46,7 +45,7 @@ describe.concurrent('/shouldRouteWormhole', () => {
   describe('when should not route', () => {
     it('when missing params', async () => {
       try {
-        await shouldRouteWormhole({
+        await api.shouldRouteWormhole({
           targetChainId: String(CHAIN_ID_ETH),
           destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
           fromParaId: PARA_ID.HYDRA,
@@ -57,7 +56,7 @@ describe.concurrent('/shouldRouteWormhole', () => {
       }
 
       try {
-        await shouldRouteWormhole({
+        await api.shouldRouteWormhole({
           originAddr: USDC_ORIGIN_ADDR,
           destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
           fromParaId: PARA_ID.HYDRA,
@@ -68,7 +67,7 @@ describe.concurrent('/shouldRouteWormhole', () => {
       }
 
       try {
-        await shouldRouteWormhole({
+        await api.shouldRouteWormhole({
           originAddr: USDC_ORIGIN_ADDR,
           targetChainId: String(CHAIN_ID_ETH),
           fromParaId: PARA_ID.HYDRA,
@@ -79,7 +78,7 @@ describe.concurrent('/shouldRouteWormhole', () => {
       }
 
       try {
-        await shouldRouteWormhole({
+        await api.shouldRouteWormhole({
           originAddr: USDC_ORIGIN_ADDR,
           targetChainId: String(CHAIN_ID_ETH),
           destAddr: '0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6',
@@ -98,7 +97,7 @@ describe.concurrent('/shouldRouteWormhole', () => {
         fromParaId: PARA_ID.HYDRA,
       };
 
-      let res = await shouldRouteWormhole({
+      let res = await api.shouldRouteWormhole({
         ...validArgs,
         fromParaId: 1111,
       });
@@ -110,7 +109,7 @@ describe.concurrent('/shouldRouteWormhole', () => {
       });
 
       const unsupportedToken = '0x07865c6e87b9f70255377e024ace6630c1e00000';
-      res = await shouldRouteWormhole({
+      res = await api.shouldRouteWormhole({
         ...validArgs,
         originAddr: '0x07865c6e87b9f70255377e024ace6630c1e00000',
       });
@@ -135,7 +134,7 @@ describe('/routeWormhole', () => {
       originAddr: USDC_ORIGIN_ADDR,
     };
 
-    const res = await shouldRouteWormhole(routeWhArgs);
+    const res = await api.shouldRouteWormhole(routeWhArgs);
     const { routerAddr } = res.data;
     expect(routerAddr).toBeDefined();
 
@@ -146,7 +145,7 @@ describe('/routeWormhole', () => {
     console.log({ curBalRelayer });
 
     console.log('routing ...');
-    const routeRes = await routeWormhole(routeWhArgs);
+    const routeRes = await api.routeWormhole(routeWhArgs);
     const txHash = routeRes.data;
     console.log(`route finished! txHash: ${txHash}`);
 
