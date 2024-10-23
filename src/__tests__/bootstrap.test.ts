@@ -20,6 +20,7 @@ import {
   TEST_ADDR_USER,
 } from './testConsts';
 import {
+  alice,
   api,
   expectError,
   provider,
@@ -70,8 +71,8 @@ describe('prepare', () => {
       { Erc20: JITOSOL_ADDR },
       1,
       1,
-      parseUnits('10', 10).toBigInt(),
-      parseUnits('10', 9).toBigInt(),
+      parseUnits('0.1', 10).toBigInt(),
+      parseUnits('0.1', 9).toBigInt(),
       0,
     );
     await sudoSendAndWait(api, tx);
@@ -479,5 +480,36 @@ describe('/routeDropAndBootstrap', () => {
 
     // user should NOT receive 3 ACA drop
     expect(bal3.userBal.sub(bal2.userBal).toBigInt()).to.eq(0n);
+  });
+});
+
+describe('end bootstrap', () => {
+  it('end bootstrap', async () => {
+    const api = await ApiPromise.create({
+      provider: new WsProvider('ws://localhost:8000'),
+    });
+
+    console.log('end provisioning ...');
+    const endProvisionTx = api.tx.dex.endProvisioning(
+      { Token: 'LDOT' },
+      { Erc20: JITOSOL_ADDR },
+    );
+    const tx = api.tx.sudo.sudoAs(alice.address, endProvisionTx);
+    await sudoSendAndWait(api, tx);
+
+    // console.log('enable trading pair ...');
+    // tx = api.tx.dex.enableTradingPair(
+    //   { Token: 'LDOT' },
+    //   { Erc20: JITOSOL_ADDR },
+    // );
+    // await sudoSendAndWait(api, tx);
+
+    const tradingPairStatus = await api.query.dex.tradingPairStatuses([
+      { Token: 'LDOT' },
+      { Erc20: JITOSOL_ADDR },
+    ]);
+    expect(tradingPairStatus.toHuman()).to.eq('Enabled');
+
+    await api.disconnect();
   });
 });

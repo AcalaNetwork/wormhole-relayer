@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/shouldRouteSwapAndLp > when should route 1`] = `
+{
+  "data": {
+    "routerAddr": "0x8ed211e6e940955A8ccF2ec2BA792eDfd7Cca9bD",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteSwapAndLp > when should route 2`] = `
+{
+  "data": {
+    "routerAddr": "0x8ed211e6e940955A8ccF2ec2BA792eDfd7Cca9bD",
+    "shouldRoute": true,
+  },
+}
+`;
