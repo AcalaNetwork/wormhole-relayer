@@ -1,5 +1,4 @@
-import { ADDRESSES, ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
-import { AcalaJsonRpcProvider } from '@acala-network/eth-providers';
+import { ADDRESSES } from '@acala-network/asset-router/dist/consts';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { FeeRegistry__factory } from '@acala-network/asset-router/dist/typechain-types';
@@ -10,29 +9,27 @@ import { parseEther, parseUnits } from 'ethers/lib/utils';
 import { toHuman } from '@acala-network/asset-router/dist/utils';
 
 import { DropAndBootstrapParams } from '../utils';
-import { ETH_RPC, EUPHRATES_ADDR } from '../consts';
+import { EUPHRATES_ADDR } from '../consts';
 import {
+  JITOSOL_ADDR,
+  JITOSOL_DECIMALS,
   JITOSOL_LDOT_LP_PREDEPLOY_CODE,
+  LDOT_DECIMALS,
   NEW_DEX_CODE,
   TEST_ADDR_RELAYER,
   TEST_ADDR_USER,
-  TEST_KEY,
 } from './testConsts';
 import {
   api,
   expectError,
+  provider,
+  relayer,
   sudoSendAndWait,
   sudoTransferToken,
   transferToken,
 } from './testUtils';
 
-const provider = new AcalaJsonRpcProvider(ETH_RPC.LOCAL);
-const relayer = new Wallet(TEST_KEY.RELAYER, provider);
 const user = Wallet.createRandom().connect(provider);
-
-const JITOSOL_DECIMALS = 9;
-const LDOT_DECIMALS = 10;
-const JITOSOL_ADDR = ROUTER_TOKEN_INFO.jitosol.acalaAddr;
 
 const recipient = user.address;
 const boostrapAmountJitosol = '0.1';
@@ -87,6 +84,8 @@ describe('prepare', () => {
       JITOSOL_ADDR,
       5,
     );
+
+    await api.disconnect();
   });
 });
 
