@@ -3,7 +3,7 @@ import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts
 import { SwapAndStakeEuphratesFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { constants } from 'ethers';
 
-import { EUPHRATES_ADDR, EUPHRATES_POOLS, RELAYER_ADDR, SWAP_SUPPLY_TOKENS } from '../consts';
+import { DROP_SWAP_AMOUNT_JITOSOL, EUPHRATES_ADDR, EUPHRATES_POOLS, RELAYER_ADDR, SWAP_SUPPLY_TOKENS, DROP_AMOUNT_ACA } from '../consts';
 import {
   Mainnet,
   RouteError,
@@ -13,16 +13,13 @@ import {
   getChainConfig,
   getMainnetChainId,
 } from '../utils';
-import { parseUnits } from 'ethers/lib/utils';
 
-const TARGET_AMOUNT_ACA = parseUnits('3', 12);
-const SUPPLY_AMOUNT_JITOSOL = parseUnits('0.0035', 9);
 const DEFAULT_SWAP_AND_ROUTE_PARAMS = {
   maker: RELAYER_ADDR,
   targetToken: ACA,
   euphrates: EUPHRATES_ADDR,
-  targetAmount: TARGET_AMOUNT_ACA,
-  supplyAmount: SUPPLY_AMOUNT_JITOSOL,
+  targetAmount: DROP_AMOUNT_ACA,
+  supplyAmount: DROP_SWAP_AMOUNT_JITOSOL,
 };
 
 const prepareSwapAndRoute = async (chain: Mainnet) => {
@@ -53,7 +50,7 @@ export const shouldSwapAndRoute = async (params: SwapAndRouteParams) => {
     /* ---------- TODO: remove this check later after approved max ---------- */
     const aca = ERC20__factory.connect(ACA, factory.signer);
     const allowance = await aca.allowance(insts.maker, factory.address);
-    if (allowance.lt(TARGET_AMOUNT_ACA)) {
+    if (allowance.lt(DROP_AMOUNT_ACA)) {
       await (await aca.approve(factory.address, constants.MaxUint256)).wait();
     }
     /* ----------------------------------------------------------------------- */
@@ -61,7 +58,7 @@ export const shouldSwapAndRoute = async (params: SwapAndRouteParams) => {
     const routerAddr = await factory.callStatic.deploySwapAndStakeEuphratesRouter(
       feeAddr,
       insts,
-      TARGET_AMOUNT_ACA
+      DROP_AMOUNT_ACA
     );
 
     return {
@@ -78,7 +75,7 @@ export const shouldSwapAndRoute = async (params: SwapAndRouteParams) => {
 
 export const swapAndRoute = async (params: SwapAndRouteParams) => {
   if (params.token === undefined) {
-    throw new RouteError('<token> param is required for swap and route', params);
+    throw new RouteError('[token] param is required for swap and route', params);
   }
 
   if (!SWAP_SUPPLY_TOKENS.includes(params.token as any)) {
@@ -96,7 +93,7 @@ export const swapAndRoute = async (params: SwapAndRouteParams) => {
     feeAddr,
     insts,
     params.token,
-    TARGET_AMOUNT_ACA,
+    DROP_AMOUNT_ACA,
   );
   const receipt = await tx.wait();
 

@@ -1,5 +1,5 @@
 import { CHAINS, CHAIN_ID_ACALA, CHAIN_ID_KARURA, ChainId } from '@certusone/wormhole-sdk';
-import { ObjectSchema, mixed, number, object, string } from 'yup';
+import { ObjectSchema, boolean, mixed, number, object, string } from 'yup';
 
 export enum Mainnet {
   Acala = 'acala',
@@ -52,6 +52,12 @@ export interface RouteParamsEuphrates {
 
 // does not support general swap yet
 export type SwapAndRouteParams = RouteParamsEuphrates;
+
+export interface DropAndBootstrapParams {
+  recipient: string;   // dest evm address
+  gasDrop: boolean;    // swap jitosol for aca gas drop?
+  feeToken: string;    // token to pay for router fee, either 'jitosol' or 'ldot'
+}
 
 export interface RelayAndRouteParams extends RouteParamsXcm {
   signedVAA: string;
@@ -112,6 +118,24 @@ export const routeEuphratesSchema: ObjectSchema<RouteParamsEuphrates> = object({
 });
 
 export const swapAndRouteSchema = routeEuphratesSchema;
+
+export const dropAndBootstrapSchema: ObjectSchema<DropAndBootstrapParams> = object({
+  recipient: string().required(),
+  gasDrop: boolean().required(),
+  feeToken: string().oneOf(
+    ['jitosol', 'ldot'],
+    'feeToken must be one of { jitosol, ldot }'
+  ).required(),
+}).test(
+  'no-gas-drop-for-ldot',
+  'does not support gasDrop when feeToken is ldot',
+  values => {
+    if (values.feeToken === 'ldot') {
+      return values.gasDrop === false;
+    }
+    return true;
+  }
+);
 
 export const routeStatusSchema: ObjectSchema<routeStatusParams> = object({
   id: string(),

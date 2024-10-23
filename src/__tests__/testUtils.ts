@@ -1,12 +1,13 @@
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { ERC20__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import { Wallet } from 'ethers';
 import { expect } from 'vitest';
 import { parseUnits } from 'ethers/lib/utils';
 import axios from 'axios';
 
-import { RELAYER_URL } from '../consts';
+import { apiUrl } from '../consts';
 
 const keyring = new Keyring({ type: 'sr25519' });
 const alice = keyring.addFromUri('//Alice');
@@ -41,27 +42,50 @@ export const sudoTransferToken = async (
       provider: new WsProvider('ws://localhost:8000'),
     });
 
-    const tx = api.tx.evm.call(tokenAddr, data!, 0, 1000000, 64, []);
+    const tx = api.tx.evm.call(tokenAddr, data!, 0, 1000000, 100000, []);
     const extrinsic = api.tx.sudo.sudoAs(fromAddr, tx);
     const hash = await extrinsic.signAndSend(alice);
 
-    const receipt = await provider.waitForTransaction(hash.toHex());
+    const receipt = await provider.waitForTransaction(hash.toHex(), 1, 30000);
     expect(receipt.status).to.eq(1);
 
     await api.disconnect();
   }
 };
 
+export const sudoSendAndWait = (
+  api: ApiPromise,
+  tx: SubmittableExtrinsic,
+) => new Promise((resolve, reject) => {
+  api.tx.sudo.sudo(tx).signAndSend(alice, ({ status, events }) => {
+    if (status.isInBlock || status.isFinalized) {
+      events.forEach(({ event }) => {
+        const { data, method, section } = event;
+        if (section === 'system' && method === 'ExtrinsicFailed') {
+          reject(new Error(`Transaction failed: ${data.toString()}`));
+        }
+      });
+
+      // FIXME: should not wait for 3s, chopsticks issue?
+      setTimeout(() => {
+        resolve(status.hash.toString());
+      }, 3000);
+    }
+  }).catch(error => {
+    reject(error);
+  });
+});
+
 export const transferToken = async (
   toAddr: string,
   signer: Wallet,
   tokenAddr: string,
-  amount: number,
+  humanAmount: number,
 ) => {
   const token = ERC20__factory.connect(tokenAddr, signer);
 
   const decimals = await token.decimals();
-  const routeAmount = parseUnits(String(amount), decimals);
+  const routeAmount = parseUnits(String(humanAmount), decimals);
 
   const routerBal = await token.balanceOf(toAddr);
   if (routerBal.gt(0)) {
@@ -80,7 +104,7 @@ export const expectError = (err: any, msg: any, code: number) => {
     expect(err.response?.status).to.equal(code);
     expect(err.response?.data.error).to.deep.equal(msg);
   } else {
-    throw new Error('not an axios error');
+    throw err;
   }
 };
 
@@ -107,22 +131,33 @@ const _axiosPost = (url: string) => async (params: any) => {
 };
 
 export const api = {
-  shouldRouteXcm: _axiosGet(RELAYER_URL.SHOULD_ROUTE_XCM),
-  shouldRouteWormhole: _axiosGet(RELAYER_URL.SHOULD_ROUTE_WORMHOLE),
-  shouldRelay: _axiosGet(RELAYER_URL.SHOULD_RELAY),
-  relay: _axiosPost(RELAYER_URL.RELAY),
-  routeXcm: _axiosPost(RELAYER_URL.ROUTE_XCM),
-  relayAndRoute: _axiosPost(RELAYER_URL.RELAY_AND_ROUTE),
-  relayAndRouteBatch: _axiosPost(RELAYER_URL.RELAY_AND_ROUTE_BATCH),
-  routeWormhole: _axiosPost(RELAYER_URL.ROUTE_WORMHOLE),
-  noRoute: _axiosPost(RELAYER_URL.NO_ROUTE),
-  version: _axiosGet(RELAYER_URL.VERSION),
-  testTimeout: _axiosPost(RELAYER_URL.TEST_TIMEOUT),
-  health: _axiosGet(RELAYER_URL.HEALTH),
-  shouldRouteHoma: _axiosGet(RELAYER_URL.SHOULD_ROUTER_HOMA),
-  routeHoma: _axiosPost(RELAYER_URL.ROUTE_HOMA),
-  routeHomaAuto: _axiosPost(RELAYER_URL.ROUTE_HOMA_AUTO),
-  routeStatus: _axiosGet(RELAYER_URL.ROUTE_STATUS),
-  shouldRouteEuphrates: _axiosGet(RELAYER_URL.SHOULD_ROUTER_EUPHRATES),
-  routeEuphrates: _axiosPost(RELAYER_URL.ROUTE_EUPHRATES),
+  shouldRelay: _axiosGet(apiUrl.shouldRelay),
+  relay: _axiosPost(apiUrl.relay),
+
+  shouldRouteXcm: _axiosGet(apiUrl.shouldRouteXcm),
+  routeXcm: _axiosPost(apiUrl.routeXcm),
+
+  shouldRouteWormhole: _axiosGet(apiUrl.shouldRouteWormhole ),
+  routeWormhole: _axiosPost(apiUrl.routeWormhole),
+  relayAndRoute: _axiosPost(apiUrl.relayAndRoute),
+  relayAndRouteBatch: _axiosPost(apiUrl.relayAndRouteBatch),
+
+  shouldRouteHoma: _axiosGet(apiUrl.shouldRouteHoma),
+  routeHoma: _axiosPost(apiUrl.routeHoma),
+  routeHomaAuto: _axiosPost(apiUrl.routeHomaAuto),
+  routeStatus: _axiosGet(apiUrl.routeStatus),
+
+  shouldRouteEuphrates: _axiosGet(apiUrl.shouldRouteEuphrates),
+  routeEuphrates: _axiosPost(apiUrl.routeEuphrates),
+
+  shouldRouteDropAndBootstrap: _axiosGet(apiUrl.shouldRouteDropAndBootstrap),
+  routeDropAndBootstrap: _axiosPost(apiUrl.routeDropAndBootstrap),
+
+  routerInfo: _axiosGet(apiUrl.routerInfo),
+  saveRouterInfo: _axiosPost(apiUrl.saveRouterInfo),
+
+  noRoute: _axiosPost(apiUrl.noRoute),
+  version: _axiosGet(apiUrl.version),
+  testTimeout: _axiosPost(apiUrl.testTimeout),
+  health: _axiosGet(apiUrl.health),
 };

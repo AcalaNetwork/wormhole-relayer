@@ -6,3 +6,4 @@ export * from './xcm';
 export * from './homa';
 export * from './euphrates';
 export * from './health';
+export * from './swapAndRoute';

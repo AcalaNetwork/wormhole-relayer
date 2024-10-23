@@ -1,0 +1,55 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_false_lowercase 1`] = `
+{
+  "data": {
+    "routerAddr": "0x7dD4A59B255e13F2eb5cF0297574e5fb9e89576b",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_false_original 1`] = `
+{
+  "data": {
+    "routerAddr": "0x7dD4A59B255e13F2eb5cF0297574e5fb9e89576b",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_true_lowercase 1`] = `
+{
+  "data": {
+    "routerAddr": "0x9A1100129688460930096d7E1204A2989321B113",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_true_original 1`] = `
+{
+  "data": {
+    "routerAddr": "0x9A1100129688460930096d7E1204A2989321B113",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteDropAndBootstrap > when should route > ldot_gasDrop_false_lowercase 1`] = `
+{
+  "data": {
+    "routerAddr": "0x6046DD5F660818f9D64Af4536A061D8C3BCE01b9",
+    "shouldRoute": true,
+  },
+}
+`;
+
+exports[`/shouldRouteDropAndBootstrap > when should route > ldot_gasDrop_false_original 1`] = `
+{
+  "data": {
+    "routerAddr": "0x6046DD5F660818f9D64Af4536A061D8C3BCE01b9",
+    "shouldRoute": true,
+  },
+}
+`;
