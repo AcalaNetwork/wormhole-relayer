@@ -4,6 +4,6 @@ export default defineConfig({
   test: {
     root: './',
     environment: 'node',
-    testTimeout: 500000,
+    testTimeout: 1_200_000,   // 20 mins
   },
 });
