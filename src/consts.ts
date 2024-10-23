@@ -64,11 +64,11 @@ export const apiUrl = {
   shouldRouteEuphrates: getRelayerUrl('/shouldRouteEuphrates'),
   routeEuphrates: getRelayerUrl('/routeEuphrates'),
 
-  shouldRouteSwapAndLp: getRelayerUrl('/shouldRouteSwapAndLp'),
-  routeSwapAndLp: getRelayerUrl('/routeSwapAndLp'),
-
   shouldRouteDropAndBootstrap: getRelayerUrl('/shouldRouteDropAndBootstrap'),
   routeDropAndBootstrap: getRelayerUrl('/routeDropAndBootstrap'),
+
+  shouldRouteSwapAndLp: getRelayerUrl('/shouldRouteSwapAndLp'),
+  routeSwapAndLp: getRelayerUrl('/routeSwapAndLp'),
 
   routerInfo: getRelayerUrl('/routerInfo'),
   saveRouterInfo: getRelayerUrl('/saveRouterInfo'),

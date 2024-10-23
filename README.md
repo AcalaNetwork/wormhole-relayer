@@ -556,6 +556,59 @@ data: {
 // similar to /routeXcm
 ```
 
+### `/shouldRouteDropAndBootstrap`
+checks if the relayer can route this request, returns router address
+```
+GET /shouldRouteDropAndBootstrap
+params: {
+  recipient: string;       // dest evm address
+  gasDrop: boolean;        // whether to perform gas drop, only available when feeToken is 'jitosol'
+  feeToken: string;        // token to pay for router fee, either 'jitosol' or 'ldot'
+}
+```
+
+example
+```
+GET /shouldRouteDropAndBootstrap?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&gasDrop=1&feeToken=jitosol
+=>
+{
+  "data": {
+    "shouldRoute": true,
+    "routerAddr": "0xC3FaCa03c514C5e47cf267f971B50280E5ea780b"
+  }
+}
+```
+
+### `/routeDropAndBootstrap`
+- when calling for the first time: route and perform gas drop (if `gasDrop` is true)
+- when calling for the second time: route only
+
+returns the txhash
+
+```
+POST /routeDropAndBootstrap
+params: {
+  recipient: string;       // dest evm address
+  gasDrop: boolean;        // whether to perform gas drop, only available when feeToken is 'jitosol'
+  feeToken: string;        // token to pay for router fee, either 'jitosol' or 'ldot'
+}
+```
+
+example
+```
+POST /routeDropAndBootstrap
+{
+    "recipient":"0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
+    "gasDrop": true,
+    "feeToken": "jitosol"
+}
+
+=> tx hash
+{
+  data: '0xede191f4de90057d320c0d06388e7357edb7bcd6b437a5035dd63dfc8809ce7e'
+}
+```
+
 ### `/shouldRouteSwapAndLp`
 checks if the relayer can route this request, returns router address
 ```
@@ -649,58 +702,6 @@ data: {
 // similar to /routeXcm
 ```
 
-### `/shouldRouteDropAndBootstrap`
-checks if the relayer can route this request, returns router address
-```
-GET /shouldRouteDropAndBootstrap
-params: {
-  recipient: string;       // dest evm address
-  gasDrop: boolean;        // whether to perform gas drop, only available when feeToken is 'jitosol'
-  feeToken: string;        // token to pay for router fee, either 'jitosol' or 'ldot'
-}
-```
-
-example
-```
-GET /shouldRouteDropAndBootstrap?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&gasDrop=1&feeToken=jitosol
-=>
-{
-  "data": {
-    "shouldRoute": true,
-    "routerAddr": "0xC3FaCa03c514C5e47cf267f971B50280E5ea780b"
-  }
-}
-```
-
-### `/routeDropAndBootstrap`
-- when calling for the first time: route and perform gas drop (if `gasDrop` is true)
-- when calling for the second time: route only
-
-returns the txhash
-
-```
-POST /routeDropAndBootstrap
-params: {
-  recipient: string;       // dest evm address
-  gasDrop: boolean;        // whether to perform gas drop, only available when feeToken is 'jitosol'
-  feeToken: string;        // token to pay for router fee, either 'jitosol' or 'ldot'
-}
-```
-
-example
-```
-POST /routeDropAndBootstrap
-{
-    "recipient":"0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
-    "gasDrop": true,
-    "feeToken": "jitosol"
-}
-
-=> tx hash
-{
-  data: '0xede191f4de90057d320c0d06388e7357edb7bcd6b437a5035dd63dfc8809ce7e'
-}
-```
 
 ## Routing Process
 A complete working flow can be found in [routing e2e tests](./src/__tests__/route.test.ts).
