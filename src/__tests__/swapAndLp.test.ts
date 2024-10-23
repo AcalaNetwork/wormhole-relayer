@@ -104,7 +104,7 @@ describe.concurrent('/shouldRouteSwapAndLp', () => {
   });
 });
 
-describe('/routeSwapAndLp', () => {
+describe('route and rescue', () => {
   let routerAddr: string;
   const jitosol = ERC20__factory.connect(JITOSOL_ADDR, relayer);
 
@@ -138,7 +138,7 @@ describe('/routeSwapAndLp', () => {
     };
   };
 
-  it('works', async () => {
+  it('/routeSwapAndLp', async () => {
     const relayerBal = await relayer.getBalance();
     expect(relayerBal.gt(parseEther('10'))).to.be.true;
 
@@ -195,6 +195,64 @@ describe('/routeSwapAndLp', () => {
 
     // user should receive 3 ACA drop
     expect(bal1.userBal.sub(bal0.userBal).toBigInt()).to.eq(parseEther('3').toBigInt());
+  });
+
+  it('/rescueSwapAndLp', async () => {
+    const relayerBal = await relayer.getBalance();
+    expect(relayerBal.gt(parseEther('10'))).to.be.true;
+
+    const routeArgs = {
+      recipient: user.address,
+      poolId,
+      swapAmount,
+      minShareAmount,
+    };
+
+    const shouldRouteRes = await api.shouldRouteSwapAndLp(routeArgs);
+    ({ routerAddr } = shouldRouteRes.data);
+    console.log({ routerAddr });
+
+    // make sure user has enough token to transfer to router
+    const bal = await fetchTokenBalances();
+    const trasnferAmount = BigNumber.from(swapAmount).mul(2);
+    if (bal.userTokenBal.lt(trasnferAmount)) {
+      if (bal.relayerTokenBal.lt(trasnferAmount)) {
+        throw new Error('both relayer and user do not have enough jitosol to transfer to router!');
+      }
+
+      console.log('refilling token for user ...');
+      await (await jitosol.transfer(TEST_ADDR_USER, trasnferAmount)).wait();
+    }
+
+    console.log('transferring token to router ...');
+    const transferAmountHuman = Number(formatUnits(trasnferAmount, JITOSOL_DECIMALS));
+    await transferToken(routerAddr, user, JITOSOL_ADDR, transferAmountHuman);
+
+    const bal0 = await fetchTokenBalances();
+
+    console.log('rescuing ...');
+    const rescueRes = await api.rescueSwapAndLp({
+      ...routeArgs,
+      token: JITOSOL_ADDR,
+    });
+    const txHash = rescueRes.data;
+    console.log(`rescue finished! txHash: ${txHash}`);
+
+    const bal1 = await fetchTokenBalances();
+
+    // router should be destroyed
+    const routerCode = await provider.getCode(routerAddr);
+    expect(routerCode).to.eq('0x');
+    expect(bal1.routerTokenBal.toNumber()).to.eq(0);
+
+    // relayer should receive swap fee
+    const swapFee = parseUnits('0.0035', 9);
+    expect(bal1.relayerTokenBal.sub(bal0.relayerTokenBal).toBigInt()).to.eq(swapFee.toBigInt());
+
+    // user should receive 3 ACA drop and token back
+    expect(bal1.userBal.sub(bal0.userBal).toBigInt()).to.eq(parseEther('3').toBigInt());
+    expect(bal1.userTokenBal.sub(bal0.userTokenBal).toBigInt())
+      .to.eq(trasnferAmount.sub(swapFee).toBigInt());
   });
 });
 

@@ -161,6 +161,7 @@ export const api = {
 
   shouldRouteSwapAndLp: _axiosGet(apiUrl.shouldRouteSwapAndLp),
   routeSwapAndLp: _axiosPost(apiUrl.routeSwapAndLp),
+  rescueSwapAndLp: _axiosPost(apiUrl.rescueSwapAndLp),
 
   routerInfo: _axiosGet(apiUrl.routerInfo),
   saveRouterInfo: _axiosPost(apiUrl.saveRouterInfo),
