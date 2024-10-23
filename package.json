@@ -10,22 +10,23 @@
   "repository": "https://github.com/AcalaNetwork/wormhole-relayer/",
   "scripts": {
     "build": "tsc",
+    "clean": "rm -rf coverage .nyc_output dist/",
+    "dev": "ts-node-dev --respawn src/index.ts | pino-pretty --singleLine --colorize --ignore time,hostname,ip",
+
     "start": "node dist/index.js",
     "start:db": "docker compose up -- db",
-    "start:test-stack": "docker compose up -d",
-    "dev": "ts-node-dev --respawn src/index.ts | pino-pretty --singleLine --colorize --ignore time,hostname,ip",
-    "relay": "ts-node src/scripts/manual-relay.ts",
+    "start:coverage": "pm2 start --name relayer 'nyc node -r ts-node/register src/index.ts' && ./scripts/health-check.sh",
+    "start:test-infra": "docker compose up",
+    "stop:coverage": "pm2 stop relayer && pm2 delete relayer",
+
     "db:init": "prisma init",
     "db:gen": "prisma generate",
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate:prod": "prisma migrate deploy",
-    "start:coverage": "pm2 start --name relayer 'nyc node -r ts-node/register src/index.ts' && ./scripts/health-check.sh",
-    "stop:coverage": "pm2 stop relayer && pm2 delete relayer",
-    "start:test-infra": "docker compose up",
+
     "test": "vitest src/__tests__/*.test.ts --singleThread --run",
     "test:coverage": "yarn start:coverage && yarn test && yarn stop:coverage",
-    "test:ci": "yarn start:test-infra -d; yarn test:coverage",
-    "clean": "rm -rf coverage .nyc_output dist/"
+    "test:ci": "yarn start:test-infra -d; yarn test:coverage"
   },
   "dependencies": {
     "@acala-network/api": "~6.0.4",

@@ -668,14 +668,6 @@ data: {
 // similar to /routeXcm
 ```
 
-### `/routerInfo`
-get router info
-
-```
-GET /routerInfo
-{
-  routerAddr?: string;   // router address
-  recipient?: string;    // recipient address
 ### `/rescueSwapAndLp`
 - perform gas drop
 - rescue token to recipient
@@ -689,22 +681,6 @@ data: {
   swapAmount: string;      // how many token to swap before adding liquidity
   minShareAmount?: string; // add liquidity min share amount (default: 0)
 }
-```
-
-example
-```
-GET /routerInfo?routerAddr=0x1F191013BE290CD0A89074A3946f1aEF58Eacc7f
-
-=>
-data: [{
-  id: 6,
-  timestamp: "2024-09-12T04:53:53.501Z",
-  params: "{\"swapAmount\":\"100000000\",\"poolId\":\"7\",\"recipient\":\"0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6\",\"minShareAmount\":\"10000000\"}",
-  factoryAddr: "0xB1DC04892c8346f61aF1A922A856D96e4A51a389",
-  feeAddr: "0x5Fc7261E168F6a8c1053F2208c7db4BCbef133b3",
-  recipient: "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
-  routerAddr: "0x1F191013BE290CD0A89074A3946f1aEF58Eacc7f"
-}]
 ```
 
 POST /rescueSwapAndLp
@@ -722,6 +698,31 @@ data: {
 
 /* ---------- when error ---------- */
 // similar to /routeXcm
+```
+
+### `/routerInfo`
+get router info
+
+```
+GET /routerInfo
+{
+  routerAddr?: string;   // router address
+  recipient?: string;    // recipient address
+
+example
+```
+GET /routerInfo?routerAddr=0x1F191013BE290CD0A89074A3946f1aEF58Eacc7f
+
+=>
+data: [{
+  id: 6,
+  timestamp: "2024-09-12T04:53:53.501Z",
+  params: "{\"swapAmount\":\"100000000\",\"poolId\":\"7\",\"recipient\":\"0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6\",\"minShareAmount\":\"10000000\"}",
+  factoryAddr: "0xB1DC04892c8346f61aF1A922A856D96e4A51a389",
+  feeAddr: "0x5Fc7261E168F6a8c1053F2208c7db4BCbef133b3",
+  recipient: "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
+  routerAddr: "0x1F191013BE290CD0A89074A3946f1aEF58Eacc7f"
+}]
 ```
 
 

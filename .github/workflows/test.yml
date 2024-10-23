@@ -26,11 +26,11 @@ jobs:
       - name: setup test env
         run: cp .env.test .env
 
-      - name: check docker logs
-        run: docker compose logs
+      # - name: check docker logs
+      #   run: docker compose logs
 
       - name: setup test infra
-        run: yarn start:test-stack
+        run: yarn start:test-infra -d
 
       - name: run tests with coverage
         run: yarn test:coverage

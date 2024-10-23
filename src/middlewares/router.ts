@@ -28,6 +28,7 @@ import {
   relayAndRoute,
   relayAndRouteBatch,
   rescueSwapAndLp,
+  routeDropAndBoostrap,
   routeEuphrates,
   routeHoma,
   routeHomaAuto,
@@ -36,6 +37,7 @@ import {
   routeXcm,
   saveRouterInfo,
   shouldRelay,
+  shouldRouteDropAndBoostrap,
   shouldRouteEuphrates,
   shouldRouteHoma,
   shouldRouteSwapAndLp,
@@ -43,8 +45,6 @@ import {
   shouldRouteXcm,
   shouldSwapAndRoute,
   swapAndRoute,
-  shouldRouteDropAndBoostrap,
-  routeDropAndBoostrap,
 } from '../api';
 
 interface RouterConfig {
