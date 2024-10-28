@@ -18,6 +18,7 @@ import {
   expectError,
   provider,
   relayer,
+  sudoTransferToken,
   transferToken,
   user,
 } from './testUtils';
@@ -176,8 +177,8 @@ describe('route and rescue', () => {
       ...routeArgs,
       token: JITOSOL_ADDR,
     });
-    const txHash = routeRes.data;
-    console.log(`route finished! txHash: ${txHash}`);
+    const { txHash, removed } = routeRes.data;
+    console.log(`route finished! txHash: ${txHash}, removed: ${removed}`);
 
     const bal1 = await fetchTokenBalances();
 

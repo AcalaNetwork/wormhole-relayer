@@ -26,11 +26,14 @@ jobs:
       - name: setup test env
         run: cp .env.test .env
 
-      # - name: check docker logs
-      #   run: docker compose logs
-
       - name: setup test infra
         run: yarn start:test-infra -d
+
+      - name: generate db client
+        run: yarn db:gen
+
+      - name: migrate db
+        run: yarn db:migrate:dev
 
       - name: run tests with coverage
         run: yarn test:coverage

@@ -10,3 +10,6 @@ CREATE TABLE "RouterInfo" (
 
     CONSTRAINT "RouterInfo_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RouterInfo_routerAddr_key" ON "RouterInfo"("routerAddr");
