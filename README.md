@@ -706,15 +706,28 @@ data: {
 ```
 
 ### `/saveRouterInfo`
-save router info to db
+save router info to db, returns the record
 
 ```
 POST /saveRouterInfo
 data: {
   routerAddr: string;
   recipient: string;
-  params: string;       // router params
+  params: string;       // stringified JSON router params
 }
+```
+
+example
+```
+POST /saveRouterInfo
+data: {
+  routerAddr: "0xA1C5a8d7389a428C1A7dE77782B7Cc4A6F02bAbD",
+  recipient: "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
+  params: "{\"recipient\":\"0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6\",\"poolId\":\"7\",\"swapAmount\":100000000,\"minShareAmount\":999999}"
+}
+
+=>
+{"data":{"id":1,"timestamp":"2024-10-28T07:38:56.060Z","params":"{\"recipient\":\"0x0085560b24769dac4ed057f1b2ae40746aa9aab6\",\"poolId\":\"7\",\"swapAmount\":100000000,\"minShareAmount\":999999}","factoryAddr":"0x0420974d035457c6f05d4417cc605e6c239d73ab","feeAddr":"0x5fc7261e168f6a8c1053f2208c7db4bcbef133b3","recipient":"0x0085560b24769dac4ed057f1b2ae40746aa9aab6","routerAddr":"0xa1c5a8d7389a428c1a7de77782b7cc4a6f02babd"}}
 ```
 
 ### `/routerInfo`
@@ -725,21 +738,16 @@ GET /routerInfo
 {
   routerAddr?: string;   // router address
   recipient?: string;    // recipient address
+}
+```
 
 example
 ```
-GET /routerInfo?routerAddr=0x1F191013BE290CD0A89074A3946f1aEF58Eacc7f
+GET /routerInfo?routerAddr=0xA1C5a8d7389a428C1A7dE77782B7Cc4A6F02bAbD
+GET /routerInfo?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
 
-=>
-data: [{
-  id: 6,
-  timestamp: "2024-09-12T04:53:53.501Z",
-  params: "{\"swapAmount\":\"100000000\",\"poolId\":\"7\",\"recipient\":\"0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6\",\"minShareAmount\":\"10000000\"}",
-  factoryAddr: "0xB1DC04892c8346f61aF1A922A856D96e4A51a389",
-  feeAddr: "0x5Fc7261E168F6a8c1053F2208c7db4BCbef133b3",
-  recipient: "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
-  routerAddr: "0x1F191013BE290CD0A89074A3946f1aEF58Eacc7f"
-}]
+=> (same result)
+{"data":[{"id":1,"timestamp":"2024-10-28T07:38:56.060Z","params":"{\"recipient\":\"0x0085560b24769dac4ed057f1b2ae40746aa9aab6\",\"poolId\":\"7\",\"swapAmount\":100000000,\"minShareAmount\":999999}","factoryAddr":"0x0420974d035457c6f05d4417cc605e6c239d73ab","feeAddr":"0x5fc7261e168f6a8c1053f2208c7db4bcbef133b3","recipient":"0x0085560b24769dac4ed057f1b2ae40746aa9aab6","routerAddr":"0xa1c5a8d7389a428c1a7de77782b7cc4a6f02babd"}]}
 ```
 
 

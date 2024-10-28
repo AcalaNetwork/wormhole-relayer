@@ -26,7 +26,7 @@ jobs:
       - name: setup test env
         run: cp .env.test .env
 
-      - name: setup test infra
+      - name: setup test infra (db + node + eth rpc)
         run: yarn start:test-infra -d
 
       - name: generate db client

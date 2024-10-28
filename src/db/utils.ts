@@ -2,7 +2,7 @@ import { isEvmAddress } from '@acala-network/eth-providers';
 import { prisma } from './client';
 
 export interface RouterInfo {
-  params: string;
+  params: string;       // stringified JSON params
   factoryAddr: string;
   recipient: string;
   feeAddr: string;
