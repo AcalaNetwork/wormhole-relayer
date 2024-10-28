@@ -637,13 +637,13 @@ GET /shouldRouteSwapAndLp?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&s
 - swap small amount of token and airdrop ACA to recipient
 - swap `swapAmount` token to LDOT, then add LP, refund the remaining token recipient
 - stake Lp to euphrates for the recipient
-- returns the txhash
+- returns the txhash and how many records are removed
 ```
 POST /routeSwapAndLp
 data: {
   poolId: string;          // euphrates pool id
   recipient: string;       // dest evm address
-  token: string;          // token to route
+  token: string;           // token to route
   swapAmount: string;      // how many token to swap before adding liquidity
   minShareAmount?: string; // add liquidity min share amount (default: 0)
 }
@@ -661,7 +661,10 @@ data: {
 
 => tx hash
 {
-  data: '0xe1c82c53796d82d87d2e31e289b3cc8ff18e304b8ac95f2bd7548a1706bb8655'
+  data: {
+    txHash: '0xe1c82c53796d82d87d2e31e289b3cc8ff18e304b8ac95f2bd7548a1706bb8655',
+    removed: 1
+  }
 }
 
 /* ---------- when error ---------- */
@@ -677,12 +680,14 @@ POST /rescueSwapAndLp
 data: {
   poolId: string;          // euphrates pool id
   recipient: string;       // dest evm address
-  token: string;          // token to route
+  token: string;           // token to route
   swapAmount: string;      // how many token to swap before adding liquidity
   minShareAmount?: string; // add liquidity min share amount (default: 0)
 }
 ```
 
+example
+```
 POST /rescueSwapAndLp
 data: {
   "poolId": 7,
@@ -698,6 +703,18 @@ data: {
 
 /* ---------- when error ---------- */
 // similar to /routeXcm
+```
+
+### `/saveRouterInfo`
+save router info to db
+
+```
+POST /saveRouterInfo
+data: {
+  routerAddr: string;
+  recipient: string;
+  params: string;       // router params
+}
 ```
 
 ### `/routerInfo`

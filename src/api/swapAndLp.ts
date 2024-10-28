@@ -14,6 +14,7 @@ import {
   _populateRouteTx,
   getChainConfig,
   getMainnetChainId,
+  parseRouterAddr,
 } from '../utils';
 import { db } from '../db';
 
@@ -108,20 +109,17 @@ export const routeSwapAndLp = async (params: SwapAndLpParams) => {
   );
   const receipt = await tx.wait();
 
+  const errParams = { ...params, txHash: receipt.transactionHash };
   if (receipt.status !== 1) {
-    throw new RouteError('swap and lp failed', { ...params, txHash: receipt.transactionHash });
+    throw new RouteError('swap and lp failed', errParams);
   }
 
-  // parse receipit log to get router addr
-  const iface = BaseRouter__factory.createInterface();
-  const routerDeployedEventSig = iface.getEventTopic('RouterCreated');
-  const routerDeployedLog = receipt.logs.find(log => log.topics[0] === routerDeployedEventSig);
-  if (!routerDeployedLog) {
-    throw new RouteError('router deployed log not found', { ...params, txHash: receipt.transactionHash });
+  let routerAddr: string;
+  try {
+    routerAddr = parseRouterAddr(receipt);
+  } catch (err) {
+    throw new RouteError(`failed to parse router addr from receipt: ${err.message}`, errParams);
   }
-
-  const parsedLog = iface.parseLog(routerDeployedLog);
-  const routerAddr = parsedLog.args.addr;
 
   const removed = await db.removeRouterInfo({ routerAddr });
 
@@ -129,7 +127,6 @@ export const routeSwapAndLp = async (params: SwapAndLpParams) => {
     txHash: receipt.transactionHash,
     removed,
   };
-  return receipt.transactionHash;
 };
 
 export const rescueSwapAndLp = async (params: SwapAndLpParams) => {
