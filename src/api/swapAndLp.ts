@@ -1,6 +1,6 @@
 import { ACA, LDOT } from '@acala-network/contracts/utils/AcalaTokens';
+import { BaseRouter__factory, DropAndSwapStakeFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { DEX } from '@acala-network/contracts/utils/Predeploy';
-import { DropAndSwapStakeFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { ROUTER_TOKEN_INFO } from '@acala-network/asset-router/dist/consts';
 import { constants } from 'ethers';
@@ -14,7 +14,9 @@ import {
   _populateRouteTx,
   getChainConfig,
   getMainnetChainId,
+  parseRouterAddr,
 } from '../utils';
+import { db } from '../db';
 
 const JITOSOL_ADDR = ROUTER_TOKEN_INFO.jitosol.acalaAddr;
 const DEFAULT_SWAP_AND_LP_PARAMS = {
@@ -107,7 +109,24 @@ export const routeSwapAndLp = async (params: SwapAndLpParams) => {
   );
   const receipt = await tx.wait();
 
-  return receipt.transactionHash;
+  const errParams = { ...params, txHash: receipt.transactionHash };
+  if (receipt.status !== 1) {
+    throw new RouteError('swap and lp failed', errParams);
+  }
+
+  let routerAddr: string;
+  try {
+    routerAddr = parseRouterAddr(receipt);
+  } catch (err) {
+    throw new RouteError(`failed to parse router addr from receipt: ${err.message}`, errParams);
+  }
+
+  const removed = await db.removeRouterInfo({ routerAddr });
+
+  return {
+    txHash: receipt.transactionHash,
+    removed,
+  };
 };
 
 export const rescueSwapAndLp = async (params: SwapAndLpParams) => {

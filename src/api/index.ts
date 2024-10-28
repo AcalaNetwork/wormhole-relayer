@@ -7,4 +7,6 @@ export * from './homa';
 export * from './euphrates';
 export * from './health';
 export * from './swapAndRoute';
+export * from './dropAndBootstrap';
 export * from './swapAndLp';
+export * from './routerInfo';

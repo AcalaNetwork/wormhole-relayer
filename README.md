@@ -637,13 +637,13 @@ GET /shouldRouteSwapAndLp?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6&s
 - swap small amount of token and airdrop ACA to recipient
 - swap `swapAmount` token to LDOT, then add LP, refund the remaining token recipient
 - stake Lp to euphrates for the recipient
-- returns the txhash
+- returns the txhash and how many records are removed
 ```
 POST /routeSwapAndLp
 data: {
   poolId: string;          // euphrates pool id
   recipient: string;       // dest evm address
-  token: string;          // token to route
+  token: string;           // token to route
   swapAmount: string;      // how many token to swap before adding liquidity
   minShareAmount?: string; // add liquidity min share amount (default: 0)
 }
@@ -661,7 +661,10 @@ data: {
 
 => tx hash
 {
-  data: '0xe1c82c53796d82d87d2e31e289b3cc8ff18e304b8ac95f2bd7548a1706bb8655'
+  data: {
+    txHash: '0xe1c82c53796d82d87d2e31e289b3cc8ff18e304b8ac95f2bd7548a1706bb8655',
+    removed: 1
+  }
 }
 
 /* ---------- when error ---------- */
@@ -677,7 +680,7 @@ POST /rescueSwapAndLp
 data: {
   poolId: string;          // euphrates pool id
   recipient: string;       // dest evm address
-  token: string;          // token to route
+  token: string;           // token to route
   swapAmount: string;      // how many token to swap before adding liquidity
   minShareAmount?: string; // add liquidity min share amount (default: 0)
 }
@@ -700,6 +703,51 @@ data: {
 
 /* ---------- when error ---------- */
 // similar to /routeXcm
+```
+
+### `/saveRouterInfo`
+save router info to db, returns the record
+
+```
+POST /saveRouterInfo
+data: {
+  routerAddr: string;
+  recipient: string;
+  params: string;       // stringified JSON router params
+}
+```
+
+example
+```
+POST /saveRouterInfo
+data: {
+  routerAddr: "0xA1C5a8d7389a428C1A7dE77782B7Cc4A6F02bAbD",
+  recipient: "0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6",
+  params: "{\"recipient\":\"0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6\",\"poolId\":\"7\",\"swapAmount\":100000000,\"minShareAmount\":999999}"
+}
+
+=>
+{"data":{"id":1,"timestamp":"2024-10-28T07:38:56.060Z","params":"{\"recipient\":\"0x0085560b24769dac4ed057f1b2ae40746aa9aab6\",\"poolId\":\"7\",\"swapAmount\":100000000,\"minShareAmount\":999999}","factoryAddr":"0x0420974d035457c6f05d4417cc605e6c239d73ab","feeAddr":"0x5fc7261e168f6a8c1053f2208c7db4bcbef133b3","recipient":"0x0085560b24769dac4ed057f1b2ae40746aa9aab6","routerAddr":"0xa1c5a8d7389a428c1a7de77782b7cc4a6f02babd"}}
+```
+
+### `/routerInfo`
+get router info
+
+```
+GET /routerInfo
+{
+  routerAddr?: string;   // router address
+  recipient?: string;    // recipient address
+}
+```
+
+example
+```
+GET /routerInfo?routerAddr=0xA1C5a8d7389a428C1A7dE77782B7Cc4A6F02bAbD
+GET /routerInfo?recipient=0x0085560b24769dAC4ed057F1B2ae40746AA9aAb6
+
+=> (same result)
+{"data":[{"id":1,"timestamp":"2024-10-28T07:38:56.060Z","params":"{\"recipient\":\"0x0085560b24769dac4ed057f1b2ae40746aa9aab6\",\"poolId\":\"7\",\"swapAmount\":100000000,\"minShareAmount\":999999}","factoryAddr":"0x0420974d035457c6f05d4417cc605e6c239d73ab","feeAddr":"0x5fc7261e168f6a8c1053f2208c7db4bcbef133b3","recipient":"0x0085560b24769dac4ed057f1b2ae40746aa9aab6","routerAddr":"0xa1c5a8d7389a428c1a7de77782b7cc4a6f02babd"}]}
 ```
 
 
@@ -744,8 +792,9 @@ yarn vite preview --outDir ./coverage/
 ```
 
 ### run tests with separate relayer (no coverage report)
-first start a local relayer
+first start a local relayer with db
 ```
+yarn start:db
 yarn dev
 ```
 
@@ -755,4 +804,5 @@ yarn test
 ```
 
 ## Production Config
-`cp .env.example .env` and replace the test keys with real private keys for relayers
+- setup env: `cp .env.example .env` and fill in the blanks
+- setup db: `docker run --env-file .env acala/relayer:latest yarn db:migrate:prod`

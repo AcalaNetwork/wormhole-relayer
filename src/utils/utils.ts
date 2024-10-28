@@ -1,5 +1,5 @@
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
-import { BigNumber, PopulatedTransaction } from 'ethers';
+import { BigNumber, Contract, ContractReceipt, PopulatedTransaction } from 'ethers';
 import { CHAIN_ID_ACALA, CHAIN_ID_KARURA, hexToUint8Array } from '@certusone/wormhole-sdk';
 import { DispatchError } from '@polkadot/types/interfaces';
 import { ISubmittableResult } from '@polkadot/types/types';
@@ -10,7 +10,8 @@ import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { decodeEthGas, sleep } from '@acala-network/eth-providers';
 import { options } from '@acala-network/api';
 
-import { RelayerError } from './error';
+import { BaseRouter__factory } from '@acala-network/asset-router/dist/typechain-types';
+import { RelayerError, RouteError } from './error';
 import { logger } from './logger';
 
 export const ROUTER_CHAIN_IDS = [CHAIN_ID_KARURA, CHAIN_ID_ACALA] as const;
@@ -180,4 +181,18 @@ export const serialize = (params: any) => {
   } catch {
     return 'failed to serialize';
   }
+};
+
+export const parseRouterAddr = (receipt: ContractReceipt) => {
+  const iface = BaseRouter__factory.createInterface();
+  const routerDeployedEventSig = iface.getEventTopic('RouterCreated');
+  const routerDeployedLog = receipt.logs.find(log => log.topics[0] === routerDeployedEventSig);
+  if (!routerDeployedLog) {
+    throw new Error('router deployed log not found');
+  }
+
+  const parsedLog = iface.parseLog(routerDeployedLog);
+  const routerAddr = parsedLog.args.addr;
+
+  return routerAddr;
 };

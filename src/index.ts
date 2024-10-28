@@ -1,12 +1,15 @@
 import dotenv from 'dotenv';
 
 import { TESTNET_MODE_WARNING, VERSION } from './consts';
+import { connectDb } from './db';
 import { createApp } from './app';
 
 dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3111;
 
 const startServer = async (): Promise<void> => {
+  await connectDb();
+
   const app = createApp();
 
   app.listen(PORT, () => {
@@ -28,6 +31,6 @@ const startServer = async (): Promise<void> => {
 };
 
 startServer().catch(e => {
-  console.log('❗️❗️ something is wrong with relayer: ', e);
+  console.log('❗️ server failed to start: ', e);
   process.exit(1);
 });

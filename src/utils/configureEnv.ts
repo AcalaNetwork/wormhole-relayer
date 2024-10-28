@@ -21,8 +21,8 @@ export type ChainConfig = {
   accountHelperAddr?: string;
   euphratesFactoryAddr?: string;
   swapAndStakeFactoryAddr?: string;
-  dropAndSwapStakeFactoryAddr?: string;
   dropAndBootstrapStakeFactoryAddr?: string;
+  dropAndSwapStakeFactoryAddr?: string;
   isTestnet: boolean;
 };
 

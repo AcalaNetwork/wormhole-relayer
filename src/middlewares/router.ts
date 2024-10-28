@@ -13,6 +13,8 @@ import {
   routeStatusSchema,
   routeWormholeSchema,
   routeXcmSchema,
+  routerInfoQuerySchema,
+  routerInfoUpdateSchema,
   shouldRelaySchema,
   swapAndLpSchema,
   swapAndRouteSchema,
@@ -20,18 +22,22 @@ import {
 import {
   getAllRouteStatus,
   getRouteStatus,
+  getRouterInfo,
   healthCheck,
   relay,
   relayAndRoute,
   relayAndRouteBatch,
   rescueSwapAndLp,
+  routeDropAndBoostrap,
   routeEuphrates,
   routeHoma,
   routeHomaAuto,
   routeSwapAndLp,
   routeWormhole,
   routeXcm,
+  saveRouterInfo,
   shouldRelay,
+  shouldRouteDropAndBoostrap,
   shouldRouteEuphrates,
   shouldRouteHoma,
   shouldRouteSwapAndLp,
@@ -40,7 +46,6 @@ import {
   shouldSwapAndRoute,
   swapAndRoute,
 } from '../api';
-import { routeDropAndBoostrap, shouldRouteDropAndBoostrap } from '../api/dropAndBootstrap';
 
 interface RouterConfig {
   schema?: Schema;
@@ -95,6 +100,10 @@ const ROUTER_CONFIGS: {
     '/allRouteStatus': {
       handler: getAllRouteStatus,
     },
+    '/routerInfo': {
+      schema: routerInfoQuerySchema,
+      handler: getRouterInfo,
+    },
   },
 
   POST: {
@@ -145,6 +154,10 @@ const ROUTER_CONFIGS: {
     '/routeDropAndBootstrap': {
       schema: dropAndBootstrapSchema,
       handler: routeDropAndBoostrap,
+    },
+    '/saveRouterInfo': {
+      schema: routerInfoUpdateSchema,
+      handler: saveRouterInfo,
     },
   },
 };

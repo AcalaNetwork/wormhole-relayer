@@ -3,7 +3,7 @@ import { ERC20__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts
 import { SwapAndStakeEuphratesFactory__factory } from '@acala-network/asset-router/dist/typechain-types';
 import { constants } from 'ethers';
 
-import { DROP_SWAP_AMOUNT_JITOSOL, EUPHRATES_ADDR, EUPHRATES_POOLS, RELAYER_ADDR, SWAP_SUPPLY_TOKENS, DROP_AMOUNT_ACA } from '../consts';
+import { DROP_AMOUNT_ACA, DROP_SWAP_AMOUNT_JITOSOL, EUPHRATES_ADDR, EUPHRATES_POOLS, RELAYER_ADDR, SWAP_SUPPLY_TOKENS } from '../consts';
 import {
   Mainnet,
   RouteError,

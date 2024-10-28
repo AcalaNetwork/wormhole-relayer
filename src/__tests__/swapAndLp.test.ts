@@ -18,6 +18,7 @@ import {
   expectError,
   provider,
   relayer,
+  sudoTransferToken,
   transferToken,
   user,
 } from './testUtils';
@@ -153,6 +154,25 @@ describe('route and rescue', () => {
     ({ routerAddr } = shouldRouteRes.data);
     console.log({ routerAddr });
 
+    // save and get router info
+    await api.saveRouterInfo({
+      routerAddr,
+      recipient: user.address,
+      params: JSON.stringify(routeArgs),
+    });
+
+    let [info0, info1] = await Promise.all([
+      api.routerInfo({ routerAddr }),
+      api.routerInfo({ recipient: user.address }),
+    ]);
+
+    const expectedInfo = {
+      routerAddr: routerAddr.toLowerCase(),
+      recipient: user.address.toLowerCase(),
+    };
+    expect(info0.data[0]).to.contain(expectedInfo);
+    expect(info1.data[0]).to.contain(expectedInfo);
+
     // make sure user has enough token to transfer to router
     const bal = await fetchTokenBalances();
     const trasnferAmount = BigNumber.from(swapAmount).mul(2);
@@ -176,8 +196,18 @@ describe('route and rescue', () => {
       ...routeArgs,
       token: JITOSOL_ADDR,
     });
-    const txHash = routeRes.data;
-    console.log(`route finished! txHash: ${txHash}`);
+    const { txHash, removed } = routeRes.data;
+    console.log(`route finished! txHash: ${txHash}, removed: ${removed}`);
+
+    // record should be removed
+    expect(removed).to.eq(1);
+    [info0, info1] = await Promise.all([
+      api.routerInfo({ routerAddr }),
+      api.routerInfo({ recipient: user.address }),
+    ]);
+
+    expect(info0.data).to.deep.eq([]);
+    expect(info1.data).to.deep.eq([]);
 
     const bal1 = await fetchTokenBalances();
 
