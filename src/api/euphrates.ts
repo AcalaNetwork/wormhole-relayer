@@ -24,9 +24,6 @@ const prepareRouteEuphrates = async (chain: Mainnet) => {
 export const shouldRouteEuphrates = async (params: RouteParamsEuphrates) => {
   try {
     const { euphratesFactory, feeAddr } = await prepareRouteEuphrates(Mainnet.Acala);
-    if (!EUPHRATES_POOLS.includes(params.poolId)) {
-      throw new RouteError(`euphrates poolId ${params.poolId} is not supported`, params);
-    }
 
     const routerAddr = await euphratesFactory.callStatic.deployEuphratesRouter(
       feeAddr,

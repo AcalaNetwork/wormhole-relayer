@@ -243,6 +243,7 @@ export const EUPHRATES_ADDR = '0x7Fe92EC600F15cD25253b421bc151c51b0276b7D';
 export const EUPHRATES_POOLS = ['0', '1', '2', '3', '6', '7'];
 export const SWAP_SUPPLY_TOKENS = [
   ROUTER_TOKEN_INFO.jitosol.acalaAddr,
+  ROUTER_TOKEN_INFO.bnSol.acalaAddr,
 ];
 
 export const RELAYER_ADDR = '0x8B5C2F71eFa2d88A20E0e1c8EDFeA3767B2ab230';
@@ -256,4 +257,4 @@ export const MINUTE = 60 * SECOND;
 export const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 
-export const VERSION = '1.9.0';
+export const VERSION = '1.9.1-1';
