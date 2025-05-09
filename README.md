@@ -1,9 +1,10 @@
-# Acala Wormhole Relayer
+# Acala Relayer
 [![codecov](https://codecov.io/gh/AcalaNetwork/wormhole-relayer/branch/master/graph/badge.svg?token=dCTHZ0NE2X)](https://codecov.io/gh/AcalaNetwork/wormhole-relayer)
 
-Relayer has two primary functionalities:
+Relayer's functionalities:
 - pays the gas fee and redeems tokens on Karura/Acala after a user sends tokens through wormhole
 - calls [asset router](https://github.com/AcalaNetwork/asset-router) contracts to route tokens to wormhole or through XCM
+- executes asset router routings such as homa liquid staking, swap and stake, etc.
 
 ## Run Locally
 - install deps: `yarn`
