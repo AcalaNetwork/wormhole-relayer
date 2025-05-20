@@ -37,10 +37,6 @@ export const shouldSwapAndRoute = async (params: SwapAndRouteParams) => {
   try {
     const { factory, feeAddr } = await prepareSwapAndRoute(Mainnet.Acala);
 
-    if (!EUPHRATES_POOLS.includes(params.poolId)) {
-      throw new RouteError(`euphrates poolId ${params.poolId} is not supported`, params);
-    }
-
     const insts = {
       ...DEFAULT_SWAP_AND_ROUTE_PARAMS,
       recipient: params.recipient,
