@@ -3,7 +3,7 @@
 exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_false_lowercase 1`] = `
 {
   "data": {
-    "routerAddr": "0x7dD4A59B255e13F2eb5cF0297574e5fb9e89576b",
+    "routerAddr": "0xa1E3651Bdba5f2686d60C7bCbeD8758669CDd92C",
     "shouldRoute": true,
   },
 }
@@ -12,7 +12,7 @@ exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_fals
 exports[`/shouldRouteDropAndBootstrap > when should route > jitosol_gasDrop_false_original 1`] = `
 {
   "data": {
-    "routerAddr": "0x7dD4A59B255e13F2eb5cF0297574e5fb9e89576b",
+    "routerAddr": "0xa1E3651Bdba5f2686d60C7bCbeD8758669CDd92C",
     "shouldRoute": true,
   },
 }
