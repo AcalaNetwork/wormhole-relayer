@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@acala-network/api": "~6.3.0",
-    "@acala-network/asset-router": "~1.0.19",
+    "@acala-network/asset-router": "~1.1.0",
     "@acala-network/bodhi": "~2.10.0",
     "@acala-network/contracts": "^4.5.0",
     "@acala-network/eth-providers": "~2.10.0",
