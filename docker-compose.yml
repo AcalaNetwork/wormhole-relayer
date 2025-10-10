@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:12-alpine
@@ -21,7 +19,7 @@ services:
     volumes:
       - ./src/__tests__/configs/acala.yml:/app/acala.yml
     command:
-      bunx @acala-network/chopsticks@0.15.0 -c /app/acala.yml
+      bunx @acala-network/chopsticks@1.2.2 -c /app/acala.yml
     ports:
       - 8000:8000
     healthcheck:
