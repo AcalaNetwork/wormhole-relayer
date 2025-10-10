@@ -44,7 +44,7 @@ services:
 
   eth-rpc:
     container_name: eth-rpc
-    image: acala/eth-rpc-adapter:2.8.7
+    image: acala/eth-rpc-adapter:2.10.0
     restart: on-failure
     depends_on:
       node:
