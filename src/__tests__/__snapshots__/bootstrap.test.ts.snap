@@ -48,7 +48,7 @@ exports[`/shouldRouteDropAndBootstrap > when should route > ldot_gasDrop_false_l
 exports[`/shouldRouteDropAndBootstrap > when should route > ldot_gasDrop_false_original 1`] = `
 {
   "data": {
-    "routerAddr": "0x6046DD5F660818f9D64Af4536A061D8C3BCE01b9",
+    "routerAddr": "0x50Aed991754603324f879f477b5A6dA5C1427040",
     "shouldRoute": true,
   },
 }
