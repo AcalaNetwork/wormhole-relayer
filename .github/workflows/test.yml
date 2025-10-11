@@ -40,8 +40,8 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: ./coverage
-          # files: ./coverage/lcov.info
+          #directory: ./coverage
+          files: ./coverage/lcov.info
           fail_ci_if_error: true
 
       - name: dump docker logs on failure
