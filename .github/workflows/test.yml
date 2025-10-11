@@ -16,7 +16,9 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: 'yarn'
+
+      - name: setup yarn
+        run: npm install -g yarn@latest
 
       - name: install deps
         run: yarn install --immutable
