@@ -17,4 +17,4 @@ COPY . .
 RUN yarn build
 RUN yarn db:gen
 
-CMD node dist/index.js
+CMD ["node", "dist/index.js"]
