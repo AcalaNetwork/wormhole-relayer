@@ -8,6 +8,9 @@
     "lib/**/*"
   ],
   "repository": "https://github.com/AcalaNetwork/wormhole-relayer/",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf coverage .nyc_output dist/",
