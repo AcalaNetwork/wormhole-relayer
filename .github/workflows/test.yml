@@ -10,15 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v5
         with:
           node-version: 22
-
-      - name: setup yarn
-        run: npm install -g yarn
+          cache: 'yarn'
 
       - name: install deps
         run: yarn install --immutable
