@@ -3,7 +3,7 @@
 exports[`/shouldRouteSwapAndLp > when should route 1`] = `
 {
   "data": {
-    "routerAddr": "0x8ed211e6e940955A8ccF2ec2BA792eDfd7Cca9bD",
+    "routerAddr": "0x91b7B074Ad76264a1B3c28842Dcf252Fdfa1Af68",
     "shouldRoute": true,
   },
 }
@@ -12,7 +12,7 @@ exports[`/shouldRouteSwapAndLp > when should route 1`] = `
 exports[`/shouldRouteSwapAndLp > when should route 2`] = `
 {
   "data": {
-    "routerAddr": "0x8ed211e6e940955A8ccF2ec2BA792eDfd7Cca9bD",
+    "routerAddr": "0x91b7B074Ad76264a1B3c28842Dcf252Fdfa1Af68",
     "shouldRoute": true,
   },
 }

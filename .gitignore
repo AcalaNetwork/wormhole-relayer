@@ -109,3 +109,6 @@ dist
 db.*
 
 .env.prod
+
+.yarn/cache/
+.yarn/install-state.gz
