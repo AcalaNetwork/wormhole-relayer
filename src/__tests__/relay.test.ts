@@ -137,8 +137,7 @@ describe('/shouldRelay', () => {
 });
 
 describe('/relay', () => {
-  // transfer already completed
-  it.skip('relay USDC to user', async () => {
+  it('relay USDC to user', async () => {
     const usdc = ERC20__factory.connect(USDC_ADDR, provider);
     const curBalRelayer = (await usdc.balanceOf(PROD_ADDR)).toBigInt();
     console.log({ curBalRelayer });

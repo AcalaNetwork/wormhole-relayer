@@ -154,8 +154,7 @@ describe('/routeXcm', () => {
 });
 
 describe('/relayAndRoute', () => {
-  // transfer already completed
-  it.skip('when should route', async () => {
+  it('when should route', async () => {
     const { routerAddr } = (await api.shouldRouteXcm(routeXcmArgs)).data;
     console.log({ routerAddr });
 
